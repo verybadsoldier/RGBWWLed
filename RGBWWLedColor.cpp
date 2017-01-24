@@ -152,7 +152,7 @@ void RGBWWColorUtils::whiteBalance(RGBWCT& rgbw, ChannelOutput& output) const {
             int wwfactor = ((_ColdWhiteKelvin - rgbw.ct) * RGBWW_CALC_MAXVAL) /  (_ColdWhiteKelvin - _WarmWhiteKelvin);
             //balance between CW and WW Leds
             output.warmwhite = (rgbw.w * wwfactor) /RGBWW_CALC_MAXVAL;
-            output.coldwhite = (rgbw.w * (1 - wwfactor)) / RGBWW_CALC_MAXVAL;
+            output.coldwhite = rgbw.w - output.warmwhite;
         } else {
             // if kelvin outside range - different calculation algorithm
             // for now we asume a "neutral white" (0.5 CW, 0.5 WW)
