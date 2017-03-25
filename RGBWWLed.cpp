@@ -126,16 +126,6 @@ bool RGBWWLed::show() {
 		}
 	}
 
-	#ifdef ARDUINO
-		//only need this part when using arduino
-		long now = millis();
-		if (now - last_active < RGBWW_MINTIMEDIFF) {
-			// Interval hasn't passed yet
-			return true;
-		}
-		last_active = now;
-	#endif // ARDUINO
-
 	// Interval has passed
 	// check if we need to animate or there is any new animation
 	if (!_isAnimationActive) {
