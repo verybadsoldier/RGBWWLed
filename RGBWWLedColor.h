@@ -153,6 +153,13 @@ struct HSVCT {
     HSVCT(int hue, int sat, int val) : h(hue), s(sat), v(val), ct(0) {}
     HSVCT(int hue, int sat, int val, int ct) : h(hue), s(sat), v(val), ct(ct) {}
 
+    bool operator==(const HSVCT& obj) const {
+        return this->h == obj.h &&
+                this->s == obj.s &&
+                this->v == obj.v &&
+                this->ct == obj.ct;
+    }
+
     //construct from float values
     HSVCT( float hue, float sat, float val) {
     	this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
