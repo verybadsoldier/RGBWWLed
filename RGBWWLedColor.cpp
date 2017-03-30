@@ -26,7 +26,7 @@ void RGBWWColorUtils::setColorMode(RGBWW_COLORMODE mode) {
 }
 
 
-RGBWW_COLORMODE RGBWWColorUtils::getColorMode() {
+RGBWW_COLORMODE RGBWWColorUtils::getColorMode() const {
 	debugRGBW("COLORMODE %i", _colormode);
 	return _colormode;
 }
@@ -38,7 +38,7 @@ void RGBWWColorUtils::setHSVmodel(RGBWW_HSVMODEL model) {
 }
 
 
-RGBWW_HSVMODEL RGBWWColorUtils::getHSVmodel() {
+RGBWW_HSVMODEL RGBWWColorUtils::getHSVmodel() const {
 	debugRGBW("HSVMODE %i", _hsvmodel);
 	return _hsvmodel;
 }
@@ -50,7 +50,7 @@ void RGBWWColorUtils::setWhiteTemperature(int WarmWhite, int ColdWhite) {
 }
 
 
-void RGBWWColorUtils::getWhiteTemperature(int& WarmWhite, int& ColdWhite) {
+void RGBWWColorUtils::getWhiteTemperature(int& WarmWhite, int& ColdWhite) const {
 	WarmWhite = _WarmWhiteKelvin;
 	ColdWhite = _ColdWhiteKelvin;
 }
@@ -66,7 +66,7 @@ void RGBWWColorUtils::setBrightnessCorrection(int r, int g, int b, int ww, int c
 };
 
 
-void RGBWWColorUtils::getBrightnessCorrection(int& r, int& g, int& b, int& ww, int& cw) {
+void RGBWWColorUtils::getBrightnessCorrection(int& r, int& g, int& b, int& ww, int& cw) const {
 	r = (_BrightnessFactor[RGBWW_CHANNELS::RED] * 100) / RGBWW_CALC_MAXVAL;
 	g = (_BrightnessFactor[RGBWW_CHANNELS::GREEN] * 100) / RGBWW_CALC_MAXVAL;
 	b = (_BrightnessFactor[RGBWW_CHANNELS::BLUE] * 100) / RGBWW_CALC_MAXVAL;
@@ -76,7 +76,7 @@ void RGBWWColorUtils::getBrightnessCorrection(int& r, int& g, int& b, int& ww, i
 
 
 
-void RGBWWColorUtils::correctBrightness(ChannelOutput& output) {
+void RGBWWColorUtils::correctBrightness(ChannelOutput& output) const {
 	output.red = (output.red * _BrightnessFactor[RGBWW_CHANNELS::RED]) / RGBWW_CALC_MAXVAL;
 	output.green = (output.green * _BrightnessFactor[RGBWW_CHANNELS::GREEN]) / RGBWW_CALC_MAXVAL;
 	output.blue = (output.blue * _BrightnessFactor[RGBWW_CHANNELS::BLUE]) / RGBWW_CALC_MAXVAL;
@@ -124,7 +124,7 @@ void RGBWWColorUtils::setHSVcorrection(float red, float yellow, float green, flo
 }
 
 
-void RGBWWColorUtils::getHSVcorrection(float& red, float& yellow, float& green, float& cyan, float& blue, float& magenta) {
+void RGBWWColorUtils::getHSVcorrection(float& red, float& yellow, float& green, float& cyan, float& blue, float& magenta) const {
 	red = -1 * (float(_HueWheelSector[6] - 6* RGBWW_CALC_MAXVAL)/ float(RGBWW_CALC_MAXVAL)) * 60.0;
 	yellow = -1 * (float(_HueWheelSector[1] - 1* RGBWW_CALC_MAXVAL)/ float(RGBWW_CALC_MAXVAL)) * 60.0;
 	green = -1 * (float(_HueWheelSector[2] - 2* RGBWW_CALC_MAXVAL)/ float(RGBWW_CALC_MAXVAL)) * 60.0;
@@ -135,7 +135,7 @@ void RGBWWColorUtils::getHSVcorrection(float& red, float& yellow, float& green, 
 }
 
 
- void RGBWWColorUtils::whiteBalance(RGBWCT& rgbw, ChannelOutput& output) {
+ void RGBWWColorUtils::whiteBalance(RGBWCT& rgbw, ChannelOutput& output) const {
 	/*
 	 * White balance will only be done on the w part
 	 * - a calibration is needed in order to be able to calculate the parts of
@@ -189,12 +189,12 @@ void RGBWWColorUtils::getHSVcorrection(float& red, float& yellow, float& green, 
  }
 
 
-void RGBWWColorUtils::HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk) {
+void RGBWWColorUtils::HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 	HSVtoRGB(hsvk, rgbwk, _hsvmodel);
 }
 
 
-void RGBWWColorUtils::HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk, RGBWW_HSVMODEL mode) {
+void RGBWWColorUtils::HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk, RGBWW_HSVMODEL mode) const {
 
 	switch(mode) {
 		case SPEKTRUM: {
@@ -228,7 +228,7 @@ void RGBWWColorUtils::HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk, RGBWW_HSVMODEL 
 #define rainbow_two_third int(rainbow_third *2)
 #define rainbow_sector_width int (RGBWW_CALC_HUEWHEELMAX / 8)
 
-void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) {
+void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 	int val, hue, sat, r, g, b, chroma, m, sector;
 
 	hue = hsvk.h;
@@ -315,7 +315,7 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) {
 }
 
 
-void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) {
+void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 	int val, hue, sat, r, g, b, fract, chroma, half_chroma, m;
 
 	hue = hsvk.h;
@@ -408,7 +408,7 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) {
 
 
 
-void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) {
+void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 	int val, hue, sat, r, g, b, fract, chroma, m;
 
 	hue = hsvk.h;
@@ -517,7 +517,7 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) {
 }
 
 
-void  RGBWWColorUtils::RGBtoHSV(const RGBWCT& rgbw, HSVCT& hsv) {
+void  RGBWWColorUtils::RGBtoHSV(const RGBWCT& rgbw, HSVCT& hsv) const {
 	debugRGBW("RGBWWColorUtils::RGBtoHSV");
 	//TODO: needs implementation
 

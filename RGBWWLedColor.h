@@ -186,13 +186,13 @@ struct HSVCT {
         return *this;
     }
 
-    void asRadian(float& hue, float& sat, float& val) {
+    void asRadian(float& hue, float& sat, float& val) const {
 		hue = (float(h) / float(RGBWW_CALC_HUEWHEELMAX)) * 360.0;
 		sat = (float(s) / float(RGBWW_CALC_MAXVAL)) * 100.0;
 		val = (float(v) / float(RGBWW_CALC_MAXVAL)) * 100.0;
     }
 
-    void asRadian(float& hue, float& sat, float& val, int& ct) {
+    void asRadian(float& hue, float& sat, float& val, int& ct) const {
     	hue = (float(this->h) / float(RGBWW_CALC_HUEWHEELMAX)) * 360.0;
 		sat = (float(this->s) / float(RGBWW_CALC_MAXVAL)) * 100.0;
 		val = (float(this->v) / float(RGBWW_CALC_MAXVAL)) * 100.0;
@@ -244,7 +244,7 @@ public:
 	 *
 	 * @return RGBWW_COLORMODE
 	 */
-	RGBWW_COLORMODE getColorMode();
+	RGBWW_COLORMODE getColorMode() const;
 
 
 	/**
@@ -261,7 +261,7 @@ public:
 	 *
 	 * @return RGBWW_HSVMODEL
 	 */
-	RGBWW_HSVMODEL	getHSVmodel();
+	RGBWW_HSVMODEL	getHSVmodel() const;
 
 
 	/**
@@ -279,7 +279,7 @@ public:
 	 * @param WarmWhite color temperatur of warm white channel in kelvin
 	 * @param ColdWhite color temperature of cold white channel in kelvin
 	 */
-	void getWhiteTemperature(int& WarmWhite, int& ColdWhite);
+	void getWhiteTemperature(int& WarmWhite, int& ColdWhite) const;
 
 
 	/**
@@ -311,7 +311,7 @@ public:
 	 * @param float&	blue
 	 * @param float&	magenta
 	 */
-	void getHSVcorrection(float& red, float& yellow, float& green, float& cyan, float& blue, float& magenta);
+	void getHSVcorrection(float& red, float& yellow, float& green, float& cyan, float& blue, float& magenta) const;
 
 
 	/**
@@ -338,7 +338,7 @@ public:
 	 * @param int&	ww
 	 * @param int&	cw
 	 */
-	void getBrightnessCorrection(int& r, int& g, int& b, int& ww, int& cw);
+	void getBrightnessCorrection(int& r, int& g, int& b, int& ww, int& cw) const ;
 
 
 	/**
@@ -348,7 +348,7 @@ public:
 	 * @param int& 		ww
 	 * @param int&		cw
 	 */
-	void whiteBalance(RGBWCT& rgbw, ChannelOutput& output);
+	void whiteBalance(RGBWCT& rgbw, ChannelOutput& output) const;
 
 
 	/**
@@ -357,7 +357,7 @@ public:
 	 *
 	 * @param int[] color
 	 */
-	void correctBrightness(ChannelOutput& output);
+	void correctBrightness(ChannelOutput& output) const;
 
 
 	/**
@@ -367,7 +367,7 @@ public:
 	 * @param hsvk		HSVK struct with values
 	 * @param rgbwk		RGBWK struct to hold result
 	 */
-	void HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk);
+	void HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk) const;
 
 
 	/**
@@ -377,7 +377,7 @@ public:
 	 * @param rgbwk		RGBWK struct to hold result
 	 * @param mode		conversion model to be used (RGBWW_HSVMODEL)
 	 */
-	void HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk, RGBWW_HSVMODEL mode);
+	void HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk, RGBWW_HSVMODEL mode) const;
 
 
 	/**
@@ -388,7 +388,7 @@ public:
 	 * @param hsvk		HSVK struct with values
 	 * @param rgbwk		RGBWK struct to hold result
 	 */
-	void HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk);
+	void HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const;
 
 
 	/**
@@ -400,7 +400,7 @@ public:
 	 * @param hsvk		HSVK struct with values
 	 * @param rgbwk		RGBWK struct to hold result
 	 */
-	void HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk);
+	void HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const;
 
 
 	/**
@@ -411,14 +411,14 @@ public:
 	 * @param hsvk		HSVK struct with values
 	 * @param rgbwk		RGBWK struct to hold result
 	 */
-	void HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk);
+	void HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const;
 
 	/**
 	 *
 	 * @param rgbwk
 	 * @param hsvk
 	 */
-	void RGBtoHSV(const RGBWCT& rgbwk, HSVCT& hsvk);
+	void RGBtoHSV(const RGBWCT& rgbwk, HSVCT& hsvk) const;
 
 
 	/**
