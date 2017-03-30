@@ -114,16 +114,13 @@ bool RGBWWLed::show() {
 
 
 	// check if we need to cancel effect
-	if (_cancelAnimation || _clearAnimationQueue) {
+	if (_cancelAnimation) {
+		cleanupCurrentAnimation();
+	}
 
-		if (_cancelAnimation ) {
-			cleanupCurrentAnimation();
-		}
-
-		// cleanup Q if we cancel all effects
-		if (_clearAnimationQueue) {
-			cleanupAnimationQ();
-		}
+	// cleanup Q if we cancel all effects
+	if (_clearAnimationQueue) {
+		cleanupAnimationQ();
 	}
 
 	#ifdef ARDUINO
@@ -349,11 +346,13 @@ void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int time
 
 
 void RGBWWLed::cleanupCurrentAnimation() {
-	if (_currentAnimation != NULL) {
-		_isAnimationActive = false;
-		delete _currentAnimation;
-		_currentAnimation = NULL;
-	}
+	if (_currentAnimation == nullptr)
+		return;
+
+	_isAnimationActive = false;
+	delete _currentAnimation;
+	_currentAnimation = NULL;
+	_cancelAnimation = false;
 }
 
 void RGBWWLed::cleanupAnimationQ() {
