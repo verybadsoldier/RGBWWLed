@@ -18,6 +18,7 @@
 
 RGBWWLed::RGBWWLed() {
 	_isAnimationActive = false;
+	_isAnimationPaused = false;
 	_cancelAnimation = false;
 	_clearAnimationQueue = false;
 	_current_color = HSVCT(0, 0, 0);
@@ -111,7 +112,9 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
 
 
 bool RGBWWLed::show() {
-
+	if (_isAnimationPaused) {
+		return false;
+	}
 
 	// check if we need to cancel effect
 	if (_cancelAnimation) {
@@ -161,6 +164,13 @@ bool RGBWWLed::addToQueue(RGBWWLedAnimation* animation) {
 	return _animationQ->push(animation);
 }
 
+void RGBWWLed::pauseAnimation() {
+	_isAnimationPaused = true;
+}
+
+void RGBWWLed::continueAnimation() {
+	_isAnimationPaused = false;
+}
 
 bool RGBWWLed::isAnimationQFull() {
 	return _animationQ->isFull();

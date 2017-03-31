@@ -341,6 +341,8 @@ public:
 	//colorutils
 	RGBWWColorUtils colorutils;
 
+	void pauseAnimation();
+	void continueAnimation();
 
 private:
 	unsigned long last_active;
@@ -349,6 +351,7 @@ private:
 	bool    _cancelAnimation;
 	bool    _clearAnimationQueue;
 	bool    _isAnimationActive;
+	bool    _isAnimationPaused;
 
 	RGBWWLedAnimation*  _currentAnimation;
 	RGBWWLedAnimationQ* _animationQ;
