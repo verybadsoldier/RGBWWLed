@@ -115,6 +115,11 @@ struct ChannelOutput {
 		this->cw = output.cw;
     }
 
+	bool operator==(const ChannelOutput& output) const
+	{
+		return r == output.r && g == output.g && b == output.b && ww == output.ww && cw == output.cw;
+	}
+
 	ChannelOutput& operator= (const ChannelOutput& output)
     {
 		this->r = output.r;

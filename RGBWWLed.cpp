@@ -8,6 +8,7 @@
 #include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
 #include "RGBWWLedAnimation.h"
+#include "RGBWWLedAnimationQ.h"
 #include "RGBWWLedOutput.h"
 
 
@@ -140,15 +141,18 @@ bool RGBWWLed::show() {
 	if (_currentAnimation->run()) {
 		//callback animation finished
 		if(_animationcallback != NULL ){
-			_animationcallback(this);
+			_animationcallback(this, _currentAnimation);
 		}
-		cleanupCurrentAnimation();
+
+		if (_currentAnimation->shouldRequeue())
+		    requeueCurrentAnimation();
+		else
+		    cleanupCurrentAnimation();
 	}
 
 	return false;
 
 }
-
 
 bool RGBWWLed::addToQueue(RGBWWLedAnimation* animation) {
 	return _animationQ->push(animation);
@@ -178,16 +182,14 @@ void RGBWWLed::skipAnimation(){
 	}
 }
 
-
 void RGBWWLed::clearAnimationQueue() {
 	_clearAnimationQueue = true;
 }
 
 
-void RGBWWLed::setAnimationCallback( void (*func)(RGBWWLed* led) ) {
+void RGBWWLed::setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) ) {
   _animationcallback = func;
 }
-
 
 void RGBWWLed::setAnimationSpeed(int speed) {
 	if(_currentAnimation != NULL) {
@@ -195,155 +197,121 @@ void RGBWWLed::setAnimationSpeed(int speed) {
 	}
 }
 
-
 void RGBWWLed::setAnimationBrightness(int brightness){
 	if(_currentAnimation != NULL) {
-			_currentAnimation->setBrightness(brightness);
-		}
+		_currentAnimation->setBrightness(brightness);
+	}
 }
 
-void RGBWWLed::setHSV(HSVCT& color, bool queue /*= false */) {
-	if (!queue) {
-		//not using queue
+void RGBWWLed::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
+	if (queuePolicy == QueuePolicy::Single) {
 		cleanupAnimationQ();
 		cleanupCurrentAnimation();
 	}
-	_animationQ->push(new HSVSetOutput(color, this));
-}
 
+	Serial.printf("Adding animation: %d\n", queuePolicy);
 
-
-void RGBWWLed::setHSV(HSVCT& color, int time, bool  queue /*= false*/) {
-	if (!queue) {
-		//not using queue
-		cleanupAnimationQ();
-		cleanupCurrentAnimation();
-	}
-	_animationQ->push(new HSVSetOutput(color, this, time));
-}
-
-
-void RGBWWLed::fadeHSV(HSVCT& color, int time, bool queue) {
-	fadeHSV( color, time, 1, queue);
-}
-
-
-void RGBWWLed::fadeHSV(HSVCT& color, int time, int direction) {
-	fadeHSV( color, time, direction, false);
-}
-
-
-void RGBWWLed::fadeHSV(HSVCT& color, int time, int direction /* = 1 */, bool queue /* = false */) {
-
-	if (time == 0 || time < RGBWW_MINTIMEDIFF) {
-		// no animation - setting color directly
-		if (!queue) {
-			//not using queue
-			cleanupAnimationQ();
-			cleanupCurrentAnimation();
-		}
-		_animationQ->push(new HSVSetOutput(color, this));
-	} else {
-		if (!queue) {
-			//not using queue
-			cleanupAnimationQ();
-			cleanupCurrentAnimation();
-		}
-		_animationQ->push(new HSVTransition(color, time, direction, this));
-	}
-
-}
-
-
-void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int time, int direction /* = 1 */, bool queue /* = false */) {
-
-	if (colorFrom.h != color.h || colorFrom.s != color.s || colorFrom.v != color.v  || colorFrom.ct != color.ct  ) {
-		if (time == 0 || time < RGBWW_MINTIMEDIFF) {
-			// no animation - setting color directly
-			if (!queue) {
-				//not using queue
-				cleanupAnimationQ();
-				cleanupCurrentAnimation();
+	switch(queuePolicy) {
+		case QueuePolicy::Back:
+		case QueuePolicy::Single:
+			_animationQ->push(pAnim);
+			break;
+		case QueuePolicy::Front:
+		case QueuePolicy::FrontReset:
+			if (_currentAnimation != nullptr) {
+				if (queuePolicy == QueuePolicy::FrontReset)
+					_currentAnimation->reset();
+				_animationQ->pushFront(_currentAnimation);
+				_currentAnimation = NULL;
 			}
-			_animationQ->push(new HSVSetOutput(color, this));
-
-		} else {
-			if (!queue) {
-				//not using queue
-				cleanupAnimationQ();
-				cleanupCurrentAnimation();
-			}
-			_animationQ->push(new HSVTransition(colorFrom, color, time, direction, this));
-
-		}
+			_animationQ->pushFront(pAnim);
+		    _isAnimationActive = false;
+		    _cancelAnimation = false;
+			break;
 	}
 }
 
-
-void RGBWWLed::setRAW(ChannelOutput output, bool queue /* = false */) {
-	if (!queue) {
-		//not using queue
-		cleanupAnimationQ();
-		cleanupCurrentAnimation();
-	}
-	_animationQ->push(new RAWSetOutput(output, this));
-
-}
-
-void RGBWWLed::setRAW(ChannelOutput output, int time, bool queue /* = false */) {
-	if (!queue) {
-		//not using queue
-		cleanupAnimationQ();
-		cleanupCurrentAnimation();
-	}
-	_animationQ->push(new RAWSetOutput(output, this, time));
+void RGBWWLed::blink() {
+	Serial.printf("Blink\n");
+	HSVCT color = getCurrentColor();
+	color.val = (color.val) > 50 ? 0 : 100;
+	pushAnimation(new HSVSetOutput(color, this, 1000), QueuePolicy::Front);
 }
 
 
-void RGBWWLed::fadeRAW(ChannelOutput output, int time, bool queue /* = false */) {
-	if (time == 0 || time < RGBWW_MINTIMEDIFF) {
-		// no animation - setting color directly
-		if (!queue) {
-			//not using queue
-			cleanupAnimationQ();
-			cleanupCurrentAnimation();
-		}
-		_animationQ->push(new RAWSetOutput(output, this));
-	} else {
-		if (!queue) {
-			//not using queue
-			cleanupAnimationQ();
-			cleanupCurrentAnimation();
-		}
-		_animationQ->push(new RAWTransition(output, time, this));
-	}
+void RGBWWLed::setHSV(HSVCT& color, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	pushAnimation(new HSVSetOutput(color, this), queuePolicy);
+}
+
+void RGBWWLed::setHSV(HSVCT& color, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	pushAnimation(new HSVSetOutput(color, this, time), queuePolicy);
 }
 
 
-void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, bool queue /* = false */) {
-	if (output_from.r != output.r || output_from.g != output.g || output_from.b != output.b  ||
-				output_from.ww != output.ww || output_from.cw != output.cw ) {
-		if (time == 0 || time < RGBWW_MINTIMEDIFF) {
-			// no animation - setting color directly
-			if (!queue) {
-				//not using queue
-				cleanupAnimationQ();
-				cleanupCurrentAnimation();
-			}
-			_animationQ->push(new RAWSetOutput(output, this));
-
-		} else {
-			if (!queue) {
-				//not using queue
-				cleanupAnimationQ();
-				cleanupCurrentAnimation();
-			}
-			_animationQ->push(new RAWTransition(output_from, output, time, this));
-
-		}
-	}
+void RGBWWLed::fadeHSV(HSVCT& color, int time,QueuePolicy queuePolicy, bool requeue, const String& name) {
+	fadeHSV( color, time, 1, queuePolicy, requeue, name);
 }
 
+
+void RGBWWLed::fadeHSV(HSVCT& color, int time, int direction, bool requeue, const String& name) {
+	fadeHSV( color, time, direction, QueuePolicy::Single, requeue, name);
+}
+
+
+void RGBWWLed::fadeHSV(HSVCT& color, int time, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	RGBWWLedAnimation* pAnim = NULL;
+	if (time == 0 || time < RGBWW_MINTIMEDIFF)
+		pAnim = new HSVSetOutput(color, this, requeue, name);
+	else
+		pAnim = new HSVTransition(color, time, direction, this, requeue, name);
+
+	pushAnimation(pAnim, queuePolicy);
+}
+
+
+void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int time, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	if (colorFrom == color)
+		return;
+
+	RGBWWLedAnimation* pAnim = NULL;
+	if (time == 0 || time < RGBWW_MINTIMEDIFF)
+		pAnim = new HSVSetOutput(color, this, requeue, name);
+	else
+		pAnim = new HSVTransition(colorFrom, color, time, direction, this, requeue, name);
+	pushAnimation(pAnim, queuePolicy);
+}
+
+void RGBWWLed::setRAW(ChannelOutput output, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	pushAnimation(new RAWSetOutput(output, this, requeue, name), queuePolicy);
+}
+
+void RGBWWLed::setRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	pushAnimation(new RAWSetOutput(output, this, time, requeue, name), queuePolicy);
+}
+
+void RGBWWLed::fadeRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	RGBWWLedAnimation* pAnim = NULL;
+	if (time == 0 || time < RGBWW_MINTIMEDIFF)
+		pAnim = new RAWSetOutput(output, this, requeue, name);
+	else
+		pAnim = new RAWTransition(output, time, this, requeue, name);
+
+	pushAnimation(pAnim, queuePolicy);
+}
+
+
+void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	if (output_from == output)
+		return;
+
+	RGBWWLedAnimation* pAnim = NULL;
+	if (time == 0 || time < RGBWW_MINTIMEDIFF)
+		pAnim = new RAWSetOutput(output, this, requeue, name);
+	else
+		pAnim = new RAWTransition(output_from, output, time, this, requeue, name);
+
+	pushAnimation(pAnim, queuePolicy);
+}
 
 void RGBWWLed::cleanupCurrentAnimation() {
 	if (_currentAnimation == nullptr)
@@ -359,3 +327,18 @@ void RGBWWLed::cleanupAnimationQ() {
 	_animationQ->clear();
 	_clearAnimationQueue = false;
 }
+
+void RGBWWLed::requeueCurrentAnimation() {
+    if (_currentAnimation == nullptr)
+        return;
+
+    Serial.printf("Requeuing...\n");
+
+    _currentAnimation->reset();
+    _animationQ->push(_currentAnimation);
+
+    _currentAnimation = NULL;
+    _isAnimationActive = false;
+    _cancelAnimation = false;
+}
+

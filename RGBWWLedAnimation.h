@@ -6,8 +6,7 @@
  * All files of this project are provided under the LGPL v3 license.
  */
 
-#ifndef RGBWWLedAnimation_h
-#define RGBWWLedAnimation_h
+#pragma once
 #include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
 
@@ -15,69 +14,6 @@
 class RGBWWLed;
 class RGBWWLedAnimation;
 
-/**
- * A simple queue implementation
- *
- */
-class RGBWWLedAnimationQ
-{
-public:
-	RGBWWLedAnimationQ(int qsize);
-	~RGBWWLedAnimationQ();
-
-	/**
-	 * Check if the queue is empty or not
-	 *
-	 * @return	bool
-	 * @retval	true	queue is empty
-	 * @retval	false	queue is not empty
-	 */
-	bool isEmpty();
-
-	/**
-	 * Check if the queue is full
-	 *
-	 * @return	bool
-	 * @retval	true	queue is full
-	 * @retval	false	queue is not full
-	 */
-	bool isFull();
-
-	/**
-	 * Add an animation to the queue
-	 *
-	 * @param 	animation
-	 * @return	if the object was inserted successfully
-	 * @retval 	true 	successfully inserted object
-	 * @retval	false	failed to insert objec
-	 */
-	bool push(RGBWWLedAnimation* animation);
-
-	/**
-	 * Empty queue and delete all objects stored
-	 */
-	void clear();
-
-	/**
-	 * Returns first animation object pointer but keeps it in the queue
-	 *
-	 * @return RGBWWLedAnimation*
-	 */
-	RGBWWLedAnimation*  peek();
-
-	/**
-	 *	Returns first animation object pointer and removes it from queue
-	 *
-	 * @return RGBWWLedAnimation*
-	 */
-	RGBWWLedAnimation*  pop();
-
-
-private:
-	int _size, _count, _front, _back;
-	RGBWWLedAnimation** q;
-
-};
 
 /**
  * Abstract class representing the interface for animations
@@ -86,40 +22,48 @@ private:
 class RGBWWLedAnimation
 {
 public:
+    RGBWWLedAnimation(bool requeue = false, const String& name = "") : _requeue(requeue), _name(name) {};
+
+    virtual ~RGBWWLedAnimation() {};
+    /**
+     * Processing method, will be called from main loop
+     *
+     * @return status of the animation
+     * @retval true     the animation is finished
+     * @retval false    the animation is not finished yet
+     */
+    virtual bool run() {return true;};
 
 
-	virtual ~RGBWWLedAnimation() {};
-	/**
-	 * Processing method, will be called from main loop
-	 *
-	 * @return status of the animation
-	 * @retval true		the animation is finished
-	 * @retval false 	the animation is not finished yet
-	 */
-	virtual bool run() {return true;};
+    /**
+     * Generic interface method for changing a variable
+     * representing the speed of the current active animation
+     *
+     * @param newspeed
+     */
+    virtual void setSpeed(int newspeed) {};
 
+    /**
+     * Generic interface method for changing a variable
+     * representing the brightness of the current active animation
+     *
+     * @param newbrightness
+     */
+    virtual void setBrightness(int newbrightness) {};
 
-	/**
-	 * Generic interface method for changing a variable
-	 * representing the speed of the current active animation
-	 *
-	 * @param newspeed
-	 */
-	virtual void setSpeed(int newspeed) {};
+    /**
+     * Interface to reset the animation so it can run from the beginning
+     *
+     */
+    virtual void reset() {};
 
-	/**
-	 * Generic interface method for changing a variable
-	 * representing the brightness of the current active animation
-	 *
-	 * @param newbrightness
-	 */
-	virtual void setBrightness(int newbrightness) {};
+    bool shouldRequeue() const { return _requeue; }
 
-	/**
-	 * Interface to reset the animation so it can run from the beginning
-	 *
-	 */
-	virtual void reset() {};
+    const String& getName() const { return _name; }
+
+private:
+    bool _requeue = false;
+    String _name;
 };
 
 /**
@@ -130,28 +74,28 @@ class HSVSetOutput: public RGBWWLedAnimation
 {
 public:
 
-	/**
-	 * Set output to color without effect/transition
-	 *
-	 * @param color color to show
-	 * @param ctrl	pointer to RGBWWLed controller object
-	 * @param time  minimal amount of time the color stays active
-	 */
-	HSVSetOutput(const HSVCT& color, RGBWWLed* rgbled, int time = 0);
+    /**
+     * Set output to color without effect/transition
+     *
+     * @param color color to show
+     * @param ctrl  pointer to RGBWWLed controller object
+     * @param time  minimal amount of time the color stays active
+     */
+    HSVSetOutput(const HSVCT& color, RGBWWLed* rgbled, int time = 0, bool requeue = false, const String& name = "");
 
-	bool run();
+    bool run();
 
 
 private:
-	int count;
-	int steps;
-	RGBWWLed* rgbwwctrl;
-	HSVCT outputcolor;
+    int count;
+    int steps;
+    RGBWWLed* rgbwwctrl;
+    HSVCT outputcolor;
 };
 
 
 struct BresenhamValues {
-	int delta, error, count, step;
+    int delta, error, count, step;
 };
 
 /**
@@ -163,48 +107,48 @@ class HSVTransition: public RGBWWLedAnimation
 public:
 
 
-	/**
-	 * Fade from the current color to another color (colorEnd).
-	 *
-	 * @param colorEnd		color at the end
-	 * @param time			the amount of time the transition takes in ms
-	 * @param direction 	shortest (direction == 0)/longest (direction == 1) way for transition
-	 * @param ctrl			main RGBWWLed object for calling setOutput
-	 */
-	HSVTransition(const HSVCT& colorEnd, const int& time, const int& direction, RGBWWLed* ctrl);
+    /**
+     * Fade from the current color to another color (colorEnd).
+     *
+     * @param colorEnd      color at the end
+     * @param time          the amount of time the transition takes in ms
+     * @param direction     shortest (direction == 0)/longest (direction == 1) way for transition
+     * @param ctrl          main RGBWWLed object for calling setOutput
+     */
+    HSVTransition(const HSVCT& colorEnd, const int& time, const int& direction, RGBWWLed* ctrl, bool requeue = false, const String& name = "");
 
-	/**
-	 * Fade from one color (colorFrom) to another color (colorFinish)
-	 *
-	 * @param colorFrom		color at the beginning
-	 * @param colorEnd		color at the end of the transition
-	 * @param time			the amount of time the transition takes in ms
-	 * @param direction 	shortest (direction == 0)/longest (direction == 1) way for transition
-	 * @param ctrl			main RGBWWLed object for calling setOutput
-	 */
-	HSVTransition(const HSVCT& colorFrom, const HSVCT& colorEnd, const int& time, const int& direction, RGBWWLed* ctrl);
+    /**
+     * Fade from one color (colorFrom) to another color (colorFinish)
+     *
+     * @param colorFrom     color at the beginning
+     * @param colorEnd      color at the end of the transition
+     * @param time          the amount of time the transition takes in ms
+     * @param direction     shortest (direction == 0)/longest (direction == 1) way for transition
+     * @param ctrl          main RGBWWLed object for calling setOutput
+     */
+    HSVTransition(const HSVCT& colorFrom, const HSVCT& colorEnd, const int& time, const int& direction, RGBWWLed* ctr, bool requeue = false, const String& name = "");
 
-	void reset();
-	bool run();
+    void reset();
+    bool run();
 
 private:
-	bool init();
+    bool init();
 
-	HSVCT	_basecolor;
-	HSVCT	_currentcolor;
-	HSVCT	_finalcolor;
-	bool	_hasbasecolor;
-	int	_currentstep;
-	int _steps;
-	int _huedirection;
-	BresenhamValues hue;
-	BresenhamValues sat;
-	BresenhamValues val;
-	BresenhamValues ct;
+    HSVCT   _basecolor;
+    HSVCT   _currentcolor;
+    HSVCT   _finalcolor;
+    bool    _hasbasecolor;
+    int _currentstep;
+    int _steps;
+    int _huedirection;
+    BresenhamValues hue;
+    BresenhamValues sat;
+    BresenhamValues val;
+    BresenhamValues ct;
 
 
-	RGBWWLed*    rgbwwctrl;
-	static	int bresenham(BresenhamValues& values, int& dx, int& base, int& current);
+    RGBWWLed*    rgbwwctrl;
+    static  int bresenham(BresenhamValues& values, int& dx, int& base, int& current);
 };
 
 
@@ -217,23 +161,23 @@ class RAWSetOutput: public RGBWWLedAnimation
 {
 public:
 
-	/**
-	 * Set output to color without effect/transition
-	 *
-	 * @param output output to set
-	 * @param ctrl	pointer to RGBWWLed controller object
-	 * @param time  minimal amount of time the output stays active
-	 */
-	RAWSetOutput(const ChannelOutput& output, RGBWWLed* rgbled, int time = 0);
+    /**
+     * Set output to color without effect/transition
+     *
+     * @param output output to set
+     * @param ctrl  pointer to RGBWWLed controller object
+     * @param time  minimal amount of time the output stays active
+     */
+    RAWSetOutput(const ChannelOutput& output, RGBWWLed* rgbled, int time = 0, bool requeue = false, const String& name = "");
 
-	bool run();
+    bool run();
 
 
 private:
-	int count;
-	int steps;
-	RGBWWLed* rgbwwctrl;
-	ChannelOutput outputcolor;
+    int count;
+    int steps;
+    RGBWWLed* rgbwwctrl;
+    ChannelOutput outputcolor;
 };
 
 
@@ -246,46 +190,46 @@ class RAWTransition: public RGBWWLedAnimation
 public:
 
 
-	/**
-	 * Fade from the current output to a new one (output)
-	 *
-	 * @param output		output at the end of the transition
-	 * @param time			the amount of time the transition takes in ms
-	 * @param ctrl			main RGBWWLed object for calling setOutput
-	 */
-	RAWTransition(const ChannelOutput& output, const int& time, RGBWWLed* ctrl);
+    /**
+     * Fade from the current output to a new one (output)
+     *
+     * @param output        output at the end of the transition
+     * @param time          the amount of time the transition takes in ms
+     * @param ctrl          main RGBWWLed object for calling setOutput
+     */
+    RAWTransition(const ChannelOutput& output, const int& time, RGBWWLed* ctrl, bool requeue = false, const String& name = "");
 
-	/**
-	 * Fade from one output state (output_from) to another(output)
-	 *
-	 * @param output_from	output at the beginning
-	 * @param output		output at the end of the transition
-	 * @param time			the amount of time the transition takes in ms
-	 * @param ctrl			main RGBWWLed object for calling setOutput
-	 */
-	RAWTransition(const ChannelOutput& output_from, const ChannelOutput& output, const int& time, RGBWWLed* ctrl);
+    /**
+     * Fade from one output state (output_from) to another(output)
+     *
+     * @param output_from   output at the beginning
+     * @param output        output at the end of the transition
+     * @param time          the amount of time the transition takes in ms
+     * @param ctrl          main RGBWWLed object for calling setOutput
+     */
+    RAWTransition(const ChannelOutput& output_from, const ChannelOutput& output, const int& time, RGBWWLed* ctrl, bool requeue = false, const String& name = "");
 
-	void reset();
-	bool run();
+    void reset();
+    bool run();
 
 private:
-	bool init();
+    bool init();
 
-	ChannelOutput	_basecolor;
-	ChannelOutput	_currentcolor;
-	ChannelOutput	_finalcolor;
-	bool	_hasbasecolor;
-	int	_currentstep;
-	int _steps;
-	BresenhamValues red;
-	BresenhamValues green;
-	BresenhamValues blue;
-	BresenhamValues warmwhite;
-	BresenhamValues coldwhite;
+    ChannelOutput   _basecolor;
+    ChannelOutput   _currentcolor;
+    ChannelOutput   _finalcolor;
+    bool    _hasbasecolor;
+    int _currentstep;
+    int _steps;
+    BresenhamValues red;
+    BresenhamValues green;
+    BresenhamValues blue;
+    BresenhamValues warmwhite;
+    BresenhamValues coldwhite;
 
 
-	RGBWWLed*    rgbwwctrl;
-	static	int bresenham(BresenhamValues& values, int& dx, int& base, int& current);
+    RGBWWLed*    rgbwwctrl;
+    static  int bresenham(BresenhamValues& values, int& dx, int& base, int& current);
 };
 
 
@@ -294,40 +238,38 @@ private:
  */
 class RGBWWAnimationSet: public RGBWWLedAnimation {
 public:
-	/**
-	 *
-	 * @param animations
-	 * @param count
-	 * @param loop
-	 */
-	RGBWWAnimationSet(RGBWWLedAnimation** animations, int count, bool loop=false);
+    /**
+     *
+     * @param animations
+     * @param count
+     * @param loop
+     */
+    RGBWWAnimationSet(RGBWWLedAnimation** animations, int count, bool loop=false, bool requeue = false, const String& name = "");
 
-	~RGBWWAnimationSet();
-
-
-	/**
-	 *
-	 * @param newspeed
-	 */
-	void setSpeed(int newspeed);
+    ~RGBWWAnimationSet();
 
 
-	/**
-	 *
-	 * @param newbrightness
-	 */
-	void setBrightness(int newbrightness);
+    /**
+     *
+     * @param newspeed
+     */
+    void setSpeed(int newspeed);
 
-	bool run();
+
+    /**
+     *
+     * @param newbrightness
+     */
+    void setBrightness(int newbrightness);
+
+    bool run();
 
 private:
-	int _current = 0;
-	int _count;
-	int _brightness = -1;
-	int _speed = -1;
-	bool _loop;
-	RGBWWLedAnimation** q;
+    int _current = 0;
+    int _count;
+    int _brightness = -1;
+    int _speed = -1;
+    bool _loop;
+    RGBWWLedAnimation** q;
 
 };
-
-#endif // RGBWWLedAnimation_h
