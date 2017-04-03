@@ -7,7 +7,11 @@
 
 #include "RGBWWAnimatedChannel.h"
 
-RGBWWAnimatedChannel::RGBWWAnimatedChannel() {
+#include "RGBWWLedAnimation.h"
+#include "RGBWWLedAnimationQ.h"
+
+
+RGBWWAnimatedChannel::RGBWWAnimatedChannel(RGBWWLed* rgbled) : _rgbled(rgbled), _animationQ(new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE)) {
 }
 
 RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
@@ -74,7 +78,7 @@ bool RGBWWAnimatedChannel::process() {
     if (_currentAnimation->run()) {
         //callback animation finished
         if(_animationcallback != NULL ){
-            _animationcallback(this, _currentAnimation);
+            _animationcallback(_rgbled, _currentAnimation);
         }
 
         if (_currentAnimation->shouldRequeue())
@@ -129,34 +133,6 @@ void RGBWWAnimatedChannel::setAnimationSpeed(int speed) {
 void RGBWWAnimatedChannel::setAnimationBrightness(int brightness){
     if(_currentAnimation != NULL) {
         _currentAnimation->setBrightness(brightness);
-    }
-}
-
-void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
-    if (queuePolicy == QueuePolicy::Single) {
-        cleanupAnimationQ();
-        cleanupCurrentAnimation();
-    }
-
-    Serial.printf("Adding animation: %d\n", queuePolicy);
-
-    switch(queuePolicy) {
-        case QueuePolicy::Back:
-        case QueuePolicy::Single:
-            _animationQ->push(pAnim);
-            break;
-        case QueuePolicy::Front:
-        case QueuePolicy::FrontReset:
-            if (_currentAnimation != nullptr) {
-                if (queuePolicy == QueuePolicy::FrontReset)
-                    _currentAnimation->reset();
-                _animationQ->pushFront(_currentAnimation);
-                _currentAnimation = NULL;
-            }
-            _animationQ->pushFront(pAnim);
-            _isAnimationActive = false;
-            _cancelAnimation = false;
-            break;
     }
 }
 

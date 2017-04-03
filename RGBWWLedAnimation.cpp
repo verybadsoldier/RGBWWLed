@@ -10,12 +10,19 @@
 #include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
 
+RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : _rgbled(rgbled),
+																																_ctrlChannel(ch),
+																																_requeue(requeue),
+																																_name(name) {
+}
+
+
 int RGBWWLedAnimation::getBaseValue() const {
 	const HSVCT& c = _rgbled->getCurrentColor();
-	const ChannelOutput& o = _rgbled->getChannelOutput();
+	const ChannelOutput& o = _rgbled->getCurrentOutput();
 
 	switch(_ctrlChannel) {
-	case CtrlChannel::Hsv:
+	case CtrlChannel::Hue:
 		return c.hue;
 		break;
 	case CtrlChannel::Sat:
@@ -46,17 +53,17 @@ int RGBWWLedAnimation::getBaseValue() const {
 	}
 }
 
-AnimSetAndStay::AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : RGBWWLedAnimation(rgbled, ch, requeue, name),
-																											_value(endVal) {
+AnimSetAndStay::AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name) {
+	_value = endVal;
     if (time > 0) {
-        _steps = ramp / RGBWW_MINTIMEDIFF;
+        _steps = time / RGBWW_MINTIMEDIFF;
     }
 }
 
 bool AnimSetAndStay::run() {
-    count += 1;
-    if (steps != 0) {
-        if (count < steps) {
+    _count += 1;
+    if (_steps != 0) {
+        if (_count < _steps) {
             return false;
         }
     }
@@ -64,21 +71,21 @@ bool AnimSetAndStay::run() {
     return true;
 }
 
-AnimTransition::AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : RGBWWLedAnimation(rgbled, ch, requeue, name) {
+AnimTransition::AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name) {
     _finalval = endVal;
     _baseval = false;
-    _steps = time / RGBWW_MINTIMEDIFF;
+    _steps = ramp / RGBWW_MINTIMEDIFF;
     _currentstep = 0;
 }
 
-AnimTransition::AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
+AnimTransition::AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
 	_baseval = startVal;
     _hasbaseval = true;
 }
 
 bool AnimTransition::init() {
     int l, r, d;
-    if (!_hasbasecolor) {
+    if (!_hasbaseval) {
     	_baseval = getBaseValue();
     }
     _value = _baseval;
@@ -86,10 +93,10 @@ bool AnimTransition::init() {
     //calculate steps per time
     _steps = (_steps > 0) ? _steps : int(1); //avoid 0 division
 
-    _bresenham.delta = abs(_baseval.v - _finalval.v);
+    _bresenham.delta = abs(_baseval - _finalval);
     _bresenham.step = 1;
     _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8)/_steps;
-    _bresenham.step = (_baseval.v > _finalval.v) ? _bresenham.step*=-1 : _bresenham.step;
+    _bresenham.step = (_baseval > _finalval) ? _bresenham.step*=-1 : _bresenham.step;
     _bresenham.error = -1*_steps;
     _bresenham.count = 0;
 
@@ -118,11 +125,26 @@ bool AnimTransition::run () {
     return false;
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
+int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& current) {
+    //more information on bresenham:
+    //https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
+    values.error = values.error + 2 * values.delta;
+    if (values.error > 0) {
+        values.count += 1;
+        values.error = values.error - 2*dx;
+        return base + ((values.count * values.step) >> 8);
+    }
+    return current;
+}
+
+
+///////////////////////////////
+
+AnimTransitionCircularHue::AnimTransitionCircularHue(int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
     _direction = direction;
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : AnimTransitionCircular(endVal, ramp, direction, rgbled, ch, requeue, name) {
+AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : AnimTransitionCircularHue(endVal, ramp, direction, rgbled, ch, requeue, name) {
 	_baseval = startVal;
     _hasbaseval = true;
 }
@@ -162,13 +184,13 @@ bool AnimTransitionCircularHue::run() {
 
 	RGBWWColorUtils::circleHue(_value);
 
-	return;
+	return result;
 }
 
 /**************************************************************
  *               HSVSetOutput
  **************************************************************/
-
+#if 0
 
 HSVSetOutput::HSVSetOutput(const HSVCT& color, RGBWWLed* ctrl, int time /* = 0 */, bool requeue, const String& name) : RGBWWLedAnimation(requeue, name) {
     outputcolor = color;
@@ -528,3 +550,4 @@ bool RGBWWAnimationSet::run(){
 
     return false; //continuing animation
 };
+#endif

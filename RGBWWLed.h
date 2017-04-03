@@ -37,31 +37,10 @@
 #define RGBWWLed_h
 #include <Arduino.h>
 #include "../../Wiring/WHashMap.h"
-#ifdef SMING_VERSION
-	#define RGBWW_USE_ESP_HWPWM
-	#include "../../SmingCore/SmingCore.h"
-	#define RGBWW_PWMRESOLUTION 65536
-	#define RGBWW_CALC_DEPTH 10
-#else
-	#define RGBWW_PWMRESOLUTION 1023
-	#define RGBWW_CALC_DEPTH 8
-#endif
-
-#define RGBWW_VERSION "0.8.1-vbs1b"
-#define RGBWW_CALC_WIDTH int(pow(2, RGBWW_CALC_DEPTH))
-#define	RGBWW_CALC_MAXVAL int(RGBWW_CALC_WIDTH - 1)
-#define	RGBWW_CALC_HUEWHEELMAX int(RGBWW_CALC_MAXVAL * 6)
-
-
-#define RGBWW_UPDATEFREQUENCY 50
-#define RGBWW_MINTIMEDIFF  int(1000 / RGBWW_UPDATEFREQUENCY)
-#define RGBWW_ANIMATIONQSIZE 100
-#define	RGBWW_WARMWHITEKELVIN 2700
-#define RGBWW_COLDWHITEKELVIN 6000
-
+#include "RGBWWTypes.h"
 
 #ifndef DEBUG_RGBWW
-	#define DEBUG_RGBWW 0
+	#define DEBUG_RGBWW 1
 #endif
 
 #include "debugUtils.h"
@@ -69,7 +48,7 @@
 #include "RGBWWLedColor.h"
 #include "RGBWWLedAnimation.h"
 #include "RGBWWLedOutput.h"
-
+#include "RGBWWTypes.h"
 
 
 class RGBWWLedAnimation;
@@ -78,12 +57,6 @@ class RGBWWColorUtils;
 class PWMOutput;
 class RGBWWAnimatedChannel;
 
-enum class QueuePolicy {
-    FrontReset, // queue to front and let the original anim run from the beginning afterwards
-    Front, // queue to front and the current animation will continue where it was interrupted
-    Back,
-    Single,
-};
 
 /**
  *
@@ -169,14 +142,14 @@ public:
 	 *
 	 * @return HSVK current color
 	 */
-	HSVCT getCurrentColor();
+	HSVCT getCurrentColor() const;
 
 	/**
 	 * Returns the current values for each channel
 	 *
 	 * #return ChannelOutput current value of all channels
 	 */
-	ChannelOutput getCurrentOutput();
+	ChannelOutput getCurrentOutput() const;
 
 
 	/**
@@ -218,7 +191,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(HSVCT& color, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(HSVCT& color, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
 
 
 	/**
@@ -229,9 +202,9 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(HSVCT& color, int time, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
 
-#if 0
+
 	/**
 	 * Fade from one color (colorFrom) to another color
 	 *
@@ -242,7 +215,7 @@ public:
 	 * @param queue		directly execute fade or queue it
 	 */
 	void fadeHSV(HSVCT& colorFrom, HSVCT& color, int time, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
-#endif
+
 	//TODO: add documentation
 	/**
 	 *
@@ -270,7 +243,6 @@ public:
 	 */
 	void fadeRAW(ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
-#if 0
 	//TODO: add documentation
 	/**
 	 *
@@ -280,7 +252,6 @@ public:
 	 * @param queue
 	 */
 	void fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
-#endif
 
 
 	void blink();
@@ -291,25 +262,13 @@ public:
 	void pauseAnimation();
 	void continueAnimation();
 
+    void clearAnimationQueue();
+    void skipAnimation();
+    void setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) );
+
+
 private:
-	enum class CtrlChannel {
-	    Hue,
-	    Sat,
-	    Val,
-	    ColorTemp,
-
-		Red,
-		Green,
-		Blue,
-		ColdWhite,
-		WarmWhite,
-	};
-
-    enum class ColorMode {
-        Hsv,
-        Rgb,
-        Raw,
-    };
+    void getAnimChannelHsvColor(HSVCT& c);
 
 	ChannelOutput  	_current_output;
 	HSVCT 			_current_color;

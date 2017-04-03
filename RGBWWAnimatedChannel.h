@@ -7,9 +7,17 @@
 
 #pragma once
 
+#include "RGBWWTypes.h"
+#include "RGBWWconst.h"
+
+class RGBWWLed;
+class RGBWWLedAnimation;
+class RGBWWLedAnimationQ;
+
+
 class RGBWWAnimatedChannel {
 public:
-    RGBWWAnimatedChannel();
+    RGBWWAnimatedChannel(RGBWWLed* rgbled);
     virtual ~RGBWWAnimatedChannel();
 
     bool process();
@@ -77,7 +85,11 @@ public:
 
     void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
 
+    void pauseAnimation();
+    void continueAnimation();
+
 private:
+    RGBWWLed* _rgbled;
     int     _value = 0;
     bool    _cancelAnimation = false;
     bool    _clearAnimationQueue = false;
@@ -85,7 +97,7 @@ private:
     bool    _isAnimationPaused = false;
 
     RGBWWLedAnimation*  _currentAnimation = nullptr;
-    RGBWWLedAnimationQ* _animationQ = new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE);
+    RGBWWLedAnimationQ* _animationQ;
 
     void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = nullptr;
 

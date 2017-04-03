@@ -5,9 +5,12 @@
  *
  * All files of this project are provided under the LGPL v3 license.
  */
-#ifndef RGBWWLedColor_h
-#define RGBWWLedColor_h
-#include "RGBWWLed.h"
+#pragma once
+
+#include "../../SmingCore/SmingCore.h"
+#include "../Wiring/WConstants.h"
+#include "RGBWWconst.h"
+
 
 enum RGBWW_COLORMODE {
 	RGB = 0,
@@ -163,6 +166,10 @@ struct HSVCT {
                 this->s == obj.s &&
                 this->v == obj.v &&
                 this->ct == obj.ct;
+    }
+
+    bool operator!=(const HSVCT& obj) const {
+        return !(*this == obj);
     }
 
     //construct from float values
@@ -455,5 +462,3 @@ private:
 	void    	createHueWheel();
 
 };
-
-#endif
