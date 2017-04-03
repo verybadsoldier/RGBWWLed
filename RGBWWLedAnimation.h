@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include "RGBWWLed.h"
+#include "RGBWWTypes.h"
 #include "RGBWWLedColor.h"
 
 
@@ -22,7 +22,7 @@ class RGBWWLedAnimation;
 class RGBWWLedAnimation
 {
 public:
-    RGBWWLedAnimation(bool requeue = false, const String& name = "") : _requeue(requeue), _name(name) {};
+    RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual ~RGBWWLedAnimation() {};
     /**
@@ -61,11 +61,67 @@ public:
 
     const String& getName() const { return _name; }
 
-private:
-    bool _requeue = false;
-    String _name;
+    int getAnimValue() const { return _value; }
+
+
+protected:
+    int getBaseValue() const;
+
+    RGBWWLed const * _rgbled = nullptr;
+    CtrlChannel _ctrlChannel = CtrlChannel::None;
+    const bool _requeue = false;
+    const String _name;
+    int _value = 0;
 };
 
+class AnimSetAndStay : public RGBWWLedAnimation {
+public:
+    AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+
+    virtual bool run() override;
+    virtual void reset() override;
+
+private:
+    int _currentstep = 0;
+    int _steps = 0;
+};
+
+class AnimTransition : public RGBWWLedAnimation {
+public:
+    AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+
+    virtual bool run() override;
+    virtual void reset() override;
+
+protected:
+    int bresenham(BresenhamValues& values, int& dx, int& base, int& current);
+
+    virtual bool init();
+
+    int   				_baseval = 0;
+    int   				_currentval = 0;
+    int   				_finalval = 0;
+    bool  				_hasbaseval = false;
+    int  				_currentstep = 0;
+    int  				_steps = 0;
+    BresenhamValues 	_bresenham;
+};
+
+class AnimTransitionCircularHue : public AnimTransition {
+public:
+	AnimTransitionCircularHue(int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+
+    virtual bool run() override;
+
+private:
+    virtual bool init();
+
+    int _direction = 0;
+};
+
+#if 0
 /**
  * Set output to color without effect/transition
  *
@@ -91,11 +147,6 @@ private:
     int steps;
     RGBWWLed* rgbwwctrl;
     HSVCT outputcolor;
-};
-
-
-struct BresenhamValues {
-    int delta, error, count, step;
 };
 
 /**
@@ -266,10 +317,12 @@ public:
 
 private:
     int _current = 0;
-    int _count;
+    int _currentstep;
     int _brightness = -1;
     int _speed = -1;
     bool _loop;
     RGBWWLedAnimation** q;
 
 };
+
+#endif

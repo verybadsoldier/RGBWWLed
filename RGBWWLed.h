@@ -36,28 +36,8 @@
 #ifndef RGBWWLed_h
 #define RGBWWLed_h
 #include <Arduino.h>
-#ifdef SMING_VERSION
-	#define RGBWW_USE_ESP_HWPWM
-	#include "../../SmingCore/SmingCore.h"
-	#define RGBWW_PWMRESOLUTION 65536
-	#define RGBWW_CALC_DEPTH 10
-#else
-	#define RGBWW_PWMRESOLUTION 1023
-	#define RGBWW_CALC_DEPTH 8
-#endif
-
-#define RGBWW_VERSION "0.8.1-vbs1b"
-#define RGBWW_CALC_WIDTH int(pow(2, RGBWW_CALC_DEPTH))
-#define	RGBWW_CALC_MAXVAL int(RGBWW_CALC_WIDTH - 1)
-#define	RGBWW_CALC_HUEWHEELMAX int(RGBWW_CALC_MAXVAL * 6)
-
-
-#define RGBWW_UPDATEFREQUENCY 50
-#define RGBWW_MINTIMEDIFF  int(1000 / RGBWW_UPDATEFREQUENCY)
-#define RGBWW_ANIMATIONQSIZE 100
-#define	RGBWW_WARMWHITEKELVIN 2700
-#define RGBWW_COLDWHITEKELVIN 6000
-
+#include "../../Wiring/WHashMap.h"
+#include "RGBWWTypes.h"
 
 #ifndef DEBUG_RGBWW
 	#define DEBUG_RGBWW 0
@@ -68,20 +48,15 @@
 #include "RGBWWLedColor.h"
 #include "RGBWWLedAnimation.h"
 #include "RGBWWLedOutput.h"
-
+#include "RGBWWTypes.h"
 
 
 class RGBWWLedAnimation;
 class RGBWWLedAnimationQ;
 class RGBWWColorUtils;
 class PWMOutput;
+class RGBWWAnimatedChannel;
 
-enum class QueuePolicy {
-    FrontReset, // queue to front and let the original anim run from the beginning afterwards
-    Front, // queue to front and the current animation will continue where it was interrupted
-    Back,
-    Single,
-};
 
 /**
  *
@@ -91,6 +66,8 @@ class RGBWWLed
 public:
 	RGBWWLed();
 	~RGBWWLed();
+
+	typedef Vector<CtrlChannel> ChannelList;
 
 	/**
 	 * Initialize the the LED Controller
@@ -167,14 +144,14 @@ public:
 	 *
 	 * @return HSVK current color
 	 */
-	HSVCT getCurrentColor();
+	const HSVCT& getCurrentColor() const;
 
 	/**
 	 * Returns the current values for each channel
 	 *
 	 * #return ChannelOutput current value of all channels
 	 */
-	ChannelOutput getCurrentOutput();
+	const ChannelOutput& getCurrentOutput() const;
 
 
 	/**
@@ -184,7 +161,7 @@ public:
 	 * @param color
 	 * @param queue
 	 */
-	void setHSV(HSVCT& color, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void setHSV(const HSVCT& color, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -196,7 +173,7 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void setHSV(HSVCT& color, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void setHSV(const HSVCT& color, int time, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -206,7 +183,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param direction direction of transition (0= long/ 1=short)
 	 */
-	void fadeHSV(HSVCT& color, int time, int direction, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& color, int ramp, int direction, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -216,7 +193,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(HSVCT& color, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& color, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -227,7 +204,7 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(HSVCT& color, int time, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -239,25 +216,14 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(HSVCT& colorFrom, HSVCT& color, int time, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& colorFrom, const HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 	//TODO: add documentation
 	/**
 	 *
 	 * @param output
 	 */
-	void setRAW(ChannelOutput output, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
-
-	//TODO: add documentation
-	/**
-	 *
-	 * @param output
-	 * @param time
-	 * @param queue
-	 */
-	void setRAW(ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
-
-
+	void setRAW(const ChannelOutput& output, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 	//TODO: add documentation
 	/**
@@ -266,8 +232,18 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void fadeRAW(ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	void setRAW(const ChannelOutput& output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
+
+
+	//TODO: add documentation
+	/**
+	 *
+	 * @param output
+	 * @param time
+	 * @param queue
+	 */
+	void fadeRAW(const ChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "" );
 
 	//TODO: add documentation
 	/**
@@ -277,102 +253,47 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	void fadeRAW(const ChannelOutput& output_from, const ChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "" );
 
-	/**
-	 * Set a function as callback when an animation has finished.
-	 *
-	 * Example use case would be, to save the current color to flash
-	 * after an animation has finished to preserve it after a powerloss
-	 *
-	 * @param func
-	 */
-	void setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) );
-
-
-	/**
-	 * Check if an animation is currently active
-	 *
-	 * @retval true if an animation is currently active
-	 * @retval false if no animation is active
-	 */
-	bool isAnimationActive();
-
-
-	/**
-	 * Check if the AnimationQueue is full
-	 *
-	 * @retval true queue is full
-	 * @retval false queue is not full
-	 */
-	bool isAnimationQFull();
-
-	/**
-	 * skip the current animation
-	 *
-	 */
-	void skipAnimation();
-
-
-	/**
-	 * Cancel all animations in the queue
-	 *
-	 */
-	void clearAnimationQueue();
-
-
-	/**
-	 * Change the speed of the current running animation
-	 *
-	 * @param speed
-	 */
-	void setAnimationSpeed(int speed);
-
-
-	/**
-	 * Change the brightness of the current animation
-	 *
-	 * @param brightness
-	 */
-	void setAnimationBrightness(int brightness);
-
-	/**
-	 * Add animation to animation Qeueue
-	 *
-	 * @param animation Animation object
-	 * @return true on success / false on failure;
-	 */
-	bool addToQueue(RGBWWLedAnimation* animation);
-
-	void blink();
+	void blink(int time=1000);
 
 	//colorutils
 	RGBWWColorUtils colorutils;
 
-	void pauseAnimation();
-	void continueAnimation();
+	void pauseAnimation(const ChannelList& channels = ChannelList());
+	void continueAnimation(const ChannelList& channels = ChannelList());
+
+    void clearAnimationQueue(const ChannelList& channels = ChannelList());
+    void skipAnimation(const ChannelList& channels = ChannelList());
+
+    void setAnimationCallback(void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim));
 
 private:
-	void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
+    typedef HashMap<CtrlChannel, RGBWWAnimatedChannel*> ChannelGroup;
 
-	unsigned long last_active;
-	ChannelOutput  _current_output;
-	HSVCT 	_current_color;
-	bool    _cancelAnimation;
-	bool    _clearAnimationQueue;
-	bool    _isAnimationActive;
-	bool    _isAnimationPaused;
+    void pushAnimSetAndStay(int val, int time, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+    void pushAnimTransition(int val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+    void pushAnimTransition(int from, int val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+	void pushAnimTransitionCircularHue(int from, int val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+	void pushAnimTransitionCircularHue(int val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
 
-	RGBWWLedAnimation*  _currentAnimation;
-	RGBWWLedAnimationQ* _animationQ;
-	PWMOutput* _pwm_output;
+    void dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, QueuePolicy queuePolicy, const ChannelList& channels);
 
-	void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = NULL;
+    void getAnimChannelHsvColor(HSVCT& c);
+    void getAnimChannelRawOutput(ChannelOutput& o);
+    void callForChannels(const ChannelGroup& group, void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels = ChannelList());
 
-	//helpers
-	void cleanupCurrentAnimation();
-	void cleanupAnimationQ();
-	void requeueCurrentAnimation();
+	ChannelOutput  	_current_output;
+	HSVCT 			_current_color;
+
+	PWMOutput* 		_pwm_output;
+
+	ChannelGroup _animChannelsHsv;
+	ChannelGroup _animChannelsRaw;
+
+	void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = nullptr;
+
+	ColorMode _mode = ColorMode::Hsv;
 };
 
 #endif //RGBWWLed_h

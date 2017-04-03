@@ -5,9 +5,12 @@
  *
  * All files of this project are provided under the LGPL v3 license.
  */
-#ifndef RGBWWLedColor_h
-#define RGBWWLedColor_h
-#include "RGBWWLed.h"
+#pragma once
+
+#include "../../SmingCore/SmingCore.h"
+#include "../Wiring/WConstants.h"
+#include "RGBWWconst.h"
+
 
 enum RGBWW_COLORMODE {
 	RGB = 0,
@@ -120,6 +123,10 @@ struct ChannelOutput {
 		return r == output.r && g == output.g && b == output.b && ww == output.ww && cw == output.cw;
 	}
 
+    bool operator!=(const ChannelOutput& obj) const {
+        return !(*this == obj);
+    }
+
 	ChannelOutput& operator= (const ChannelOutput& output)
     {
 		this->r = output.r;
@@ -158,13 +165,6 @@ struct HSVCT {
     HSVCT(int hue, int sat, int val) : h(hue), s(sat), v(val), ct(0) {}
     HSVCT(int hue, int sat, int val, int ct) : h(hue), s(sat), v(val), ct(ct) {}
 
-    bool operator==(const HSVCT& obj) const {
-        return this->h == obj.h &&
-                this->s == obj.s &&
-                this->v == obj.v &&
-                this->ct == obj.ct;
-    }
-
     //construct from float values
     HSVCT( float hue, float sat, float val) {
     	this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
@@ -174,11 +174,8 @@ struct HSVCT {
     	this->ct = 0;
     }
 
-    HSVCT( float hue, float sat, float val, int ct) {
-    	this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
-        this->s = (constrain(sat, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
-        this->v = (constrain(val, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
-        this->ct = constrain(ct, 0, 10000);
+    HSVCT( float hue, float sat, float val, int ct) : HSVCT(hue, sat, val) {
+    	ct = constrain(ct, 0, 10000);
     }
 
     HSVCT(const HSVCT& hsvk)
@@ -188,6 +185,19 @@ struct HSVCT {
         this->v = hsvk.v;
         this->ct = hsvk.ct;
     }
+
+
+    bool operator==(const HSVCT& obj) const {
+        return this->h == obj.h &&
+                this->s == obj.s &&
+                this->v == obj.v &&
+                this->ct == obj.ct;
+    }
+
+    bool operator!=(const HSVCT& obj) const {
+        return !(*this == obj);
+    }
+
 
     HSVCT& operator= (const HSVCT& hsvct)
     {
@@ -210,9 +220,6 @@ struct HSVCT {
 		val = (float(this->v) / float(RGBWW_CALC_MAXVAL)) * 100.0;
 		ct = this->ct;
     }
-
-
-
 };
 
 
@@ -455,5 +462,3 @@ private:
 	void    	createHueWheel();
 
 };
-
-#endif

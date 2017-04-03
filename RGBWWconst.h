@@ -6,8 +6,32 @@
  * All files of this project are provided under the LGPL v3 license.
  */
 
-#ifndef RGBWWCONST_H_
-#define RGBWWCONST_H_
+#pragma once
+
+#include "../../SmingCore/SmingCore.h"
+
+
+#ifdef SMING_VERSION
+	#define RGBWW_USE_ESP_HWPWM
+	#include "../../SmingCore/SmingCore.h"
+	#define RGBWW_PWMRESOLUTION 65536
+	#define RGBWW_CALC_DEPTH 10
+#else
+	#define RGBWW_PWMRESOLUTION 1023
+	#define RGBWW_CALC_DEPTH 8
+#endif
+
+#define RGBWW_VERSION "0.8.1-vbs1b"
+#define RGBWW_CALC_WIDTH int(pow(2, RGBWW_CALC_DEPTH))
+#define	RGBWW_CALC_MAXVAL int(RGBWW_CALC_WIDTH - 1)
+#define	RGBWW_CALC_HUEWHEELMAX int(RGBWW_CALC_MAXVAL * 6)
+
+
+#define RGBWW_UPDATEFREQUENCY 50
+#define RGBWW_MINTIMEDIFF  int(1000 / RGBWW_UPDATEFREQUENCY)
+#define RGBWW_ANIMATIONQSIZE 100
+#define	RGBWW_WARMWHITEKELVIN 2700
+#define RGBWW_COLDWHITEKELVIN 6000
 
 #if RGBWW_CALC_DEPTH == 8
 
@@ -317,7 +341,3 @@ const uint16_t RGBWW_dim_curve[1024] = {
 };
 #endif // RGBWW_PWMRESOLUTION
 #endif // RGBWW_CALC_DEPTH
-
-
-
-#endif // RGBWWCONST_H_
