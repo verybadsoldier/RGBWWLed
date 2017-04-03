@@ -22,7 +22,7 @@ class RGBWWLedAnimation;
 class RGBWWLedAnimation
 {
 public:
-    RGBWWLedAnimation(bool requeue = false, const String& name = "") : _requeue(requeue), _name(name) {};
+    RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : _rgbww(rgbled), _ctrlChannel(ch),_requeue(requeue), _name(name) {};
 
     virtual ~RGBWWLedAnimation() {};
     /**
@@ -61,9 +61,58 @@ public:
 
     const String& getName() const { return _name; }
 
+    int getAnimValue() const { return _value; }
+
+protected:
+    int getBaseValue() const;
+
 private:
-    bool _requeue = false;
-    String _name;
+    RGBWWLed const * _rgbled = nullptr;
+    CtrlChannel _ctrlChannel;
+    const bool _requeue = false;
+    const String _name;
+
+    int _value = 0;
+};
+
+class AnimSetAndStay : public RGBWWLedAnimation {
+    AnimSetAndStay(int endVal, int time = 0, bool requeue = false, const String& name = "");
+
+    virtual bool run() override;
+
+private:
+    int _count = 0;
+    int _steps = 0;
+};
+
+class AnimTransition : public RGBWWLedAnimation {
+    AnimTransition(int endVal, int ramp, bool requeue = false, const String& name = "");
+    AnimTransition(int startVal, int endVal, int ramp, bool requeue = false, const String& name = "");
+
+    virtual bool run() override;
+
+private:
+    virtual bool init();
+
+    int   				_baseval;
+    int   				_currentval;
+    int   				_finalval;
+    bool  				_hasbaseval;
+    int  				_currentstep;
+    int  				_steps;
+    BresenhamValues 	_bresenham;
+};
+
+class AnimTransitionCircularHue : public AnimTransition {
+	AnimTransitionCircularHue(int endVal, int ramp, int direction, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, bool requeue = false, const String& name = "");
+
+    virtual bool run() override;
+
+private:
+    virtual bool init();
+
+    int _direction = 0;
 };
 
 /**

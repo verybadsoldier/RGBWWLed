@@ -10,6 +10,161 @@
 #include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
 
+int RGBWWLedAnimation::getBaseValue() const {
+	const HSVCT& c = _rgbled->getCurrentColor();
+	const ChannelOutput& o = _rgbled->getChannelOutput();
+
+	switch(_ctrlChannel) {
+	case CtrlChannel::Hsv:
+		return c.hue;
+		break;
+	case CtrlChannel::Sat:
+		return c.sat;
+		break;
+	case CtrlChannel::Val:
+		return c.val;
+		break;
+	case CtrlChannel::ColorTemp:
+		return c.ct;
+		break;
+
+	case CtrlChannel::Red:
+		return o.red;
+		break;
+	case CtrlChannel::Green:
+		return o.green;
+		break;
+	case CtrlChannel::Blue:
+		return o.blue;
+		break;
+	case CtrlChannel::ColdWhite:
+		return o.coldwhite;
+		break;
+	case CtrlChannel::WarmWhite:
+		return o.warmwhite;
+		break;
+	}
+}
+
+AnimSetAndStay::AnimSetAndStay(int endVal, int time = 0, bool requeue = false, const String& name = "") : RGBWWLedAnimation(requeue, name),
+																											_value(endVal) {
+    if (time > 0) {
+        _steps = ramp / RGBWW_MINTIMEDIFF;
+    }
+}
+
+bool AnimSetAndStay::run() {
+    count += 1;
+    if (steps != 0) {
+        if (count < steps) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+AnimTransition::AnimTransition(int endVal, int ramp = 0, bool requeue = false, const String& name = "") : RGBWWLedAnimation(requeue, name) {
+    _finalval = endVal;
+    _baseval = false;
+    _steps = time / RGBWW_MINTIMEDIFF;
+    _currentstep = 0;
+}
+
+AnimTransition::AnimTransition(int startVal, int endVal, int ramp = 0, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, requeue, name) {
+	_baseval = startVal;
+    _hasbaseval = true;
+}
+
+bool AnimTransition::init() {
+    int l, r, d;
+    if (!_hasbasecolor) {
+    	_baseval = getBaseValue();
+    }
+    _value = _baseval;
+
+    //calculate steps per time
+    _steps = (_steps > 0) ? _steps : int(1); //avoid 0 division
+
+    _bresenham.delta = abs(_baseval.v - _finalval.v);
+    _bresenham.step = 1;
+    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8)/_steps;
+    _bresenham.step = (_baseval.v > _finalval.v) ? _bresenham.step*=-1 : _bresenham.step;
+    _bresenham.error = -1*_steps;
+    _bresenham.count = 0;
+
+    return true;
+}
+
+bool AnimTransition::run () {
+    if (_currentstep == 0) {
+        if (!init()) {
+            return true;
+        }
+        _currentstep = 0;
+    }
+
+    _currentstep++;
+    if (_currentstep >= _steps) {
+        // ensure that the with the last step
+        // we arrive at the destination color
+        _value = _finalval;
+        return true;
+    }
+
+    //calculate new colors with bresenham
+    _value = bresenham(_bresenham, _steps, _baseval, _value);
+
+    return false;
+}
+
+AnimTransitionCircularHue::AnimTransitionCircularHue(int endVal, int ramp, int direction, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, requeue, name) {
+    _direction = direction;
+}
+
+AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, bool requeue = false, const String& name = "") : AnimTransitionCircular(endVal, ramp, direction, requeue, name) {
+	_baseval = startVal;
+    _hasbaseval = true;
+}
+
+bool AnimTransitionCircularHue::init() {
+	if (!_hasbaseval) {
+		_baseval = getBaseValue();
+	}
+	_value = _baseval;
+
+	// calculate hue direction
+	const int l = (_baseval + RGBWW_CALC_HUEWHEELMAX - _finalval) % RGBWW_CALC_HUEWHEELMAX;
+	const int r = (_finalval + RGBWW_CALC_HUEWHEELMAX - _baseval) % RGBWW_CALC_HUEWHEELMAX;
+
+	// decide on direction of turn depending on size
+	int d = (l < r) ? -1 : 1;
+
+	// turn direction if user wishes for long transition
+	d = (_direction == 1) ? d : d *= -1;
+
+	//calculate steps per time
+	_steps = (_steps > 0) ? _steps : int(1); //avoid 0 division
+
+	//HUE
+	_bresenham.delta = (d == -1) ? l : r;
+	_bresenham.step = 1;
+	_bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step <<8) : (_bresenham.delta << 8)/_steps;
+	_bresenham.step *= d;
+	_bresenham.error = -1 * _steps;
+	_bresenham.count = 0;
+
+	return true;
+}
+
+bool AnimTransitionCircularHue::run() {
+	bool result = AnimTransition::run();
+
+	RGBWWColorUtils::circleHue(_value);
+
+	return;
+}
+
 /**************************************************************
  *               HSVSetOutput
  **************************************************************/

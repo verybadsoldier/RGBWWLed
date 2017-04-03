@@ -36,6 +36,7 @@
 #ifndef RGBWWLed_h
 #define RGBWWLed_h
 #include <Arduino.h>
+#include "../../Wiring/WHashMap.h"
 #ifdef SMING_VERSION
 	#define RGBWW_USE_ESP_HWPWM
 	#include "../../SmingCore/SmingCore.h"
@@ -75,6 +76,7 @@ class RGBWWLedAnimation;
 class RGBWWLedAnimationQ;
 class RGBWWColorUtils;
 class PWMOutput;
+class RGBWWAnimatedChannel;
 
 enum class QueuePolicy {
     FrontReset, // queue to front and let the original anim run from the beginning afterwards
@@ -279,70 +281,7 @@ public:
 	 */
 	void fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
-	/**
-	 * Set a function as callback when an animation has finished.
-	 *
-	 * Example use case would be, to save the current color to flash
-	 * after an animation has finished to preserve it after a powerloss
-	 *
-	 * @param func
-	 */
-	void setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) );
 
-
-	/**
-	 * Check if an animation is currently active
-	 *
-	 * @retval true if an animation is currently active
-	 * @retval false if no animation is active
-	 */
-	bool isAnimationActive();
-
-
-	/**
-	 * Check if the AnimationQueue is full
-	 *
-	 * @retval true queue is full
-	 * @retval false queue is not full
-	 */
-	bool isAnimationQFull();
-
-	/**
-	 * skip the current animation
-	 *
-	 */
-	void skipAnimation();
-
-
-	/**
-	 * Cancel all animations in the queue
-	 *
-	 */
-	void clearAnimationQueue();
-
-
-	/**
-	 * Change the speed of the current running animation
-	 *
-	 * @param speed
-	 */
-	void setAnimationSpeed(int speed);
-
-
-	/**
-	 * Change the brightness of the current animation
-	 *
-	 * @param brightness
-	 */
-	void setAnimationBrightness(int brightness);
-
-	/**
-	 * Add animation to animation Qeueue
-	 *
-	 * @param animation Animation object
-	 * @return true on success / false on failure;
-	 */
-	bool addToQueue(RGBWWLedAnimation* animation);
 
 	void blink();
 
@@ -355,24 +294,36 @@ public:
 private:
 	void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
 
-	unsigned long last_active;
-	ChannelOutput  _current_output;
-	HSVCT 	_current_color;
-	bool    _cancelAnimation;
-	bool    _clearAnimationQueue;
-	bool    _isAnimationActive;
-	bool    _isAnimationPaused;
+	enum class CtrlChannel {
+	    Hue,
+	    Sat,
+	    Val,
+	    ColorTemp,
 
-	RGBWWLedAnimation*  _currentAnimation;
-	RGBWWLedAnimationQ* _animationQ;
-	PWMOutput* _pwm_output;
+		Red,
+		Green,
+		Blue,
+		ColdWhite,
+		WarmWhite,
+	};
 
-	void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = NULL;
+    enum class ColorMode {
+        Hsv,
+        Rgb,
+        Raw,
+    };
 
-	//helpers
-	void cleanupCurrentAnimation();
-	void cleanupAnimationQ();
-	void requeueCurrentAnimation();
+	ChannelOutput  	_current_output;
+	HSVCT 			_current_color;
+
+	PWMOutput* 		_pwm_output;
+
+	HashMap<CtrlChannel, RGBWWAnimatedChannel*> _animChannelsHsv;
+	HashMap<CtrlChannel, RGBWWAnimatedChannel*> _animChannelsRaw;
+
+	void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = nullptr;
+
+	ColorMode _mode = ColorMode::Hsv;
 };
 
 #endif //RGBWWLed_h
