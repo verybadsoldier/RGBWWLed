@@ -17,6 +17,34 @@ RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
     }
 }
 
+void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
+	if (queuePolicy == QueuePolicy::Single) {
+		cleanupAnimationQ();
+		cleanupCurrentAnimation();
+	}
+
+	Serial.printf("Adding animation: %d\n", queuePolicy);
+
+	switch(queuePolicy) {
+		case QueuePolicy::Back:
+		case QueuePolicy::Single:
+			_animationQ->push(pAnim);
+			break;
+		case QueuePolicy::Front:
+		case QueuePolicy::FrontReset:
+			if (_currentAnimation != nullptr) {
+				if (queuePolicy == QueuePolicy::FrontReset)
+					_currentAnimation->reset();
+				_animationQ->pushFront(_currentAnimation);
+				_currentAnimation = NULL;
+			}
+			_animationQ->pushFront(pAnim);
+		    _isAnimationActive = false;
+		    _cancelAnimation = false;
+			break;
+	}
+}
+
 bool RGBWWAnimatedChannel::process() {
     if (_isAnimationPaused) {
         return false;

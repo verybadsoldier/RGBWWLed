@@ -231,7 +231,7 @@ public:
 	 */
 	void fadeHSV(HSVCT& color, int time, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
 
-
+#if 0
 	/**
 	 * Fade from one color (colorFrom) to another color
 	 *
@@ -242,7 +242,7 @@ public:
 	 * @param queue		directly execute fade or queue it
 	 */
 	void fadeHSV(HSVCT& colorFrom, HSVCT& color, int time, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
-
+#endif
 	//TODO: add documentation
 	/**
 	 *
@@ -270,7 +270,7 @@ public:
 	 */
 	void fadeRAW(ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
-
+#if 0
 	//TODO: add documentation
 	/**
 	 *
@@ -280,7 +280,7 @@ public:
 	 * @param queue
 	 */
 	void fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
-
+#endif
 
 
 	void blink();
@@ -292,8 +292,6 @@ public:
 	void continueAnimation();
 
 private:
-	void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
-
 	enum class CtrlChannel {
 	    Hue,
 	    Sat,

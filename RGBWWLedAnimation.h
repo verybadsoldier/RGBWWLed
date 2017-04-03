@@ -76,7 +76,7 @@ private:
 };
 
 class AnimSetAndStay : public RGBWWLedAnimation {
-    AnimSetAndStay(int endVal, int time = 0, bool requeue = false, const String& name = "");
+    AnimSetAndStay(int endVal, int time = 0, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
 
@@ -86,8 +86,8 @@ private:
 };
 
 class AnimTransition : public RGBWWLedAnimation {
-    AnimTransition(int endVal, int ramp, bool requeue = false, const String& name = "");
-    AnimTransition(int startVal, int endVal, int ramp, bool requeue = false, const String& name = "");
+    AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
 
@@ -104,8 +104,8 @@ private:
 };
 
 class AnimTransitionCircularHue : public AnimTransition {
-	AnimTransitionCircularHue(int endVal, int ramp, int direction, bool requeue = false, const String& name = "");
-	AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
 

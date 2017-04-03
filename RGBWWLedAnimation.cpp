@@ -46,7 +46,7 @@ int RGBWWLedAnimation::getBaseValue() const {
 	}
 }
 
-AnimSetAndStay::AnimSetAndStay(int endVal, int time = 0, bool requeue = false, const String& name = "") : RGBWWLedAnimation(requeue, name),
+AnimSetAndStay::AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : RGBWWLedAnimation(rgbled, ch, requeue, name),
 																											_value(endVal) {
     if (time > 0) {
         _steps = ramp / RGBWW_MINTIMEDIFF;
@@ -64,14 +64,14 @@ bool AnimSetAndStay::run() {
     return true;
 }
 
-AnimTransition::AnimTransition(int endVal, int ramp = 0, bool requeue = false, const String& name = "") : RGBWWLedAnimation(requeue, name) {
+AnimTransition::AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : RGBWWLedAnimation(rgbled, ch, requeue, name) {
     _finalval = endVal;
     _baseval = false;
     _steps = time / RGBWW_MINTIMEDIFF;
     _currentstep = 0;
 }
 
-AnimTransition::AnimTransition(int startVal, int endVal, int ramp = 0, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, requeue, name) {
+AnimTransition::AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
 	_baseval = startVal;
     _hasbaseval = true;
 }
@@ -118,11 +118,11 @@ bool AnimTransition::run () {
     return false;
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(int endVal, int ramp, int direction, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, requeue, name) {
+AnimTransitionCircularHue::AnimTransitionCircularHue(int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
     _direction = direction;
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, bool requeue = false, const String& name = "") : AnimTransitionCircular(endVal, ramp, direction, requeue, name) {
+AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "") : AnimTransitionCircular(endVal, ramp, direction, rgbled, ch, requeue, name) {
 	_baseval = startVal;
     _hasbaseval = true;
 }

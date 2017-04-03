@@ -75,6 +75,8 @@ public:
         return _value;
     }
 
+    void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
+
 private:
     int     _value = 0;
     bool    _cancelAnimation = false;
