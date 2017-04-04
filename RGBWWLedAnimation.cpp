@@ -153,6 +153,7 @@ bool AnimTransitionCircularHue::init() {
 	if (!_hasbaseval) {
 		_baseval = getBaseValue();
 	}
+	Serial.printf("BASEVAL: %d", _baseval);
 	_value = _baseval;
 
 	// calculate hue direction

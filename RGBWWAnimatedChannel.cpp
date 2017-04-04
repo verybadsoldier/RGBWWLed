@@ -50,6 +50,7 @@ void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 }
 
 bool RGBWWAnimatedChannel::process() {
+    //debugRGBW("R1");
     if (_isAnimationPaused) {
         return false;
     }
@@ -69,13 +70,16 @@ bool RGBWWAnimatedChannel::process() {
     if (!_isAnimationActive) {
         //check if animation otherwise return true
         if (_animationQ->isEmpty()) {
+           // debugRGBW("EMPTY");
             return true;
         }
         _currentAnimation = _animationQ->pop();
         _isAnimationActive = true;
     }
 
-    if (_currentAnimation->run()) {
+    const bool finished = _currentAnimation->run();
+    _value = _currentAnimation->getAnimValue();
+    if (finished) {
         //callback animation finished
         if(_animationcallback != NULL ){
             _animationcallback(_rgbled, _currentAnimation);
