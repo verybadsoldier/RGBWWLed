@@ -23,20 +23,18 @@ RGBWWLedAnimationQ::~RGBWWLedAnimationQ(){
 	delete _q;
 }
 
-
 bool RGBWWLedAnimationQ::isEmpty() {
 	return _count == 0;
 }
-
 
 bool RGBWWLedAnimationQ::isFull() {
 	return _count == _size;
 }
 
-
 bool RGBWWLedAnimationQ::push(RGBWWLedAnimation* animation) {
     if (isFull())
         return false;
+
     _count++;
     _q[_front] = animation;
     _front = (_front+1) % _size;
@@ -65,14 +63,12 @@ void RGBWWLedAnimationQ::clear() {
 	}
 }
 
-
 RGBWWLedAnimation* RGBWWLedAnimationQ::peek() {
 	if (!isEmpty()) {
         return _q[_back];
 	}
 	return NULL;
 }
-
 
 RGBWWLedAnimation* RGBWWLedAnimationQ::pop() {
 	RGBWWLedAnimation* tmpptr;

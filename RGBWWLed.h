@@ -181,7 +181,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param direction direction of transition (0= long/ 1=short)
 	 */
-	void fadeHSV(HSVCT& color, int time, int direction, bool requeue = false, const String& name = "");
+	void fadeHSV(HSVCT& color, int ramp, int direction, bool requeue = false, const String& name = "");
 
 
 	/**
@@ -214,7 +214,7 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(HSVCT& colorFrom, HSVCT& color, int time, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(HSVCT& colorFrom, HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
 
 	//TODO: add documentation
 	/**
@@ -241,7 +241,7 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void fadeRAW(ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	void fadeRAW(ChannelOutput output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
 	//TODO: add documentation
 	/**
@@ -251,7 +251,7 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	void fadeRAW(ChannelOutput output_from, ChannelOutput output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
 
 	void blink();

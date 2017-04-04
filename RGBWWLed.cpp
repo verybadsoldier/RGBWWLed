@@ -163,27 +163,59 @@ void RGBWWLed::blink() {
 	}
 }
 
+//// setHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RGBWWLed::setHSV(HSVCT& color, QueuePolicy queuePolicy, bool requeue, const String& name) {
-//	pushAnimation(new HSVSetOutput(color, this), queuePolicy);
+	setHSV(color, 0, queuePolicy, requeue, name);
 }
 
 void RGBWWLed::setHSV(HSVCT& color, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
-//	pushAnimation(new HSVSetOutput(color, this, time), queuePolicy);
+	auto pAnimH = new AnimSetAndStay(color.h, time, this, CtrlChannel::Hue, requeue, name);
+	auto pAnimS = new AnimSetAndStay(color.s, time, this, CtrlChannel::Sat, requeue, name);
+	auto pAnimV = new AnimSetAndStay(color.v, time, this, CtrlChannel::Val, requeue, name);
+	auto pAnimCt = new AnimSetAndStay(color.ct, time, this, CtrlChannel::ColorTemp, requeue, name);
+
+	_animChannelsHsv[CtrlChannel::Hue]->pushAnimation(pAnimH, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Sat]->pushAnimation(pAnimS, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Val]->pushAnimation(pAnimV, queuePolicy);
+	_animChannelsHsv[CtrlChannel::ColorTemp]->pushAnimation(pAnimCt, queuePolicy);
 }
 
+//// fadeHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RGBWWLed::fadeHSV(HSVCT& color, int time,QueuePolicy queuePolicy, bool requeue, const String& name) {
-	fadeHSV( color, time, 1, queuePolicy, requeue, name);
+void RGBWWLed::fadeHSV(HSVCT& color, int ramp, int direction, bool requeue, const String& name) {
+	fadeHSV( color, ramp, direction, QueuePolicy::Single, requeue, name);
 }
 
-
-void RGBWWLed::fadeHSV(HSVCT& color, int time, int direction, bool requeue, const String& name) {
-	fadeHSV( color, time, direction, QueuePolicy::Single, requeue, name);
+void RGBWWLed::fadeHSV(HSVCT& color, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	fadeHSV( color, ramp, 1, queuePolicy, requeue, name);
 }
 
+void RGBWWLed::fadeHSV(HSVCT& color, int ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	RGBWWLedAnimation* pAnimH = NULL;
+	RGBWWLedAnimation* pAnimS = NULL;
+	RGBWWLedAnimation* pAnimV = NULL;
+	RGBWWLedAnimation* pAnimCt = NULL;
+	if (ramp == 0 || ramp < RGBWW_MINTIMEDIFF) {
+		pAnimH = new AnimSetAndStay(color.h, 0, this, CtrlChannel::Hue, requeue, name);
+		pAnimS = new AnimSetAndStay(color.s, 0, this, CtrlChannel::Sat, requeue, name);
+		pAnimV = new AnimSetAndStay(color.v, 0, this, CtrlChannel::Val, requeue, name);
+		pAnimCt = new AnimSetAndStay(color.ct, 0, this, CtrlChannel::ColorTemp, requeue, name);
+	}
+	else {
+		pAnimH = new AnimTransitionCircularHue(color.h, ramp, direction, this, CtrlChannel::Hue, requeue, name);
+		pAnimS = new AnimTransition(color.s, ramp, this, CtrlChannel::Sat, requeue, name);
+		pAnimV = new AnimTransition(color.v, ramp, this, CtrlChannel::Val, requeue, name);
+		pAnimCt = new AnimTransition(color.ct, ramp, this, CtrlChannel::ColorTemp, requeue, name);
+	}
 
-void RGBWWLed::fadeHSV(HSVCT& color, int time, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	_animChannelsHsv[CtrlChannel::Hue]->pushAnimation(pAnimH, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Sat]->pushAnimation(pAnimS, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Val]->pushAnimation(pAnimV, queuePolicy);
+	_animChannelsHsv[CtrlChannel::ColorTemp]->pushAnimation(pAnimCt, queuePolicy);
+}
+
+void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int ramp, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	RGBWWLedAnimation* pAnimH = NULL;
 	RGBWWLedAnimation* pAnimS = NULL;
 	RGBWWLedAnimation* pAnimV = NULL;
@@ -207,38 +239,83 @@ void RGBWWLed::fadeHSV(HSVCT& color, int time, int direction /* = 1 */, QueuePol
 	_animChannelsHsv[CtrlChannel::ColorTemp]->pushAnimation(pAnimCt, queuePolicy);
 }
 
-void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int time, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
-//	if (colorFrom == color)
-//		return;
-//
-//	RGBWWLedAnimation* pAnim = NULL;
-//	if (time == 0 || time < RGBWW_MINTIMEDIFF)
-//		pAnim = new HSVSetOutput(color, this, requeue, name);
-//	else
-//		pAnim = new HSVTransition(colorFrom, color, time, direction, this, requeue, name);
-//	pushAnimation(pAnim, queuePolicy);
-}
+//// setRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RGBWWLed::setRAW(ChannelOutput output, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	//pushAnimation(new RAWSetOutput(output, this, requeue, name), queuePolicy);
+	setRAW(output, 0, queuePolicy, requeue, name);
 }
 
 void RGBWWLed::setRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
-//	pushAnimation(new RAWSetOutput(output, this, time, requeue, name), queuePolicy);
+	auto pAnimR = new AnimSetAndStay(output.r, time, this, CtrlChannel::Red, requeue, name);
+	auto pAnimG = new AnimSetAndStay(output.g, time, this, CtrlChannel::Green, requeue, name);
+	auto pAnimB = new AnimSetAndStay(output.b, time, this, CtrlChannel::Blue, requeue, name);
+	auto pAnimCw = new AnimSetAndStay(output.cw, time, this, CtrlChannel::ColdWhite, requeue, name);
+	auto pAnimWw = new AnimSetAndStay(output.ww, time, this, CtrlChannel::WarmWhite, requeue, name);
+
+	_animChannelsRaw[CtrlChannel::Red]->pushAnimation(pAnimR, queuePolicy);
+	_animChannelsRaw[CtrlChannel::Green]->pushAnimation(pAnimG, queuePolicy);
+	_animChannelsRaw[CtrlChannel::Blue]->pushAnimation(pAnimB, queuePolicy);
+	_animChannelsRaw[CtrlChannel::ColdWhite]->pushAnimation(pAnimCw, queuePolicy);
+	_animChannelsRaw[CtrlChannel::WarmWhite]->pushAnimation(pAnimWw, queuePolicy);
 }
 
-void RGBWWLed::fadeRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
-//	RGBWWLedAnimation* pAnim = NULL;
-//	if (time == 0 || time < RGBWW_MINTIMEDIFF)
-//		pAnim = new RAWSetOutput(output, this, requeue, name);
-//	else
-//		pAnim = new RAWTransition(output, time, this, requeue, name);
-//
-//	pushAnimation(pAnim, queuePolicy);
+//// fadeRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void RGBWWLed::fadeRAW(ChannelOutput output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	RGBWWLedAnimation* pAnimR = NULL;
+	RGBWWLedAnimation* pAnimG = NULL;
+	RGBWWLedAnimation* pAnimW = NULL;
+	RGBWWLedAnimation* pAnimWw = NULL;
+	RGBWWLedAnimation* pAnimCw = NULL;
+	if (ramp == 0 || time < RGBWW_MINTIMEDIFF) {
+		pAnimR = new AnimSetAndStay(output.r, 0, this, CtrlChannel::Red, requeue, name);
+		pAnimG = new AnimSetAndStay(output.g, 0, this, CtrlChannel::Green, requeue, name);
+		pAnimB = new AnimSetAndStay(output.b, 0, this, CtrlChannel::Blue, requeue, name);
+		pAnimWw = new AnimSetAndStay(output.ww, 0, this, CtrlChannel::WarmWhite, requeue, name);
+		pAnimCw = new AnimSetAndStay(output.cw, 0, this, CtrlChannel::ColdWhite, requeue, name);
+	}
+	else {
+		pAnimR = new AnimTransition(output.r, ramp, this, CtrlChannel::Red, requeue, name);
+		pAnimG = new AnimTransition(output.g, ramp, this, CtrlChannel::Green, requeue, name);
+		pAnimB = new AnimTransition(output.b, ramp, this, CtrlChannel::Blue, requeue, name);
+		pAnimWw = new AnimTransition(output.ww, ramp, this, CtrlChannel::WarmWhite, requeue, name);
+		pAnimCw = new AnimTransition(output.cw, ramp, this, CtrlChannel::ColdWhite, requeue, name);
+	}
+
+	_animChannelsHsv[CtrlChannel::Red]->pushAnimation(pAnimR, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Green]->pushAnimation(pAnimG, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Blue]->pushAnimation(pAnimB, queuePolicy);
+	_animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(pAnimWw, queuePolicy);
+	_animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(pAnimCw, queuePolicy);
 }
 
-void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	RGBWWLedAnimation* pAnimR = NULL;
+	RGBWWLedAnimation* pAnimG = NULL;
+	RGBWWLedAnimation* pAnimW = NULL;
+	RGBWWLedAnimation* pAnimWw = NULL;
+	RGBWWLedAnimation* pAnimCw = NULL;
+	if (ramp == 0 || time < RGBWW_MINTIMEDIFF) {
+		pAnimR = new AnimSetAndStay(output.r, 0, this, CtrlChannel::Red, requeue, name);
+		pAnimG = new AnimSetAndStay(output.g, 0, this, CtrlChannel::Green, requeue, name);
+		pAnimB = new AnimSetAndStay(output.b, 0, this, CtrlChannel::Blue, requeue, name);
+		pAnimWw = new AnimSetAndStay(output.ww, 0, this, CtrlChannel::WarmWhite, requeue, name);
+		pAnimCw = new AnimSetAndStay(output.cw, 0, this, CtrlChannel::ColdWhite, requeue, name);
+	}
+	else {
+		pAnimR = new AnimTransition(output_from.r, output.r, ramp, this, CtrlChannel::Red, requeue, name);
+		pAnimG = new AnimTransition(output_from.g, output.g, ramp, this, CtrlChannel::Green, requeue, name);
+		pAnimB = new AnimTransition(output_from.b, output.b, ramp, this, CtrlChannel::Blue, requeue, name);
+		pAnimWw = new AnimTransition(output_from.ww, output.ww, ramp, this, CtrlChannel::WarmWhite, requeue, name);
+		pAnimCw = new AnimTransition(output_from.cw, output.cw, ramp, this, CtrlChannel::ColdWhite, requeue, name);
+	}
 
+	_animChannelsHsv[CtrlChannel::Red]->pushAnimation(pAnimR, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Green]->pushAnimation(pAnimG, queuePolicy);
+	_animChannelsHsv[CtrlChannel::Blue]->pushAnimation(pAnimB, queuePolicy);
+	_animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(pAnimWw, queuePolicy);
+	_animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(pAnimCw, queuePolicy);
 }
 
 void RGBWWLed::clearAnimationQueue() {
@@ -277,20 +354,6 @@ void RGBWWLed::continueAnimation() {
 	}
 }
 
-#if 0
-void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
-	if (output_from == output)
-		return;
-
-	RGBWWLedAnimation* pAnim = NULL;
-	if (time == 0 || time < RGBWW_MINTIMEDIFF)
-		pAnim = new RAWSetOutput(output, this, requeue, name);
-	else
-		pAnim = new RAWTransition(output_from, output, time, this, requeue, name);
-
-	pushAnimation(pAnim, queuePolicy);
-}
-#endif
 
 void RGBWWLed::setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) ) {
 	for(int i=0; i < _animChannelsHsv.count(); ++i) {
