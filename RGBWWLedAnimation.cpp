@@ -70,14 +70,17 @@ bool AnimSetAndStay::run() {
     return true;
 }
 
-AnimTransition::AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name),
-																															_finalval(endVal),
-																															_steps(ramp / RGBWW_MINTIMEDIFF) {
+AnimTransition::AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name)
+																															 {
+	_finalval = endVal;
+    _steps = ramp / RGBWW_MINTIMEDIFF;
 }
 
-AnimTransition::AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name),
-																																_baseval(startVal),
-																																_hasebaseval(true) {
+AnimTransition::AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name)
+
+{
+	_baseval = startVal;
+	_hasbaseval = true;
 }
 
 bool AnimTransition::init() {

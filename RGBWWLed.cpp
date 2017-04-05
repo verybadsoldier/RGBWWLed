@@ -161,7 +161,7 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
 
 
 
-void RGBWWLed::blink(int time=1000) {
+void RGBWWLed::blink(int time) {
 	Serial.printf("Blink\n");
 	if (_mode == ColorMode::Hsv) {
 		HSVCT color = getCurrentColor();
@@ -385,10 +385,10 @@ void RGBWWLed::continueAnimation() {
 
 void RGBWWLed::callForChannels(void (RGBWWAnimatedChannel::*fnc)()) {
 	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-		_animChannelsHsv.valueAt(i)->*fnc();
+		(_animChannelsHsv.valueAt(i)->*fnc)();
 	}
 	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-		_animChannelsRaw.valueAt(i)->*fnc();
+		(_animChannelsRaw.valueAt(i)->*fnc)();
 	}
 }
 

@@ -123,6 +123,10 @@ struct ChannelOutput {
 		return r == output.r && g == output.g && b == output.b && ww == output.ww && cw == output.cw;
 	}
 
+    bool operator!=(const ChannelOutput& obj) const {
+        return !(*this == obj);
+    }
+
 	ChannelOutput& operator= (const ChannelOutput& output)
     {
 		this->r = output.r;
@@ -217,9 +221,6 @@ struct HSVCT {
 		val = (float(this->v) / float(RGBWW_CALC_MAXVAL)) * 100.0;
 		ct = this->ct;
     }
-
-
-
 };
 
 
