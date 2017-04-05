@@ -20,6 +20,10 @@ public:
     RGBWWAnimatedChannel(RGBWWLed* rgbled);
     virtual ~RGBWWAnimatedChannel();
 
+    /**
+     * @retval true animation queue is empty
+     * @retval false animation queue processed a step
+     */
     bool process();
 
     /**
@@ -79,9 +83,7 @@ public:
      */
     void setAnimationBrightness(int brightness);
 
-    int getValue() const {
-        return _value;
-    }
+    void getValue(int& val) const;
 
     void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
 

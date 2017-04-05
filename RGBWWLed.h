@@ -254,7 +254,7 @@ public:
 	void fadeRAW(ChannelOutput output_from, ChannelOutput output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
 
-	void blink();
+	void blink(int time=1000);
 
 	//colorutils
 	RGBWWColorUtils colorutils;
@@ -268,7 +268,9 @@ public:
 
 
 private:
-    void getAnimChannelHsvColor(HSVCT& c);
+    void getAnimChannelHsvColor(HSVCT& c) const;
+    void getAnimChannelRawOutput(ChannelOutput& o) const;
+    void callForChannels(void (RGBWWAnimatedChannel::*fnc)());
 
 	ChannelOutput  	_current_output;
 	HSVCT 			_current_color;

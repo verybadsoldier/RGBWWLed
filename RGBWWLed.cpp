@@ -28,6 +28,12 @@ RGBWWLed::RGBWWLed() {
 	_animChannelsHsv[CtrlChannel::Sat] = new RGBWWAnimatedChannel(this);
 	_animChannelsHsv[CtrlChannel::Val] = new RGBWWAnimatedChannel(this);
 	_animChannelsHsv[CtrlChannel::ColorTemp] = new RGBWWAnimatedChannel(this);
+
+    _animChannelsRaw[CtrlChannel::Red] = new RGBWWAnimatedChannel(this);
+    _animChannelsRaw[CtrlChannel::Green] = new RGBWWAnimatedChannel(this);
+    _animChannelsRaw[CtrlChannel::Blue] = new RGBWWAnimatedChannel(this);
+    _animChannelsRaw[CtrlChannel::WarmWhite] = new RGBWWAnimatedChannel(this);
+    _animChannelsRaw[CtrlChannel::ColdWhite] = new RGBWWAnimatedChannel(this);
 }
 
 RGBWWLed::~RGBWWLed() {
@@ -42,11 +48,19 @@ void RGBWWLed::init(int redPIN, int greenPIN, int bluePIN, int wwPIN, int cwPIN,
 }
 
 
-void RGBWWLed::getAnimChannelHsvColor(HSVCT& c) {
-    c.hue = _animChannelsHsv[CtrlChannel::Hue]->getValue();
-    c.sat = _animChannelsHsv[CtrlChannel::Sat]->getValue();
-    c.val = _animChannelsHsv[CtrlChannel::Val]->getValue();
-    c.ct = _animChannelsHsv[CtrlChannel::ColorTemp]->getValue();
+void RGBWWLed::getAnimChannelHsvColor(HSVCT& c) const {
+    _animChannelsHsv[CtrlChannel::Hue]->getValue(c.hue);
+    _animChannelsHsv[CtrlChannel::Sat]->getValue(c.sat);
+    _animChannelsHsv[CtrlChannel::Val]->getValue(c.val);
+    _animChannelsHsv[CtrlChannel::ColorTemp]->getValue(c.ct);
+}
+
+void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) const {
+    _animChannelsRaw[CtrlChannel::Red]->getValue(o.r);
+    _animChannelsRaw[CtrlChannel::Green]->getValue(o.g);
+    _animChannelsRaw[CtrlChannel::Blue]->getValue(o.b);
+    _animChannelsRaw[CtrlChannel::WarmWhite]->getValue(o.cw);
+    _animChannelsRaw[CtrlChannel::ColdWhite]->getValue(o.ww);
 }
 
 /**************************************************************
@@ -83,12 +97,11 @@ bool RGBWWLed::show() {
 
 	    // now build the output value and set
 	    ChannelOutput o;
-	    o.r = _animChannelsRaw[CtrlChannel::Red]->getValue();
-	    o.g = _animChannelsRaw[CtrlChannel::Green]->getValue();
-	    o.b = _animChannelsRaw[CtrlChannel::Blue]->getValue();
-	    o.cw = _animChannelsRaw[CtrlChannel::WarmWhite]->getValue();
-	    o.ww = _animChannelsRaw[CtrlChannel::ColdWhite]->getValue();
-	    this->setOutput(o);
+	    getAnimChannelRawOutput(o);
+
+	    if (getCurrentOutput() != o) {
+	    	this->setOutput(o);
+	    }
 		break;
 	}
 	}
@@ -148,17 +161,19 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
 
 
 
-void RGBWWLed::blink() {
+void RGBWWLed::blink(int time=1000) {
 	Serial.printf("Blink\n");
 	if (_mode == ColorMode::Hsv) {
 		HSVCT color = getCurrentColor();
 		int val = (color.val) > 50 ? 0 : 100;
-		//_animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(val, 1000, this, false, CtrlChannel::Val), QueuePolicy::Front);
+		_animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(val, time, this, CtrlChannel::Val), QueuePolicy::Front);
 	}
 	else {
 		ChannelOutput out = getCurrentOutput();
-		//out.warmwhite = out.coldwhite = 100;
-		//_animChannelsRaw[CtrlChannel::WarmWhite]->pushAnimation(new AnimSetAndStay(val, 1000, this, false, CtrlChannel::WarmWhite), QueuePolicy::Front);
+		int cwVal = (out.coldwhite) > 50 ? 0 : 100;
+		int wwVal = (out.warmwhite) > 50 ? 0 : 100;
+		_animChannelsRaw[CtrlChannel::WarmWhite]->pushAnimation(new AnimSetAndStay(wwVal, time, this, CtrlChannel::WarmWhite), QueuePolicy::Front);
+		_animChannelsRaw[CtrlChannel::ColdWhite]->pushAnimation(new AnimSetAndStay(cwVal, time, this, CtrlChannel::ColdWhite), QueuePolicy::Front);
 	}
 }
 
@@ -169,6 +184,8 @@ void RGBWWLed::setHSV(HSVCT& color, QueuePolicy queuePolicy, bool requeue, const
 }
 
 void RGBWWLed::setHSV(HSVCT& color, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	_mode = ColorMode::Hsv;
+
 	auto pAnimH = new AnimSetAndStay(color.h, time, this, CtrlChannel::Hue, requeue, name);
 	auto pAnimS = new AnimSetAndStay(color.s, time, this, CtrlChannel::Sat, requeue, name);
 	auto pAnimV = new AnimSetAndStay(color.v, time, this, CtrlChannel::Val, requeue, name);
@@ -191,7 +208,8 @@ void RGBWWLed::fadeHSV(HSVCT& color, int ramp, QueuePolicy queuePolicy, bool req
 }
 
 void RGBWWLed::fadeHSV(HSVCT& color, int ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
-    Serial.printf("fadeHSV-1\n");
+	_mode = ColorMode::Hsv;
+
 	RGBWWLedAnimation* pAnimH = NULL;
 	RGBWWLedAnimation* pAnimS = NULL;
 	RGBWWLedAnimation* pAnimV = NULL;
@@ -216,7 +234,8 @@ void RGBWWLed::fadeHSV(HSVCT& color, int ramp, int direction, QueuePolicy queueP
 }
 
 void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int ramp, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
-    Serial.printf("fadeHSV-2\n");
+	_mode = ColorMode::Hsv;
+
 	RGBWWLedAnimation* pAnimH = NULL;
 	RGBWWLedAnimation* pAnimS = NULL;
 	RGBWWLedAnimation* pAnimV = NULL;
@@ -243,11 +262,12 @@ void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int ramp, int direction /
 //// setRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RGBWWLed::setRAW(ChannelOutput output, QueuePolicy queuePolicy, bool requeue, const String& name) {
-	//pushAnimation(new RAWSetOutput(output, this, requeue, name), queuePolicy);
 	setRAW(output, 0, queuePolicy, requeue, name);
 }
 
 void RGBWWLed::setRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	_mode = ColorMode::Raw;
+
 	auto pAnimR = new AnimSetAndStay(output.r, time, this, CtrlChannel::Red, requeue, name);
 	auto pAnimG = new AnimSetAndStay(output.g, time, this, CtrlChannel::Green, requeue, name);
 	auto pAnimB = new AnimSetAndStay(output.b, time, this, CtrlChannel::Blue, requeue, name);
@@ -264,6 +284,8 @@ void RGBWWLed::setRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, b
 //// fadeRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RGBWWLed::fadeRAW(ChannelOutput output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	_mode = ColorMode::Raw;
+
 	RGBWWLedAnimation* pAnimR = NULL;
 	RGBWWLedAnimation* pAnimG = NULL;
 	RGBWWLedAnimation* pAnimB = NULL;
@@ -292,6 +314,8 @@ void RGBWWLed::fadeRAW(ChannelOutput output, int ramp, QueuePolicy queuePolicy, 
 }
 
 void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+	_mode = ColorMode::Raw;
+
 	RGBWWLedAnimation* pAnimR = NULL;
 	RGBWWLedAnimation* pAnimG = NULL;
 	RGBWWLedAnimation* pAnimB = NULL;
@@ -320,41 +344,53 @@ void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int ramp
 }
 
 void RGBWWLed::clearAnimationQueue() {
-	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-		_animChannelsHsv.valueAt(i)->clearAnimationQueue();
-	}
-	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-		_animChannelsRaw.valueAt(i)->clearAnimationQueue();
-	}
+	callForChannels(&RGBWWAnimatedChannel::clearAnimationQueue);
+//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
+//		_animChannelsHsv.valueAt(i)->clearAnimationQueue();
+//	}
+//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
+//		_animChannelsRaw.valueAt(i)->clearAnimationQueue();
+//	}
 }
 
 void RGBWWLed::skipAnimation() {
-	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-		_animChannelsHsv.valueAt(i)->skipAnimation();
-	}
-	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-		_animChannelsRaw.valueAt(i)->skipAnimation();
-	}
+	callForChannels(&RGBWWAnimatedChannel::skipAnimation);
+//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
+//		_animChannelsHsv.valueAt(i)->skipAnimation();
+//	}
+//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
+//		_animChannelsRaw.valueAt(i)->skipAnimation();
+//	}
 }
 
 void RGBWWLed::pauseAnimation() {
-	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-		_animChannelsHsv.valueAt(i)->pauseAnimation();
-	}
-	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-		_animChannelsRaw.valueAt(i)->pauseAnimation();
-	}
+	callForChannels(&RGBWWAnimatedChannel::pauseAnimation);
+//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
+//		_animChannelsHsv.valueAt(i)->pauseAnimation();
+//	}
+//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
+//		_animChannelsRaw.valueAt(i)->pauseAnimation();
+//	}
 }
 
 void RGBWWLed::continueAnimation() {
-	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-		_animChannelsHsv.valueAt(i)->continueAnimation();
-	}
-	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-		_animChannelsRaw.valueAt(i)->continueAnimation();
-	}
+	callForChannels(&RGBWWAnimatedChannel::continueAnimation);
+//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
+//		_animChannelsHsv.valueAt(i)->continueAnimation();
+//	}
+//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
+//		_animChannelsRaw.valueAt(i)->continueAnimation();
+//	}
 }
 
+void RGBWWLed::callForChannels(void (RGBWWAnimatedChannel::*fnc)()) {
+	for(int i=0; i < _animChannelsHsv.count(); ++i) {
+		_animChannelsHsv.valueAt(i)->*fnc();
+	}
+	for(int i=0; i < _animChannelsRaw.count(); ++i) {
+		_animChannelsRaw.valueAt(i)->*fnc();
+	}
+}
 
 void RGBWWLed::setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) ) {
 	for(int i=0; i < _animChannelsHsv.count(); ++i) {

@@ -21,6 +21,10 @@ RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
     }
 }
 
+void RGBWWAnimatedChannel::getValue(int &val) const {
+    val = _value;
+}
+
 void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
 	if (queuePolicy == QueuePolicy::Single) {
 		cleanupAnimationQ();

@@ -6,6 +6,8 @@ enum class ColorMode {
 };
 
 enum class CtrlChannel {
+	None,
+
     Hue,
     Sat,
     Val,

@@ -68,10 +68,9 @@ protected:
     int getBaseValue() const;
 
     RGBWWLed const * _rgbled = nullptr;
-    CtrlChannel _ctrlChannel;
+    CtrlChannel _ctrlChannel = CtrlChannel::None;
     const bool _requeue = false;
     const String _name;
-
     int _value = 0;
 };
 
@@ -98,12 +97,12 @@ protected:
 
     virtual bool init();
 
-    int   				_baseval;
-    int   				_currentval;
-    int   				_finalval;
-    bool  				_hasbaseval;
-    int  				_currentstep;
-    int  				_steps;
+    int   				_baseval = 0;
+    int   				_currentval = 0;
+    int   				_finalval = 0;
+    bool  				_hasbaseval = false;
+    int  				_currentstep = 0;
+    int  				_steps = 0;
     BresenhamValues 	_bresenham;
 };
 
