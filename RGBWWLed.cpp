@@ -69,7 +69,6 @@ bool RGBWWLed::show() {
 	    debugRGBW("NEW: h:%d, s:%d, v:%d, ct: %d", c.h, c.s, c.v, c.ct);
 
 	    if (getCurrentColor() != c) {
-			debugRGBW("DDDDDDDDDDDDDDDDDD");
 	    	this->setOutput(c);
 	    }
 		break;

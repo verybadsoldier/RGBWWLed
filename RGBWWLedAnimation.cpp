@@ -73,7 +73,8 @@ bool AnimSetAndStay::run() {
 
 AnimTransition::AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name) {
     _finalval = endVal;
-    _baseval = false;
+    _hasbaseval = false;
+    _baseval = 0;
     _steps = ramp / RGBWW_MINTIMEDIFF;
     _currentstep = 0;
 }
