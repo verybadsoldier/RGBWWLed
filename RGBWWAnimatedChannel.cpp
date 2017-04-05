@@ -21,8 +21,8 @@ RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
     }
 }
 
-void RGBWWAnimatedChannel::getValue(int &val) const {
-    val = _value;
+void RGBWWAnimatedChannel::getValue(int& value) const {
+    value = _value;
 }
 
 void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
@@ -54,7 +54,6 @@ void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 }
 
 bool RGBWWAnimatedChannel::process() {
-    //debugRGBW("R1");
     if (_isAnimationPaused) {
         return false;
     }
@@ -74,7 +73,6 @@ bool RGBWWAnimatedChannel::process() {
     if (!_isAnimationActive) {
         //check if animation otherwise return true
         if (_animationQ->isEmpty()) {
-           // debugRGBW("EMPTY");
             return true;
         }
         _currentAnimation = _animationQ->pop();

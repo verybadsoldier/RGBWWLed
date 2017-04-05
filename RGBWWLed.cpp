@@ -22,7 +22,7 @@ RGBWWLed::RGBWWLed() {
 	_current_color = HSVCT(0, 0, 0);
 	_current_output = ChannelOutput(0, 0, 0, 0, 0);
 
-	_pwm_output = NULL;
+	_pwm_output = nullptr;
 
 	_animChannelsHsv[CtrlChannel::Hue] = new RGBWWAnimatedChannel(this);
 	_animChannelsHsv[CtrlChannel::Sat] = new RGBWWAnimatedChannel(this);
@@ -37,10 +37,8 @@ RGBWWLed::RGBWWLed() {
 }
 
 RGBWWLed::~RGBWWLed() {
-	if (_pwm_output != NULL) {
-		delete _pwm_output;
-	}
-
+	delete _pwm_output;
+	_pwm_output = nullptr;
 }
 
 void RGBWWLed::init(int redPIN, int greenPIN, int bluePIN, int wwPIN, int cwPIN, int pwmFrequency /* =200 */) {
@@ -48,14 +46,14 @@ void RGBWWLed::init(int redPIN, int greenPIN, int bluePIN, int wwPIN, int cwPIN,
 }
 
 
-void RGBWWLed::getAnimChannelHsvColor(HSVCT& c) const {
+void RGBWWLed::getAnimChannelHsvColor(HSVCT& c) {
     _animChannelsHsv[CtrlChannel::Hue]->getValue(c.hue);
     _animChannelsHsv[CtrlChannel::Sat]->getValue(c.sat);
     _animChannelsHsv[CtrlChannel::Val]->getValue(c.val);
     _animChannelsHsv[CtrlChannel::ColorTemp]->getValue(c.ct);
 }
 
-void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) const {
+void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) {
     _animChannelsRaw[CtrlChannel::Red]->getValue(o.r);
     _animChannelsRaw[CtrlChannel::Green]->getValue(o.g);
     _animChannelsRaw[CtrlChannel::Blue]->getValue(o.b);
@@ -71,9 +69,7 @@ bool RGBWWLed::show() {
 	case ColorMode::Hsv:
 	{
 	    for(int i=0; i < _animChannelsHsv.count(); ++i) {
-	        CtrlChannel ch = _animChannelsHsv.keyAt(i);
-	        RGBWWAnimatedChannel* pAnimCh = _animChannelsHsv[ch];
-	        bool result = pAnimCh->process();
+	    	_animChannelsHsv.valueAt(i)->process();
 	    }
 
 	    // now build the output value and set
@@ -90,9 +86,7 @@ bool RGBWWLed::show() {
 	case ColorMode::Raw:
 	{
 	    for(int i=0; i < _animChannelsRaw.count(); ++i) {
-	        CtrlChannel ch = _animChannelsRaw.keyAt(i);
-	        RGBWWAnimatedChannel* pAnimCh = _animChannelsRaw[ch];
-	        bool result = pAnimCh->process();
+	    	_animChannelsRaw.valueAt(i)->process();
 	    }
 
 	    // now build the output value and set
@@ -111,12 +105,12 @@ void RGBWWLed::refresh() {
 	setOutput(_current_color);
 }
 
-ChannelOutput RGBWWLed::getCurrentOutput() const {
+const ChannelOutput& RGBWWLed::getCurrentOutput() const {
 	return _current_output;
 }
 
 
-HSVCT RGBWWLed::getCurrentColor() const {
+const HSVCT& RGBWWLed::getCurrentColor() const {
 	return _current_color;
 }
 
@@ -154,12 +148,9 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
 	}
 }
 
-
 /**************************************************************
  *                 ANIMATION/TRANSITION
  **************************************************************/
-
-
 
 void RGBWWLed::blink(int time) {
 	Serial.printf("Blink\n");
@@ -179,11 +170,11 @@ void RGBWWLed::blink(int time) {
 
 //// setHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RGBWWLed::setHSV(HSVCT& color, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::setHSV(const HSVCT& color, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	setHSV(color, 0, queuePolicy, requeue, name);
 }
 
-void RGBWWLed::setHSV(HSVCT& color, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::setHSV(const HSVCT& color, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Hsv;
 
 	auto pAnimH = new AnimSetAndStay(color.h, time, this, CtrlChannel::Hue, requeue, name);
@@ -199,15 +190,15 @@ void RGBWWLed::setHSV(HSVCT& color, int time, QueuePolicy queuePolicy, bool requ
 
 //// fadeHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RGBWWLed::fadeHSV(HSVCT& color, int ramp, int direction, bool requeue, const String& name) {
+void RGBWWLed::fadeHSV(const HSVCT& color, int ramp, int direction, bool requeue, const String& name) {
 	fadeHSV( color, ramp, direction, QueuePolicy::Single, requeue, name);
 }
 
-void RGBWWLed::fadeHSV(HSVCT& color, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeHSV(const HSVCT& color, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	fadeHSV( color, ramp, 1, queuePolicy, requeue, name);
 }
 
-void RGBWWLed::fadeHSV(HSVCT& color, int ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeHSV(const HSVCT& color, int ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Hsv;
 
 	RGBWWLedAnimation* pAnimH = NULL;
@@ -233,7 +224,7 @@ void RGBWWLed::fadeHSV(HSVCT& color, int ramp, int direction, QueuePolicy queueP
 	_animChannelsHsv[CtrlChannel::ColorTemp]->pushAnimation(pAnimCt, queuePolicy);
 }
 
-void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int ramp, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeHSV(const HSVCT& colorFrom, const HSVCT& color, int ramp, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Hsv;
 
 	RGBWWLedAnimation* pAnimH = NULL;
@@ -261,11 +252,11 @@ void RGBWWLed::fadeHSV(HSVCT& colorFrom, HSVCT& color, int ramp, int direction /
 
 //// setRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RGBWWLed::setRAW(ChannelOutput output, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::setRAW(const ChannelOutput& output, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	setRAW(output, 0, queuePolicy, requeue, name);
 }
 
-void RGBWWLed::setRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::setRAW(const ChannelOutput& output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Raw;
 
 	auto pAnimR = new AnimSetAndStay(output.r, time, this, CtrlChannel::Red, requeue, name);
@@ -283,7 +274,7 @@ void RGBWWLed::setRAW(ChannelOutput output, int time, QueuePolicy queuePolicy, b
 
 //// fadeRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RGBWWLed::fadeRAW(ChannelOutput output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeRAW(const ChannelOutput& output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Raw;
 
 	RGBWWLedAnimation* pAnimR = NULL;
@@ -313,7 +304,7 @@ void RGBWWLed::fadeRAW(ChannelOutput output, int ramp, QueuePolicy queuePolicy, 
 	_animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(pAnimCw, queuePolicy);
 }
 
-void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeRAW(const ChannelOutput& output_from, const ChannelOutput& output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Raw;
 
 	RGBWWLedAnimation* pAnimR = NULL;
@@ -345,42 +336,18 @@ void RGBWWLed::fadeRAW(ChannelOutput output_from, ChannelOutput output, int ramp
 
 void RGBWWLed::clearAnimationQueue() {
 	callForChannels(&RGBWWAnimatedChannel::clearAnimationQueue);
-//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-//		_animChannelsHsv.valueAt(i)->clearAnimationQueue();
-//	}
-//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-//		_animChannelsRaw.valueAt(i)->clearAnimationQueue();
-//	}
 }
 
 void RGBWWLed::skipAnimation() {
 	callForChannels(&RGBWWAnimatedChannel::skipAnimation);
-//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-//		_animChannelsHsv.valueAt(i)->skipAnimation();
-//	}
-//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-//		_animChannelsRaw.valueAt(i)->skipAnimation();
-//	}
 }
 
 void RGBWWLed::pauseAnimation() {
 	callForChannels(&RGBWWAnimatedChannel::pauseAnimation);
-//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-//		_animChannelsHsv.valueAt(i)->pauseAnimation();
-//	}
-//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-//		_animChannelsRaw.valueAt(i)->pauseAnimation();
-//	}
 }
 
 void RGBWWLed::continueAnimation() {
 	callForChannels(&RGBWWAnimatedChannel::continueAnimation);
-//	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-//		_animChannelsHsv.valueAt(i)->continueAnimation();
-//	}
-//	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-//		_animChannelsRaw.valueAt(i)->continueAnimation();
-//	}
 }
 
 void RGBWWLed::callForChannels(void (RGBWWAnimatedChannel::*fnc)()) {

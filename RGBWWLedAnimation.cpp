@@ -11,8 +11,9 @@
 #include "RGBWWLedColor.h"
 
 RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : _rgbled(rgbled),
-																																_requeue(requeue),
-																																_name(name) {
+																													_ctrlChannel(ch),
+																													_requeue(requeue),
+																													_name(name) {
 }
 
 
@@ -20,8 +21,10 @@ int RGBWWLedAnimation::getBaseValue() const {
 	const HSVCT& c = _rgbled->getCurrentColor();
 	const ChannelOutput& o = _rgbled->getCurrentOutput();
 
+	Serial.printf("CTRL: %d\n", _ctrlChannel);
 	switch(_ctrlChannel) {
 	case CtrlChannel::Hue:
+		Serial.printf("HUE:BASE: %d\n", c.hue);
 		return c.hue;
 		break;
 	case CtrlChannel::Sat:
@@ -60,9 +63,9 @@ AnimSetAndStay::AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, Ct
 }
 
 bool AnimSetAndStay::run() {
-    _count += 1;
+    _currentstep += 1;
     if (_steps != 0) {
-        if (_count < _steps) {
+        if (_currentstep < _steps) {
             return false;
         }
     }
@@ -70,13 +73,28 @@ bool AnimSetAndStay::run() {
     return true;
 }
 
-AnimTransition::AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name)
+void AnimSetAndStay::reset() {
+	_currentstep = 0;
+}
+
+AnimTransition::AnimTransition(int endVal,
+								int ramp,
+								RGBWWLed const * rgbled,
+								CtrlChannel ch,
+								bool requeue,
+								const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name)
 																															 {
 	_finalval = endVal;
     _steps = ramp / RGBWW_MINTIMEDIFF;
 }
 
-AnimTransition::AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name)
+AnimTransition::AnimTransition(int startVal,
+								int endVal,
+								int ramp,
+								RGBWWLed const * rgbled,
+								CtrlChannel ch,
+								bool requeue,
+								const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name)
 
 {
 	_baseval = startVal;
@@ -87,6 +105,7 @@ bool AnimTransition::init() {
     int l, r, d;
     if (!_hasbaseval) {
     	_baseval = getBaseValue();
+    	Serial.printf("AnimTransition::init: %d\n", _baseval);
     }
     _value = _baseval;
 
@@ -125,6 +144,10 @@ bool AnimTransition::run () {
     return false;
 }
 
+void AnimTransition::reset() {
+	_currentstep = 0;
+}
+
 int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& current) {
     //more information on bresenham:
     //https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
@@ -157,15 +180,18 @@ AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal,
 														RGBWWLed const * rgbled,
 														CtrlChannel ch,
 														bool requeue,
-														const String& name) : AnimTransition(startVal, endVal, ramp, rgbled, ch, requeue, name),
-																_direction(direction) {
+														const String& name) : AnimTransition(startVal, endVal, ramp, rgbled, ch, requeue, name)
+																{
+	_direction = direction;
 }
 
 bool AnimTransitionCircularHue::init() {
+	Serial.printf("HAS_BASEVAL: %d\n", _hasbaseval);
 	if (!_hasbaseval) {
+		Serial.printf("GETBASEVAL\n");
 		_baseval = getBaseValue();
 	}
-	Serial.printf("BASEVAL: %d", _baseval);
+	Serial.printf("BASEVAL: %d\n", _baseval);
 	_value = _baseval;
 
 	// calculate hue direction
@@ -518,13 +544,13 @@ int RAWTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& c
 
 RGBWWAnimationSet::RGBWWAnimationSet(RGBWWLedAnimation** animations, int count, bool loop /* =false */, bool requeue, const String& name) : RGBWWLedAnimation(requeue, name) {
     q = animations;
-    _count = count;
+    _currentstep = count;
     _loop = loop;
 }
 
 
 RGBWWAnimationSet::~RGBWWAnimationSet(){
-    for (int i = 0; i < _count; i++) {
+    for (int i = 0; i < _currentstep; i++) {
         delete q[i];
     }
 }
@@ -550,7 +576,7 @@ bool RGBWWAnimationSet::run(){
         if (_speed != -1) {
             q[_current]->setSpeed(_speed);
         }
-        if (_current >= _count) {
+        if (_current >= _currentstep) {
             if(_loop) {
                 _current = 0;
             } else {

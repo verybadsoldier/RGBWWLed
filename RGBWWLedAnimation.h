@@ -79,9 +79,10 @@ public:
     AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
+    virtual void reset() override;
 
 private:
-    int _count = 0;
+    int _currentstep = 0;
     int _steps = 0;
 };
 
@@ -91,6 +92,7 @@ public:
     AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
+    virtual void reset() override;
 
 protected:
     int bresenham(BresenhamValues& values, int& dx, int& base, int& current);
@@ -119,6 +121,7 @@ private:
     int _direction = 0;
 };
 
+#if 0
 /**
  * Set output to color without effect/transition
  *
@@ -314,10 +317,12 @@ public:
 
 private:
     int _current = 0;
-    int _count;
+    int _currentstep;
     int _brightness = -1;
     int _speed = -1;
     bool _loop;
     RGBWWLedAnimation** q;
 
 };
+
+#endif

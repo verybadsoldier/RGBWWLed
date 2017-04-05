@@ -83,7 +83,7 @@ public:
      */
     void setAnimationBrightness(int brightness);
 
-    void getValue(int& val) const;
+    void getValue(int& value) const;
 
     void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
 

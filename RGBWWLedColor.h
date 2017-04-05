@@ -165,6 +165,28 @@ struct HSVCT {
     HSVCT(int hue, int sat, int val) : h(hue), s(sat), v(val), ct(0) {}
     HSVCT(int hue, int sat, int val, int ct) : h(hue), s(sat), v(val), ct(ct) {}
 
+    //construct from float values
+    HSVCT( float hue, float sat, float val) {
+    	this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
+    	this->s = (constrain(sat, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
+    	this->v = (constrain(val, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
+        //TODO: default value for White color?
+    	this->ct = 0;
+    }
+
+    HSVCT( float hue, float sat, float val, int ct) : HSVCT(hue, sat, val) {
+    	ct = constrain(ct, 0, 10000);
+    }
+
+    HSVCT(const HSVCT& hsvk)
+    {
+    	this->h = hsvk.h;
+        this->s = hsvk.s;
+        this->v = hsvk.v;
+        this->ct = hsvk.ct;
+    }
+
+
     bool operator==(const HSVCT& obj) const {
         return this->h == obj.h &&
                 this->s == obj.s &&
@@ -176,29 +198,6 @@ struct HSVCT {
         return !(*this == obj);
     }
 
-    //construct from float values
-    HSVCT( float hue, float sat, float val) {
-    	this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
-    	this->s = (constrain(sat, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
-    	this->v = (constrain(val, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
-        //TODO: default value for White color?
-    	this->ct = 0;
-    }
-
-    HSVCT( float hue, float sat, float val, int ct) {
-    	this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
-        this->s = (constrain(sat, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
-        this->v = (constrain(val, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
-        this->ct = constrain(ct, 0, 10000);
-    }
-
-    HSVCT(const HSVCT& hsvk)
-    {
-    	this->h = hsvk.h;
-        this->s = hsvk.s;
-        this->v = hsvk.v;
-        this->ct = hsvk.ct;
-    }
 
     HSVCT& operator= (const HSVCT& hsvct)
     {
