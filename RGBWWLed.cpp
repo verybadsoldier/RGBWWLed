@@ -334,28 +334,42 @@ void RGBWWLed::fadeRAW(const ChannelOutput& output_from, const ChannelOutput& ou
 	_animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(pAnimCw, queuePolicy);
 }
 
-void RGBWWLed::clearAnimationQueue() {
+void RGBWWLed::pushAnimationHsv_AnimSetAndStay(int val, int time, bool requeue, const String& name, const ChannelList& channels) {
+	const bool all = channels.size() == 0;
+	for(int i=0; i < _animChannelsHsv.count(); ++i) {
+		const CtrlChannel ch = _animChannelsHsv.keyAt(i);
+		if (!all && !channels.contains(ch))
+			continue;
+		_animChannelsHsv[i]->pushAnimation(new AnimSetAndStay(val, 0, this, ch, requeue, name));
+	}
+}
+
+void RGBWWLed::clearAnimationQueue(const ChannelList& channels) {
 	callForChannels(&RGBWWAnimatedChannel::clearAnimationQueue);
 }
 
-void RGBWWLed::skipAnimation() {
+void RGBWWLed::skipAnimation(const ChannelList& channels) {
 	callForChannels(&RGBWWAnimatedChannel::skipAnimation);
 }
 
-void RGBWWLed::pauseAnimation() {
+void RGBWWLed::pauseAnimation(const ChannelList& channels) {
 	callForChannels(&RGBWWAnimatedChannel::pauseAnimation);
 }
 
-void RGBWWLed::continueAnimation() {
+void RGBWWLed::continueAnimation(const ChannelList& channels) {
 	callForChannels(&RGBWWAnimatedChannel::continueAnimation);
 }
 
-void RGBWWLed::callForChannels(void (RGBWWAnimatedChannel::*fnc)()) {
-	for(int i=0; i < _animChannelsHsv.count(); ++i) {
-		(_animChannelsHsv.valueAt(i)->*fnc)();
-	}
-	for(int i=0; i < _animChannelsRaw.count(); ++i) {
-		(_animChannelsRaw.valueAt(i)->*fnc)();
+void RGBWWLed::callForChannels(void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels) {
+	const bool all = channels.size() == 0;
+
+	RGBWWAnimatedChannel* modes[] = { _animChannelsHsv, _animChannelsRaw };
+	for(int j=0; i < 2; ++j) {
+		for(int i=0; i < modes[j].count(); ++i) {
+			if (!all || !channels.contains(modes[j].keyAt(i)))
+				continue;
+			(modes[j].valueAt(i)->*fnc)();
+		}
 	}
 }
 

@@ -68,6 +68,8 @@ public:
 	RGBWWLed();
 	~RGBWWLed();
 
+	typedef Vector<CtrlChannel> ChannelList;
+
 	/**
 	 * Initialize the the LED Controller
 	 *
@@ -259,17 +261,18 @@ public:
 	//colorutils
 	RGBWWColorUtils colorutils;
 
-	void pauseAnimation();
-	void continueAnimation();
+	void pauseAnimation(const ChannelList& channels);
+	void continueAnimation(const ChannelList& channels);
 
-    void clearAnimationQueue();
-    void skipAnimation();
+    void clearAnimationQueue(const ChannelList& channels);
+    void skipAnimation(const ChannelList& channels);
+
     void setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) );
 
 private:
     void getAnimChannelHsvColor(HSVCT& c);
     void getAnimChannelRawOutput(ChannelOutput& o);
-    void callForChannels(void (RGBWWAnimatedChannel::*fnc)());
+    void callForChannels(void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels = ChannelList());
 
 	ChannelOutput  	_current_output;
 	HSVCT 			_current_color;
