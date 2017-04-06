@@ -35,13 +35,12 @@
 
 #ifndef RGBWWLed_h
 #define RGBWWLed_h
-#include <functional>
 #include <Arduino.h>
 #include "../../Wiring/WHashMap.h"
 #include "RGBWWTypes.h"
 
 #ifndef DEBUG_RGBWW
-	#define DEBUG_RGBWW 1
+	#define DEBUG_RGBWW 0
 #endif
 
 #include "debugUtils.h"
@@ -162,7 +161,7 @@ public:
 	 * @param color
 	 * @param queue
 	 */
-	void setHSV(const HSVCT& color, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void setHSV(const HSVCT& color, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -174,7 +173,7 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void setHSV(const HSVCT& color, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void setHSV(const HSVCT& color, int time, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -184,7 +183,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param direction direction of transition (0= long/ 1=short)
 	 */
-	void fadeHSV(const HSVCT& color, int ramp, int direction, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& color, int ramp, int direction, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -194,7 +193,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(const HSVCT& color, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& color, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -205,7 +204,7 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(const HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 
 	/**
@@ -217,25 +216,14 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	void fadeHSV(const HSVCT& colorFrom, const HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	void fadeHSV(const HSVCT& colorFrom, const HSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 	//TODO: add documentation
 	/**
 	 *
 	 * @param output
 	 */
-	void setRAW(const ChannelOutput& output, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
-
-	//TODO: add documentation
-	/**
-	 *
-	 * @param output
-	 * @param time
-	 * @param queue
-	 */
-	void setRAW(const ChannelOutput& output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
-
-
+	void setRAW(const ChannelOutput& output, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
 
 	//TODO: add documentation
 	/**
@@ -244,7 +232,18 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void fadeRAW(const ChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	void setRAW(const ChannelOutput& output, int time, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "");
+
+
+
+	//TODO: add documentation
+	/**
+	 *
+	 * @param output
+	 * @param time
+	 * @param queue
+	 */
+	void fadeRAW(const ChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "" );
 
 	//TODO: add documentation
 	/**
@@ -254,33 +253,43 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	void fadeRAW(const ChannelOutput& output_from, const ChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	void fadeRAW(const ChannelOutput& output_from, const ChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, const ChannelList& channels = ChannelList(), bool requeue = false, const String& name = "" );
 
 	void blink(int time=1000);
 
 	//colorutils
 	RGBWWColorUtils colorutils;
 
-	void pauseAnimation(const ChannelList& channels);
-	void continueAnimation(const ChannelList& channels);
+	void pauseAnimation(const ChannelList& channels = ChannelList());
+	void continueAnimation(const ChannelList& channels = ChannelList());
 
-    void clearAnimationQueue(const ChannelList& channels);
-    void skipAnimation(const ChannelList& channels);
+    void clearAnimationQueue(const ChannelList& channels = ChannelList());
+    void skipAnimation(const ChannelList& channels = ChannelList());
 
-    void setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) );
+    void setAnimationCallback(void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim));
 
 private:
+    typedef HashMap<CtrlChannel, RGBWWAnimatedChannel*> ChannelGroup;
+
+    void pushAnimSetAndStay(int val, int time, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+    void pushAnimTransition(int val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+    void pushAnimTransition(int from, int val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+	void pushAnimTransitionCircularHue(int from, int val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+	void pushAnimTransitionCircularHue(int val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels);
+
+    void dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, QueuePolicy queuePolicy, const ChannelList& channels);
+
     void getAnimChannelHsvColor(HSVCT& c);
     void getAnimChannelRawOutput(ChannelOutput& o);
-    void callForChannels(void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels = ChannelList());
+    void callForChannels(const ChannelGroup& group, void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels = ChannelList());
 
 	ChannelOutput  	_current_output;
 	HSVCT 			_current_color;
 
 	PWMOutput* 		_pwm_output;
 
-	HashMap<CtrlChannel, RGBWWAnimatedChannel*> _animChannelsHsv;
-	HashMap<CtrlChannel, RGBWWAnimatedChannel*> _animChannelsRaw;
+	ChannelGroup _animChannelsHsv;
+	ChannelGroup _animChannelsRaw;
 
 	void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = nullptr;
 
