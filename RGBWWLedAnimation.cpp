@@ -55,14 +55,20 @@ int RGBWWLedAnimation::getBaseValue() const {
 	}
 }
 
-AnimSetAndStay::AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name) {
-	_value = endVal;
-    if (time > 0) {
-        _steps = time / RGBWW_MINTIMEDIFF;
-    }
+AnimSetAndStay::AnimSetAndStay(const AbsOrRelValue& endVal,
+									int time,
+									RGBWWLed const * rgbled,
+									CtrlChannel ch,
+									bool requeue,
+									const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name),
+															_endVal(enVal),
+															_time(time) {
 }
 
 bool AnimSetAndStay::run() {
+	if (_currentstep == 0)
+		init();
+
     _currentstep += 1;
     if (_steps != 0) {
         if (_currentstep < _steps) {
@@ -73,38 +79,46 @@ bool AnimSetAndStay::run() {
     return true;
 }
 
+bool AnimSetAndStay::init() {
+	_value = _endVal.getFinalValue(getBaseValue());
+
+	if (time > 0) {
+        _steps = time / RGBWW_MINTIMEDIFF;
+    }
+}
+
 void AnimSetAndStay::reset() {
 	_currentstep = 0;
 }
 
-AnimTransition::AnimTransition(int endVal,
+AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
 								int ramp,
 								RGBWWLed const * rgbled,
 								CtrlChannel ch,
 								bool requeue,
 								const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name)
-																															 {
-	_finalval = endVal;
+								{
+	_endVal = endVal;
     _steps = ramp / RGBWW_MINTIMEDIFF;
 }
 
 AnimTransition::AnimTransition(int startVal,
-								int endVal,
+								const AbsOrRelValue& endVal,
 								int ramp,
 								RGBWWLed const * rgbled,
 								CtrlChannel ch,
 								bool requeue,
-								const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name)
-
-{
+								const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
 	_baseval = startVal;
 	_hasbaseval = true;
 }
 
 bool AnimTransition::init() {
+	_finalval = _endVal.getFinalValue(getBaseValue());
+
     int l, r, d;
     if (!_hasbaseval) {
-    	_baseval = getBaseValue();
+    	_baseval = _baseval.getFinalValue(getBaseValue());
     	Serial.printf("AnimTransition::init: %d\n", _baseval);
     }
     _value = _baseval;
@@ -163,7 +177,7 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 
 ///////////////////////////////
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(int endVal,
+AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal,
 														int ramp,
 														int direction,
 														RGBWWLed const * rgbled,
@@ -173,8 +187,8 @@ AnimTransitionCircularHue::AnimTransitionCircularHue(int endVal,
 																_direction(direction) {
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal,
-														int endVal,
+AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal,
+														const AbsOrRelValue& endVal,
 														int ramp,
 														int direction,
 														RGBWWLed const * rgbled,
@@ -187,6 +201,7 @@ AnimTransitionCircularHue::AnimTransitionCircularHue(int startVal,
 
 bool AnimTransitionCircularHue::init() {
 	Serial.printf("HAS_BASEVAL: %d\n", _hasbaseval);
+	_finalval = _endVal.getFinalValue(getBaseValue());
 	if (!_hasbaseval) {
 		Serial.printf("GETBASEVAL\n");
 		_baseval = getBaseValue();

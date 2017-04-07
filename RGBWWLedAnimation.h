@@ -76,20 +76,24 @@ protected:
 
 class AnimSetAndStay : public RGBWWLedAnimation {
 public:
-    AnimSetAndStay(int endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimSetAndStay(const AbsOrRelValue& endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
 
 private:
+    virtual bool init();
+
     int _currentstep = 0;
     int _steps = 0;
+    AbsOrRelValue _endVal;
+    int _time;
 };
 
 class AnimTransition : public RGBWWLedAnimation {
 public:
-    AnimTransition(int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
-    AnimTransition(int startVal, int endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(const AbsOrRelValue& endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(int startVal, const AbsOrRelValue&  endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
@@ -99,19 +103,20 @@ protected:
 
     virtual bool init();
 
-    int   				_baseval = 0;
+    int 				_baseval = 0;
     int   				_currentval = 0;
     int   				_finalval = 0;
     bool  				_hasbaseval = false;
     int  				_currentstep = 0;
     int  				_steps = 0;
     BresenhamValues 	_bresenham;
+    AbsOrRelValue 		_endVal;
 };
 
 class AnimTransitionCircularHue : public AnimTransition {
 public:
-	AnimTransitionCircularHue(int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
-	AnimTransitionCircularHue(int startVal, int endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(const AbsOrRelValue& endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
 

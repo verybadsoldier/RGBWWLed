@@ -139,7 +139,6 @@ struct ChannelOutput {
 };
 
 // struct for HSV + Kelvin
-
 struct HSVCT {
 
 	union {
@@ -197,7 +196,6 @@ struct HSVCT {
     bool operator!=(const HSVCT& obj) const {
         return !(*this == obj);
     }
-
 
     HSVCT& operator= (const HSVCT& hsvct)
     {
