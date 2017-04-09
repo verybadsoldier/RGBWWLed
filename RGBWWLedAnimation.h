@@ -34,6 +34,9 @@ public:
      */
     virtual bool run() {return true;};
 
+    virtual const char* toString() {
+        return "<empty>";
+    }
 
     /**
      * Generic interface method for changing a variable
@@ -76,7 +79,7 @@ protected:
 
 class AnimSetAndStay : public RGBWWLedAnimation {
 public:
-    AnimSetAndStay(const AbsOrRelValue& endVal, int time, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimSetAndStay(const AbsOrRelValue& endVal, int onTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
@@ -86,14 +89,13 @@ private:
 
     int _currentstep = 0;
     int _steps = 0;
-    AbsOrRelValue _endVal;
-    int _time;
+    AbsOrRelValue _initEndVal;
 };
 
 class AnimTransition : public RGBWWLedAnimation {
 public:
     AnimTransition(const AbsOrRelValue& endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
-    AnimTransition(int startVal, const AbsOrRelValue&  endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue&  endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
@@ -106,11 +108,12 @@ protected:
     int 				_baseval = 0;
     int   				_currentval = 0;
     int   				_finalval = 0;
-    bool  				_hasbaseval = false;
+    bool  				_hasfromval = false;
     int  				_currentstep = 0;
     int  				_steps = 0;
     BresenhamValues 	_bresenham;
-    AbsOrRelValue 		_endVal;
+    AbsOrRelValue 		_initEndVal;
+    AbsOrRelValue       _initStartVal;
 };
 
 class AnimTransitionCircularHue : public AnimTransition {

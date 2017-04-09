@@ -56,13 +56,15 @@ int RGBWWLedAnimation::getBaseValue() const {
 }
 
 AnimSetAndStay::AnimSetAndStay(const AbsOrRelValue& endVal,
-									int time,
+									int onTime,
 									RGBWWLed const * rgbled,
 									CtrlChannel ch,
 									bool requeue,
 									const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name),
-															_endVal(enVal),
-															_time(time) {
+															_initEndVal(endVal) {
+    if (onTime > 0) {
+        _steps = onTime / RGBWW_MINTIMEDIFF;
+    }
 }
 
 bool AnimSetAndStay::run() {
@@ -80,11 +82,7 @@ bool AnimSetAndStay::run() {
 }
 
 bool AnimSetAndStay::init() {
-	_value = _endVal.getFinalValue(getBaseValue());
-
-	if (time > 0) {
-        _steps = time / RGBWW_MINTIMEDIFF;
-    }
+	_value = _initEndVal.getFinalValue(getBaseValue());
 }
 
 void AnimSetAndStay::reset() {
@@ -98,30 +96,30 @@ AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
 								bool requeue,
 								const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name)
 								{
-	_endVal = endVal;
+    _initEndVal = endVal;
     _steps = ramp / RGBWW_MINTIMEDIFF;
+
+    Serial.printf("STEPS: %d, RAMP:%d\n", _steps, ramp);
 }
 
-AnimTransition::AnimTransition(int startVal,
+AnimTransition::AnimTransition(const AbsOrRelValue& from,
 								const AbsOrRelValue& endVal,
 								int ramp,
 								RGBWWLed const * rgbled,
 								CtrlChannel ch,
 								bool requeue,
 								const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
-	_baseval = startVal;
-	_hasbaseval = true;
+    _initStartVal = from;
+	_hasfromval = true;
 }
 
 bool AnimTransition::init() {
-	_finalval = _endVal.getFinalValue(getBaseValue());
+	_finalval = _initEndVal.getFinalValue(getBaseValue());
+	_baseval = _hasfromval ? _initStartVal.getFinalValue(getBaseValue()) : getBaseValue();
 
-    int l, r, d;
-    if (!_hasbaseval) {
-    	_baseval = _baseval.getFinalValue(getBaseValue());
-    	Serial.printf("AnimTransition::init: %d\n", _baseval);
-    }
     _value = _baseval;
+
+    Serial.printf("AnimTransition::init: FINALVAL: %d\n", _finalval);
 
     //calculate steps per time
     _steps = (_steps > 0) ? _steps : int(1); //avoid 0 division
@@ -200,14 +198,8 @@ AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startV
 }
 
 bool AnimTransitionCircularHue::init() {
-	Serial.printf("HAS_BASEVAL: %d\n", _hasbaseval);
-	_finalval = _endVal.getFinalValue(getBaseValue());
-	if (!_hasbaseval) {
-		Serial.printf("GETBASEVAL\n");
-		_baseval = getBaseValue();
-	}
-	Serial.printf("BASEVAL: %d\n", _baseval);
-	_value = _baseval;
+	_finalval = _initEndVal.getFinalValue(getBaseValue());
+    _baseval = _hasfromval ? _initStartVal.getFinalValue(getBaseValue()) : getBaseValue();
 
 	// calculate hue direction
 	const int l = (_baseval + RGBWW_CALC_HUEWHEELMAX - _finalval) % RGBWW_CALC_HUEWHEELMAX;
@@ -234,6 +226,8 @@ bool AnimTransitionCircularHue::init() {
 }
 
 bool AnimTransitionCircularHue::run() {
+    Serial.printf("AnimTransitionCircularHue\n");
+
 	const bool result = AnimTransition::run();
 	RGBWWColorUtils::circleHue(_value);
 	return result;

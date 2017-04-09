@@ -76,9 +76,10 @@ bool RGBWWLed::show() {
 	    HSVCT c;
 	    getAnimChannelHsvColor(c);
 
-	    Serial.printf("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
+        Serial.printf("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
 
 	    if (getCurrentColor() != c) {
+	        Serial.printf("SETTING\n");
 	    	this->setOutput(c);
 	    }
 		break;
@@ -152,12 +153,15 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
  *                 ANIMATION/TRANSITION
  **************************************************************/
 
-void RGBWWLed::blink(int time) {
+void RGBWWLed::blink(const ChannelList& channels, int time) {
 	Serial.printf("Blink\n");
 	if (_mode == ColorMode::Hsv) {
 		HSVCT color = getCurrentColor();
-		int val = (color.val) > 50 ? 0 : 100;
+		const int val = (color.val) > 50 ? 0 : 100;
 		_animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(val, time, this, CtrlChannel::Val), QueuePolicy::Front);
+
+//		AbsOrRelValue val = (color.val > 50) ? AbsOrRelValue("100.0");
+	//	pushAnimSetAndStay()
 	}
 	else {
 		ChannelOutput out = getCurrentOutput();
@@ -186,15 +190,19 @@ void RGBWWLed::setHSV(const RequestHSVCT& color, int time, QueuePolicy queuePoli
 //// fadeHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RGBWWLed::fadeHSV(const RequestHSVCT& color, int ramp, int direction, bool requeue, const String& name) {
+    Serial.printf("RGBWWLed::fadeHSV: 2\n");
 	fadeHSV( color, ramp, direction, QueuePolicy::Single, requeue, name);
 }
 
 void RGBWWLed::fadeHSV(const RequestHSVCT& color, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+    Serial.printf("RGBWWLed::fadeHSV: 1\n");
 	fadeHSV( color, ramp, 1, queuePolicy, requeue, name);
 }
 
 void RGBWWLed::fadeHSV(const RequestHSVCT& color, int ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Hsv;
+
+	Serial.printf("RGBWWLed::fadeHSV: Queuepol: %d Ramp: %d\n", queuePolicy, ramp);
 
 	if (ramp == 0 || ramp < RGBWW_MINTIMEDIFF) {
 		pushAnimSetAndStay(color.h, 0, queuePolicy, CtrlChannel::Hue, requeue, name);
@@ -210,8 +218,9 @@ void RGBWWLed::fadeHSV(const RequestHSVCT& color, int ramp, int direction, Queue
 	}
 }
 
-void RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, int ramp, int direction /* = 1 */, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, int ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Hsv;
+    Serial.printf("RGBWWLed::fadeHSV: 3\n");
 
 	if (ramp == 0 || ramp < RGBWW_MINTIMEDIFF) {
 		pushAnimSetAndStay(color.h, 0, queuePolicy, CtrlChannel::Hue, requeue, name);
@@ -229,11 +238,11 @@ void RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color,
 
 //// setRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RGBWWLed::setRAW(const RequestChannel& output, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::setRAW(const RequestChannelOutput& output, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	setRAW(output, 0, queuePolicy, requeue, name);
 }
 
-void RGBWWLed::setRAW(const RequestChannel& output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::setRAW(const RequestChannelOutput& output, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Raw;
 
 	pushAnimSetAndStay(output.r, time, queuePolicy, CtrlChannel::Red, requeue, name);
@@ -245,7 +254,7 @@ void RGBWWLed::setRAW(const RequestChannel& output, int time, QueuePolicy queueP
 
 //// fadeRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RGBWWLed::fadeRAW(const RequestChannel& output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeRAW(const RequestChannelOutput& output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Raw;
 
 	if (ramp == 0 || ramp < RGBWW_MINTIMEDIFF) {
@@ -264,7 +273,7 @@ void RGBWWLed::fadeRAW(const RequestChannel& output, int ramp, QueuePolicy queue
 	}
 }
 
-void RGBWWLed::fadeRAW(const RequestChannel& output_from, const RequestChannel& output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+void RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, int ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
 	_mode = ColorMode::Raw;
 
 	if (ramp == 0 || ramp < RGBWW_MINTIMEDIFF) {
@@ -283,46 +292,48 @@ void RGBWWLed::fadeRAW(const RequestChannel& output_from, const RequestChannel& 
 	}
 }
 
-void RGBWWLed::pushAnimSetAndStay(const Optional<AbsOrRelValue>& val, int time, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels) {
+void RGBWWLed::pushAnimSetAndStay(const Optional<AbsOrRelValue>& val, int time, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
 	if (!val.hasValue())
 		return;
 	RGBWWLedAnimation* pAnim = new AnimSetAndStay(val, time, this, ch, requeue, name);
-	dispatchAnimation(pAnim, ch, queuePolicy, channels);
+	dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-void RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels) {
+void RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
 	if (!val.hasValue())
 		return;
+    Serial.printf("pushAnimTransition: %d\n", ramp);
 	RGBWWLedAnimation* pAnim = new AnimTransition(val, ramp, this, ch, requeue, name);
-	dispatchAnimation(pAnim, ch, queuePolicy, channels);
+	dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-void RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels) {
+void RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
 	if (!val.hasValue())
 		return;
 	RGBWWLedAnimation* pAnim = new AnimTransition(from, val, ramp, this, ch, requeue, name);
-	dispatchAnimation(pAnim, ch, queuePolicy, channels);
+	dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-void RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels) {
-	if (!val.hasValue())
-		return;
+void RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
+	if (!val.hasValue()) {
+	    Serial.printf("pushAnimTransitionCircularHue: NOVAL\n");
+	    return;
+	}
+	Serial.printf("pushAnimTransitionCircularHue: %d\n", ramp);
 	RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(val, ramp, direction, this, ch, requeue, name);
-	dispatchAnimation(pAnim, ch, queuePolicy, channels);
+	dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-void RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name, const ChannelList& channels) {
+void RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
+    Serial.printf("pushAnimTransitionCircularHue from\n");
 	if (!val.hasValue())
 		return;
 	RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(from, val, ramp, direction, this, ch, requeue, name);
-	dispatchAnimation(pAnim, ch, queuePolicy, channels);
+	dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
 
 void RGBWWLed::dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, QueuePolicy queuePolicy, const ChannelList& channels) {
-	if (channels.count() != 0 && !channels.contains(ch))
-		return;
-
 	switch(ch) {
 	case CtrlChannel::Hue:
 	case CtrlChannel::Sat:
@@ -342,31 +353,36 @@ void RGBWWLed::dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, Queue
 
 
 void RGBWWLed::clearAnimationQueue(const ChannelList& channels) {
-	callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::clearAnimationQueue);
-    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::clearAnimationQueue);
+    Serial.printf("clearAnimationQueue: %d\n", channels.size());
+	callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::clearAnimationQueue, channels);
+    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::clearAnimationQueue, channels);
 }
 
 void RGBWWLed::skipAnimation(const ChannelList& channels) {
-	callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::skipAnimation);
-    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::skipAnimation);
+    Serial.printf("skipAnimation: %d\n", channels.size());
+	callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::skipAnimation, channels);
+    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::skipAnimation, channels);
 }
 
 void RGBWWLed::pauseAnimation(const ChannelList& channels) {
-	callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::pauseAnimation);
-    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::pauseAnimation);
+    Serial.printf("pauseAnimation-1\n");
+	callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::pauseAnimation, channels);
+    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::pauseAnimation, channels);
 }
 
 void RGBWWLed::continueAnimation(const ChannelList& channels) {
-    callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::continueAnimation);
-    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::continueAnimation);
+    callForChannels(_animChannelsHsv, &RGBWWAnimatedChannel::continueAnimation, channels);
+    callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::continueAnimation, channels);
 }
 
 void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels) {
 	const bool all = (channels.size() == 0);
 
     for(int i=0; i < group.count(); ++i) {
-        if (!all || !channels.contains(group.keyAt(i)))
+        Serial.printf("callForChannels ALL: %d\n", all);
+        if (!all && !channels.contains(group.keyAt(i)))
             continue;
+        Serial.printf("Calling FNC: %d\n", i);
         (group.valueAt(i)->*fnc)();
     }
 }

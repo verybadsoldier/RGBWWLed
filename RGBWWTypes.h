@@ -1,34 +1,77 @@
 #pragma once
 
 #include "../../SmingCore/SmingCore.h"
+#include "RGBWWconst.h"
 
 
 class AbsOrRelValue {
 public:
+	enum class Type {
+		Raw,   // 0 - 1023
+		Hue,   // -> 0 - 360
+		Percent, // 0 - 100
+		Ct // no check
+	};
+
 	enum class Mode {
 		Absolute,
 		Relative,
 	};
 
-	AbsOrRelValue(const String& value) {
-		if (value.startsWith("+") || value.startsWith("-")) {
+	AbsOrRelValue() {
+	}
+
+	AbsOrRelValue(const char* value, Type type = Type::Percent) : _type(type){
+	    Serial.printf("ABS: %s\n", value);
+		String str;
+		str.setString(value);
+		float val;
+		if (str.startsWith("+") || str.startsWith("-")) {
+	        Serial.printf("ABS2-1\n");
 			_mode = Mode::Relative;
-			_value = value.substring(1).toFloat();
+			val = str.substring(1).toFloat();
+			if (str.startsWith("-"))
+			    val *= -1;
 		}
 		else {
+
 			_mode = Mode::Absolute;
-			_value = value.toFloat();
+			val = str.toFloat();
+            Serial.printf("ABS2-2: %f\n", val);
 		}
+        Serial.printf("ABS2-3: %d\n", type);
+
+        // convert to int
+        switch(_type) {
+        case Type::Hue:
+            val = (val / 360.0) * RGBWW_CALC_HUEWHEELMAX;
+            break;
+        case Type::Percent:
+            val = (val / 100.0) * RGBWW_CALC_MAXVAL;
+            break;
+        }
+
+        Serial.printf("ABS2-4: %f\n", val);
+        _value = static_cast<int>(val + 0.5f);
+
+        if (_mode != Mode::Relative)
+            _value = fixRangeLimits(_value);
+
+		Serial.printf("ABS4: %d\n", _value);
 	}
 
-	AbsOrRelValue(AbsOrRelValue::Mode mode, int value) : _mode(mode), _value(value) {
-	}
+    AbsOrRelValue(int value) : _value(value) {
+    }
 
-	AbsOrRelValue(float value) : _mode(Mode::Absolute), _value(value) {
-	}
+    AbsOrRelValue(int value, Mode mode) : _mode(mode), _value(value) {
+    }
 
     bool operator==(const AbsOrRelValue& obj) const {
         return (_mode == obj.getMode()) && (this->_value == obj.getValue());
+    }
+
+    operator int() const {
+        return _value;
     }
 
 	Mode getMode() const {
@@ -42,15 +85,34 @@ public:
 	int getFinalValue(int val) {
 		switch(_mode) {
 		case Mode::Relative:
-			return _value + val;
+			return fixRangeLimits(_value + val);
 		case Mode::Absolute:
 			return _value;
 		}
 	}
 
 private:
-	AbsOrRelValue::Mode _mode;
-	int _value;
+	int fixRangeLimits(int val) {
+	    switch(_type) {
+        case Type::Raw:
+            val = constrain(val, 0, 1023);
+            break;
+        case Type::Hue:
+            if (val < 0)
+                val = RGBWW_CALC_HUEWHEELMAX + val;
+            else
+                val = val % RGBWW_CALC_HUEWHEELMAX;
+            break;
+        case Type::Percent:
+            val = constrain(val, 0, RGBWW_CALC_MAXVAL);
+            break;
+        }
+	    return val;
+	}
+
+	AbsOrRelValue::Mode _mode = Mode::Absolute;
+	Type _type = Type::Percent;
+	int _value = 0;
 };
 
 template< typename T >
@@ -75,8 +137,24 @@ public:
         return (this->hasValue() == obj.hasValue()) && (this->getValue() == obj.getValue());
     }
 
-    operator const T&() {
-    	return getValue();
+    bool operator==(const T& obj) const {
+        return this->hasValue() && (_value == obj);
+    }
+
+    bool operator!=(const T& obj) const {
+        return !(*this == obj);
+    }
+
+    bool operator<(const T& obj) const {
+        return this->hasValue() && (_value < obj);
+    }
+
+    bool operator>(const T& obj) const {
+        return this->hasValue() && (_value > obj);
+    }
+
+    operator const T&() const {
+    	return _value;
     }
 
 	void clear() {
@@ -89,62 +167,6 @@ public:
 private:
 	T _value;
 	bool _hasValue = false;
-};
-
-struct RequestHSVCT {
-	Optional<AbsOrRelValue> h;
-	Optional<AbsOrRelValue> s;
-	Optional<AbsOrRelValue> v;
-	Optional<AbsOrRelValue> ct;
-
-    bool operator==(const RequestHSVCT& obj) const {
-        return this->h == obj.h &&
-                this->s == obj.s &&
-                this->v == obj.v &&
-                this->ct == obj.ct;
-    }
-
-    bool operator!=(const RequestHSVCT& obj) const {
-        return !(*this == obj);
-    }
-
-    RequestHSVCT& operator= (const RequestHSVCT& hsvct)
-    {
-    	this->h = hsvct.h;
-    	this->s = hsvct.s;
-    	this->v = hsvct.v;
-    	this->ct = hsvct.ct;
-        return *this;
-    }
-};
-
-struct RequestChannel {
-	Optional<AbsOrRelValue> r;
-	Optional<AbsOrRelValue> g;
-	Optional<AbsOrRelValue> b;
-	Optional<AbsOrRelValue> ww;
-	Optional<AbsOrRelValue> cw;
-
-    bool operator==(const RequestChannel& ch) const {
-        return this->r == ch.r &&
-                this->g == ch.g &&
-                this->b == ch.b &&
-                this->ww == ch.ww &&
-                this->cw == ch.cw;
-    }
-
-    bool operator!=(const RequestChannel& obj) const {
-        return !(*this == obj);
-    }
-
-    RequestChannel& operator= (const RequestChannel& ch) {
-    	this->r = ch.r;
-    	this->g = ch.g;
-    	this->b = ch.b;
-    	this->cw = ch.cw;
-    	this->ww = ch.ww;
-        return *this;
-    }
 };
 
 enum class ColorMode {
@@ -172,6 +194,7 @@ struct BresenhamValues {
 };
 
 enum class QueuePolicy {
+    Invalid,
     FrontReset, // queue to front and let the original anim run from the beginning afterwards
     Front, // queue to front and the current animation will continue where it was interrupted
     Back,
