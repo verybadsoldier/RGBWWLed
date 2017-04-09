@@ -31,7 +31,7 @@ void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 		cleanupCurrentAnimation();
 	}
 
-	Serial.printf("Adding animation: %d\n", queuePolicy);
+	Serial.printf("pushAnimation: %d\n", queuePolicy);
 
 	switch(queuePolicy) {
 		case QueuePolicy::Back:
@@ -40,6 +40,7 @@ void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 			break;
 		case QueuePolicy::Front:
 		case QueuePolicy::FrontReset:
+            Serial.printf("Adding animation3\n");
 			if (_currentAnimation != nullptr) {
 				if (queuePolicy == QueuePolicy::FrontReset)
 					_currentAnimation->reset();
@@ -50,6 +51,8 @@ void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 		    _isAnimationActive = false;
 		    _cancelAnimation = false;
 			break;
+		default:
+		    Serial.printf("RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n", queuePolicy);
 	}
 }
 
@@ -75,6 +78,7 @@ bool RGBWWAnimatedChannel::process() {
         if (_animationQ->isEmpty()) {
             return true;
         }
+
         _currentAnimation = _animationQ->pop();
         _isAnimationActive = true;
     }
@@ -82,6 +86,7 @@ bool RGBWWAnimatedChannel::process() {
     const bool finished = _currentAnimation->run();
     _value = _currentAnimation->getAnimValue();
     if (finished) {
+        Serial.printf("FINISHED\n");
         //callback animation finished
         if(_animationcallback != NULL ){
             _animationcallback(_rgbled, _currentAnimation);
@@ -98,6 +103,7 @@ bool RGBWWAnimatedChannel::process() {
 }
 
 void RGBWWAnimatedChannel::pauseAnimation() {
+    Serial.printf("RGBWWAnimatedChannel::pauseAnimation\n");
     _isAnimationPaused = true;
 }
 
@@ -109,11 +115,9 @@ bool RGBWWAnimatedChannel::isAnimationQFull() {
     return _animationQ->isFull();
 }
 
-
 bool RGBWWAnimatedChannel::isAnimationActive() {
     return _isAnimationActive;
 }
-
 
 void RGBWWAnimatedChannel::skipAnimation(){
     if (_isAnimationActive) {

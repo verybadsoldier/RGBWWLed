@@ -165,7 +165,7 @@ struct HSVCT {
     HSVCT(int hue, int sat, int val, int ct) : h(hue), s(sat), v(val), ct(ct) {}
 
     //construct from float values
-    HSVCT( float hue, float sat, float val) {
+    HSVCT(float hue, float sat, float val) {
     	this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
     	this->s = (constrain(sat, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
     	this->v = (constrain(val, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
@@ -173,7 +173,7 @@ struct HSVCT {
     	this->ct = 0;
     }
 
-    HSVCT( float hue, float sat, float val, int ct) : HSVCT(hue, sat, val) {
+    HSVCT(float hue, float sat, float val, int ct) : HSVCT(hue, sat, val) {
     	ct = constrain(ct, 0, 10000);
     }
 
@@ -220,6 +220,72 @@ struct HSVCT {
     }
 };
 
+
+struct RequestChannelOutput {
+	Optional<AbsOrRelValue> r;
+	Optional<AbsOrRelValue> g;
+	Optional<AbsOrRelValue> b;
+	Optional<AbsOrRelValue> ww;
+	Optional<AbsOrRelValue> cw;
+
+    bool operator==(const RequestChannelOutput& ch) const {
+        return this->r == ch.r &&
+                this->g == ch.g &&
+                this->b == ch.b &&
+                this->ww == ch.ww &&
+                this->cw == ch.cw;
+    }
+
+    bool operator!=(const RequestChannelOutput& obj) const {
+        return !(*this == obj);
+    }
+
+    RequestChannelOutput& operator= (const RequestChannelOutput& ch) {
+    	this->r = ch.r;
+    	this->g = ch.g;
+    	this->b = ch.b;
+    	this->cw = ch.cw;
+    	this->ww = ch.ww;
+        return *this;
+    }
+};
+
+struct RequestHSVCT {
+    Optional<AbsOrRelValue> h;
+    Optional<AbsOrRelValue> s;
+    Optional<AbsOrRelValue> v;
+    Optional<AbsOrRelValue> ct;
+
+    RequestHSVCT() {
+    }
+
+    RequestHSVCT(const HSVCT& hsvct) {
+        h = hsvct.h;
+        s = hsvct.s;
+        v = hsvct.v;
+        ct = hsvct.ct;
+    }
+
+    bool operator==(const RequestHSVCT& obj) const {
+        return this->h == obj.h &&
+                this->s == obj.s &&
+                this->v == obj.v &&
+                this->ct == obj.ct;
+    }
+
+    bool operator!=(const RequestHSVCT& obj) const {
+        return !(*this == obj);
+    }
+
+    RequestHSVCT& operator= (const RequestHSVCT& hsvct)
+    {
+        this->h = hsvct.h;
+        this->s = hsvct.s;
+        this->v = hsvct.v;
+        this->ct = hsvct.ct;
+        return *this;
+    }
+};
 
 struct COLOR {
 	union {
