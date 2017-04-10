@@ -85,7 +85,7 @@ public:
 
     void getValue(int& value) const;
 
-    void pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
+    bool pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
 
     void pauseAnimation();
     void continueAnimation();

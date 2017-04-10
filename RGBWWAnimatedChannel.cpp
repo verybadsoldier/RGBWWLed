@@ -25,11 +25,14 @@ void RGBWWAnimatedChannel::getValue(int& value) const {
     value = _value;
 }
 
-void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
+bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
 	if (queuePolicy == QueuePolicy::Single) {
 		cleanupAnimationQ();
 		cleanupCurrentAnimation();
 	}
+
+	if (_animationQ->isFull())
+		return false;
 
 	Serial.printf("pushAnimation: %d\n", queuePolicy);
 
@@ -54,6 +57,8 @@ void RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 		default:
 		    Serial.printf("RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n", queuePolicy);
 	}
+
+	return true;
 }
 
 bool RGBWWAnimatedChannel::process() {
