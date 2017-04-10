@@ -33,8 +33,8 @@
  * queuing several animations/colors to a complex animation
  */
 
-#ifndef RGBWWLed_h
-#define RGBWWLed_h
+#pragma once
+
 #include <Arduino.h>
 #include "../../Wiring/WHashMap.h"
 #include "RGBWWTypes.h"
@@ -298,5 +298,3 @@ private:
 
 	ColorMode _mode = ColorMode::Hsv;
 };
-
-#endif //RGBWWLed_h
