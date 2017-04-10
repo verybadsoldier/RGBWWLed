@@ -124,7 +124,7 @@ public:
     virtual bool run() override;
 
 private:
-    virtual bool init();
+    virtual bool init() override;
 
     int _direction = 0;
 };

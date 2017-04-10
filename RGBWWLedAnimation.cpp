@@ -201,6 +201,7 @@ bool AnimTransitionCircularHue::init() {
 	_finalval = _initEndVal.getFinalValue(getBaseValue());
     _baseval = _hasfromval ? _initStartVal.getFinalValue(getBaseValue()) : getBaseValue();
 
+    Serial.printf("AnimTransitionCircularHue::init - final: %d base: %d\n", _finalval, _baseval);
 	// calculate hue direction
 	const int l = (_baseval + RGBWW_CALC_HUEWHEELMAX - _finalval) % RGBWW_CALC_HUEWHEELMAX;
 	const int r = (_finalval + RGBWW_CALC_HUEWHEELMAX - _baseval) % RGBWW_CALC_HUEWHEELMAX;
@@ -226,8 +227,6 @@ bool AnimTransitionCircularHue::init() {
 }
 
 bool AnimTransitionCircularHue::run() {
-    Serial.printf("AnimTransitionCircularHue\n");
-
 	const bool result = AnimTransition::run();
 	RGBWWColorUtils::circleHue(_value);
 	return result;

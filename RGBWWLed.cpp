@@ -78,10 +78,8 @@ bool RGBWWLed::show() {
 
         Serial.printf("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
 
-	    if (getCurrentColor() != c) {
-	        Serial.printf("SETTING\n");
+	    if (getCurrentColor() != c)
 	    	this->setOutput(c);
-	    }
 		break;
 	}
 	case ColorMode::Raw:
@@ -158,10 +156,9 @@ void RGBWWLed::blink(const ChannelList& channels, int time) {
 	if (_mode == ColorMode::Hsv) {
 		HSVCT color = getCurrentColor();
 		const int val = (color.val) > 50 ? 0 : 100;
-		_animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(val, time, this, CtrlChannel::Val), QueuePolicy::Front);
-
-//		AbsOrRelValue val = (color.val > 50) ? AbsOrRelValue("100.0");
-	//	pushAnimSetAndStay()
+//		RGBWWLedAnimation* pAnim = new AnimSetAndStay(val, time, this, ch, requeue, name);
+        _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(AbsOrRelValue("100"), 0, this, CtrlChannel::Val), QueuePolicy::Front);
+		_animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(AbsOrRelValue("0"), time, this, CtrlChannel::Val), QueuePolicy::Front);
 	}
 	else {
 		ChannelOutput out = getCurrentOutput();
@@ -170,6 +167,7 @@ void RGBWWLed::blink(const ChannelList& channels, int time) {
 		_animChannelsRaw[CtrlChannel::WarmWhite]->pushAnimation(new AnimSetAndStay(wwVal, time, this, CtrlChannel::WarmWhite), QueuePolicy::Front);
 		_animChannelsRaw[CtrlChannel::ColdWhite]->pushAnimation(new AnimSetAndStay(cwVal, time, this, CtrlChannel::ColdWhite), QueuePolicy::Front);
 	}
+    Serial.printf("BlinkEnd\n");
 }
 
 //// setHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
