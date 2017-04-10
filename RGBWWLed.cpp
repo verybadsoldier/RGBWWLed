@@ -157,8 +157,8 @@ void RGBWWLed::blink(const ChannelList& channels, int time) {
 		HSVCT color = getCurrentColor();
 		const int val = (color.val) > 50 ? 0 : 100;
 //		RGBWWLedAnimation* pAnim = new AnimSetAndStay(val, time, this, ch, requeue, name);
-        _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(AbsOrRelValue("100"), 0, this, CtrlChannel::Val), QueuePolicy::Front);
-		_animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(AbsOrRelValue("0"), time, this, CtrlChannel::Val), QueuePolicy::Front);
+        _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(color.val, 0, this, CtrlChannel::Val), QueuePolicy::Front);
+		_animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(val, time, this, CtrlChannel::Val), QueuePolicy::Front);
 	}
 	else {
 		ChannelOutput out = getCurrentOutput();
