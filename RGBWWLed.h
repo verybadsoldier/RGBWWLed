@@ -255,7 +255,7 @@ public:
 	 */
 	bool fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
-	void blink(const ChannelList& channels = ChannelList(), int time=1000);
+	void blink(const ChannelList& channels = ChannelList(), int time=100);
 
 	//colorutils
 	RGBWWColorUtils colorutils;
