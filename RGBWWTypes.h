@@ -45,12 +45,18 @@ public:
 		Serial.printf("ABS4: %d\n", _value);
 	}
 
+    AbsOrRelValue(const AbsOrRelValue& o) {
+        _value = o.getValue();
+        _mode = o.getMode();
+        _type = o.getType();
+    }
+
     AbsOrRelValue(int value) {
-        setValueByType(value);
+        _value = value;
     }
 
     AbsOrRelValue(int value, Mode mode) : _mode(mode) {
-        setValueByType(value);
+        _value = value;
     }
 
     bool operator==(const AbsOrRelValue& obj) const {
@@ -59,6 +65,10 @@ public:
 
     operator int() const {
         return _value;
+    }
+
+    Type getType() const {
+        return _type;
     }
 
 	Mode getMode() const {

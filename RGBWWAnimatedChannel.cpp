@@ -26,39 +26,39 @@ void RGBWWAnimatedChannel::getValue(int& value) const {
 }
 
 bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
-	if (queuePolicy == QueuePolicy::Single) {
-		cleanupAnimationQ();
-		cleanupCurrentAnimation();
-	}
+    if (queuePolicy == QueuePolicy::Single) {
+        cleanupAnimationQ();
+        cleanupCurrentAnimation();
+    }
 
-	if (_animationQ->isFull())
-		return false;
+    if (_animationQ->isFull())
+        return false;
 
-	Serial.printf("pushAnimation: %d\n", queuePolicy);
+    Serial.printf("pushAnimation: %d\n", queuePolicy);
 
-	switch(queuePolicy) {
-		case QueuePolicy::Back:
-		case QueuePolicy::Single:
-			_animationQ->push(pAnim);
-			break;
-		case QueuePolicy::Front:
-		case QueuePolicy::FrontReset:
-            Serial.printf("Adding animation3\n");
-			if (_currentAnimation != nullptr) {
-				if (queuePolicy == QueuePolicy::FrontReset)
-					_currentAnimation->reset();
-				_animationQ->pushFront(_currentAnimation);
-				_currentAnimation = NULL;
-			}
-			_animationQ->pushFront(pAnim);
-		    _isAnimationActive = false;
-		    _cancelAnimation = false;
-			break;
-		default:
-		    Serial.printf("RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n", queuePolicy);
-	}
+    switch(queuePolicy) {
+    case QueuePolicy::Back:
+    case QueuePolicy::Single:
+        _animationQ->push(pAnim);
+        break;
+    case QueuePolicy::Front:
+    case QueuePolicy::FrontReset:
+        Serial.printf("Adding animation3\n");
+        if (_currentAnimation != nullptr) {
+            if (queuePolicy == QueuePolicy::FrontReset)
+                _currentAnimation->reset();
+            _animationQ->pushFront(_currentAnimation);
+            _currentAnimation = NULL;
+        }
+        _animationQ->pushFront(pAnim);
+        _isAnimationActive = false;
+        _cancelAnimation = false;
+        break;
+    default:
+        Serial.printf("RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n", queuePolicy);
+    }
 
-	return true;
+    return true;
 }
 
 bool RGBWWAnimatedChannel::process() {
