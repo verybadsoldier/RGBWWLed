@@ -155,9 +155,23 @@ void RGBWWLed::blink(const ChannelList& channels, int time) {
     Serial.printf("Blink\n");
     if (_mode == ColorMode::Hsv) {
         HSVCT color = getCurrentColor();
-        const int val = (color.val) > 50 ? 0 : 100;
-        _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(color.val, 0, this, CtrlChannel::Val), QueuePolicy::Front);
-        _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(val, time, this, CtrlChannel::Val), QueuePolicy::Front);
+        float h, s, v;
+        color.asRadian(h, s, v);
+
+        if (channels.size() == 0 || channels.contains(CtrlChannel::Val)) {
+            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(color.val, 0, this, CtrlChannel::Val), QueuePolicy::Front);
+            const int val = (v) > 50 ? 0 : 100;
+            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(val, AbsOrRelValue::Type::Percent), time, this, CtrlChannel::Val), QueuePolicy::Front);
+        }
+        else if (channels.contains(CtrlChannel::Sat)) {
+            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimSetAndStay(color.sat, 0, this, CtrlChannel::Sat), QueuePolicy::Front);
+            const int sat = (s) > 50 ? 0 : 100;
+            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(sat, AbsOrRelValue::Type::Percent), time, this, CtrlChannel::Sat), QueuePolicy::Front);
+        }
+        else if (channels.contains(CtrlChannel::Hue)) {
+            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimSetAndStay(color.hue, time, this, CtrlChannel::Hue), QueuePolicy::Front);
+            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(color.hue + 120, AbsOrRelValue::Type::Hue), time, this, CtrlChannel::Hue), QueuePolicy::Front);
+        }
     }
     else {
         ChannelOutput out = getCurrentOutput();
