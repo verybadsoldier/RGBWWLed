@@ -201,6 +201,8 @@ bool AnimTransitionCircularHue::init() {
 	_finalval = _initEndVal.getFinalValue(getBaseValue());
     _baseval = _hasfromval ? _initStartVal.getFinalValue(getBaseValue()) : getBaseValue();
 
+    _value = _baseval;
+
     Serial.printf("AnimTransitionCircularHue::init - final: %d base: %d\n", _finalval, _baseval);
 	// calculate hue direction
 	const int l = (_baseval + RGBWW_CALC_HUEWHEELMAX - _finalval) % RGBWW_CALC_HUEWHEELMAX;
