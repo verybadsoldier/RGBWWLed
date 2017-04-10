@@ -34,36 +34,23 @@ public:
 			    val *= -1;
 		}
 		else {
-
 			_mode = Mode::Absolute;
 			val = str.toFloat();
             Serial.printf("ABS2-2: %f\n", val);
 		}
         Serial.printf("ABS2-3: %d\n", type);
 
-        // convert to int
-        switch(_type) {
-        case Type::Hue:
-            val = (val / 360.0) * RGBWW_CALC_HUEWHEELMAX;
-            break;
-        case Type::Percent:
-            val = (val / 100.0) * RGBWW_CALC_MAXVAL;
-            break;
-        }
-
-        Serial.printf("ABS2-4: %f\n", val);
-        _value = static_cast<int>(val + 0.5f);
-
-        if (_mode != Mode::Relative)
-            _value = fixRangeLimits(_value);
+        setValueByType(val);
 
 		Serial.printf("ABS4: %d\n", _value);
 	}
 
-    AbsOrRelValue(int value) : _value(value) {
+    AbsOrRelValue(int value) {
+        setValueByType(value);
     }
 
-    AbsOrRelValue(int value, Mode mode) : _mode(mode), _value(value) {
+    AbsOrRelValue(int value, Mode mode) : _mode(mode) {
+        setValueByType(value);
     }
 
     bool operator==(const AbsOrRelValue& obj) const {
@@ -92,6 +79,23 @@ public:
 	}
 
 private:
+	void setValueByType(float value) {
+        switch(_type) {
+        case Type::Hue:
+        	value = (value / 360.0) * RGBWW_CALC_HUEWHEELMAX;
+            break;
+        case Type::Percent:
+        	value = (value / 100.0) * RGBWW_CALC_MAXVAL;
+            break;
+        }
+
+        Serial.printf("setValueByType: %f\n", value);
+        _value = static_cast<int>(value + 0.5f);
+
+        if (_mode != Mode::Relative)
+            _value = fixRangeLimits(_value);
+	}
+
 	int fixRangeLimits(int val) {
 	    switch(_type) {
         case Type::Raw:
