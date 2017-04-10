@@ -51,13 +51,27 @@ public:
         _type = o.getType();
     }
 
+    /**
+     * Accepts CHANNEL output range value
+     */
     AbsOrRelValue(int value) {
         _value = value;
     }
 
+    /**
+     * Accepts CHANNEL output range value
+     */
     AbsOrRelValue(int value, Mode mode) : _mode(mode) {
         _value = value;
     }
+
+    /**
+     * Accepts INPUT range, will be converted to output range value
+     */
+    AbsOrRelValue(int value, Type type) : _type(type) {
+       setValueByType(value);
+    }
+
 
     bool operator==(const AbsOrRelValue& obj) const {
         return (_mode == obj.getMode()) && (this->_value == obj.getValue());
