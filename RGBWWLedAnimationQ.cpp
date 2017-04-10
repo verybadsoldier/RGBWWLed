@@ -11,24 +11,24 @@
 
 
 RGBWWLedAnimationQ::RGBWWLedAnimationQ(int qsize) {
-	_size = qsize;
-	_count = 0;
-	_front = 0;
-	_back = 0;
+    _size = qsize;
+    _count = 0;
+    _front = 0;
+    _back = 0;
     _q = new RGBWWLedAnimation*[qsize];
 }
 
 RGBWWLedAnimationQ::~RGBWWLedAnimationQ(){
-	clear();
-	delete _q;
+    clear();
+    delete _q;
 }
 
 bool RGBWWLedAnimationQ::isEmpty() {
-	return _count == 0;
+    return _count == 0;
 }
 
 bool RGBWWLedAnimationQ::isFull() {
-	return _count == _size;
+    return _count == _size;
 }
 
 bool RGBWWLedAnimationQ::push(RGBWWLedAnimation* animation) {
@@ -48,36 +48,36 @@ bool RGBWWLedAnimationQ::pushFront(RGBWWLedAnimation* animation) {
     ++_count;
     --_back;
     if (_back < 0)
-    	_back = _size + _back;
+        _back = _size + _back;
 
     _q[_back] = animation;
     return true;
 }
 
 void RGBWWLedAnimationQ::clear() {
-	while(!isEmpty()) {
-		RGBWWLedAnimation* animation = pop();
-		if (animation != NULL) {
-			delete animation;
-		}
-	}
+    while(!isEmpty()) {
+        RGBWWLedAnimation* animation = pop();
+        if (animation != NULL) {
+            delete animation;
+        }
+    }
 }
 
 RGBWWLedAnimation* RGBWWLedAnimationQ::peek() {
-	if (!isEmpty()) {
+    if (!isEmpty()) {
         return _q[_back];
-	}
-	return NULL;
+    }
+    return NULL;
 }
 
 RGBWWLedAnimation* RGBWWLedAnimationQ::pop() {
-	RGBWWLedAnimation* tmpptr;
-	if (!isEmpty()) {
-		_count--;
+    RGBWWLedAnimation* tmpptr;
+    if (!isEmpty()) {
+        _count--;
         tmpptr = _q[_back];
         _q[_back] = NULL;
         _back = (_back+1) %_size;
-		return tmpptr;
-	}
-	return NULL;
+        return tmpptr;
+    }
+    return NULL;
 }
