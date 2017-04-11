@@ -170,7 +170,7 @@ void RGBWWLed::blink(const ChannelList& channels, int time) {
         }
         if (channels.contains(CtrlChannel::Hue)) {
             _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimSetAndStay(color.hue, time, this, CtrlChannel::Hue), QueuePolicy::Front);
-            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(color.hue + 120, AbsOrRelValue::Type::Hue), time, this, CtrlChannel::Hue), QueuePolicy::Front);
+            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(color.hue + 180, AbsOrRelValue::Type::Hue), time, this, CtrlChannel::Hue), QueuePolicy::Front);
         }
     }
     else {
