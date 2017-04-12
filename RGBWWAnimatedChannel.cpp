@@ -31,6 +31,9 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
         cleanupCurrentAnimation();
     }
 
+    if (queuePolicy != QueuePolicy::Back)
+        continueAnimation();
+
     if (_animationQ->isFull())
         return false;
 
