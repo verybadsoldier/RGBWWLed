@@ -22,12 +22,10 @@ public:
 	}
 
 	AbsOrRelValue(const char* value, Type type = Type::Percent) : _type(type){
-	    Serial.printf("ABS: %s\n", value);
 		String str;
 		str.setString(value);
 		float val;
 		if (str.startsWith("+") || str.startsWith("-")) {
-	        Serial.printf("ABS2-1\n");
 			_mode = Mode::Relative;
 			val = str.substring(1).toFloat();
 			if (str.startsWith("-"))
@@ -36,13 +34,8 @@ public:
 		else {
 			_mode = Mode::Absolute;
 			val = str.toFloat();
-            Serial.printf("ABS2-2: %f\n", val);
 		}
-        Serial.printf("ABS2-3: %d\n", type);
-
         setValueByType(val);
-
-		Serial.printf("ABS4: %d\n", _value);
 	}
 
     AbsOrRelValue(const AbsOrRelValue& o) {

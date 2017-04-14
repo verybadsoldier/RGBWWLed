@@ -21,10 +21,8 @@ int RGBWWLedAnimation::getBaseValue() const {
     const HSVCT& c = _rgbled->getCurrentColor();
     const ChannelOutput& o = _rgbled->getCurrentOutput();
 
-    Serial.printf("CTRL: %d\n", _ctrlChannel);
     switch(_ctrlChannel) {
     case CtrlChannel::Hue:
-        Serial.printf("HUE:BASE: %d\n", c.hue);
         return c.hue;
         break;
     case CtrlChannel::Sat:
@@ -98,8 +96,6 @@ AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
 {
     _initEndVal = endVal;
     _steps = ramp / RGBWW_MINTIMEDIFF;
-
-    Serial.printf("STEPS: %d, RAMP:%d\n", _steps, ramp);
 }
 
 AnimTransition::AnimTransition(const AbsOrRelValue& from,

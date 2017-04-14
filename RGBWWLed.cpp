@@ -76,7 +76,7 @@ bool RGBWWLed::show() {
         HSVCT c;
         getAnimChannelHsvColor(c);
 
-        Serial.printf("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
+        debugRGBW("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
 
         if (getCurrentColor() != c)
             this->setOutput(c);
@@ -92,7 +92,7 @@ bool RGBWWLed::show() {
         ChannelOutput o;
         getAnimChannelRawOutput(o);
 
-        Serial.printf("NEWRAW: r:%d, g:%d, b:%d, cw: %d, ww: %d\n", o.r, o.g, o.b, o.cw, o.ww);
+        debugRGBW("NEWRAW: r:%d, g:%d, b:%d, cw: %d, ww: %d\n", o.r, o.g, o.b, o.cw, o.ww);
 
         if (getCurrentOutput() != o) {
             this->setOutput(o);
