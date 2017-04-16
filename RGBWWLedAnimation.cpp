@@ -115,8 +115,6 @@ bool AnimTransition::init() {
 
     _value = _baseval;
 
-    Serial.printf("AnimTransition::init: FINALVAL: %d\n", _finalval);
-
     //calculate steps per time
     _steps = (_steps > 0) ? _steps : int(1); //avoid 0 division
 
@@ -199,7 +197,6 @@ bool AnimTransitionCircularHue::init() {
 
     _value = _baseval;
 
-    Serial.printf("AnimTransitionCircularHue::init - final: %d base: %d\n", _finalval, _baseval);
     // calculate hue direction
     const int l = (_baseval + RGBWW_CALC_HUEWHEELMAX - _finalval) % RGBWW_CALC_HUEWHEELMAX;
     const int r = (_finalval + RGBWW_CALC_HUEWHEELMAX - _baseval) % RGBWW_CALC_HUEWHEELMAX;
