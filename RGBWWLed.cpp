@@ -78,8 +78,13 @@ bool RGBWWLed::show() {
 
         debugRGBW("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
 
-        if (getCurrentColor() != c)
+        if (getCurrentColor() != c) {
             this->setOutput(c);
+
+            if (_stepHsvDelegate)
+                _stepHsvDelegate(c);
+        }
+
         break;
     }
     case ColorMode::Raw:
@@ -96,7 +101,11 @@ bool RGBWWLed::show() {
 
         if (getCurrentOutput() != o) {
             this->setOutput(o);
+
+            if (_stepRawDelegate)
+                _stepRawDelegate(o);
         }
+
         break;
     }
     }
@@ -411,13 +420,20 @@ void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedCha
     }
 }
 
-void RGBWWLed::setAnimationCallback(void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim)) {
-    for(int i=0; i < _animChannelsHsv.count(); ++i) {
-        _animChannelsHsv.valueAt(i)->setAnimationCallback(func);
-    }
-    for(int i=0; i < _animChannelsRaw.count(); ++i) {
-        _animChannelsRaw.valueAt(i)->setAnimationCallback(func);
-    }
+void RGBWWLed::setAnimationFinishedDelegate(AnimationFinishedDelegate d) {
+    _animationFinishedDelegate = d;
 }
 
-///////
+void RGBWWLed::setStepHsvDelegate(StepHsvDelegate d) {
+    _stepHsvDelegate = d;
+}
+
+void RGBWWLed::setStepRawDelegate(StepRawDelegate d) {
+    _stepRawDelegate = d;
+}
+
+void RGBWWLed::onAnimationFinished(RGBWWLedAnimation* anim) {
+    if (_animationFinishedDelegate)
+        _animationFinishedDelegate(this, anim);
+}
+

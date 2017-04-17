@@ -7,6 +7,7 @@
 
 #include "RGBWWAnimatedChannel.h"
 
+#include "RGBWWLed.h"
 #include "RGBWWLedAnimation.h"
 #include "RGBWWLedAnimationQ.h"
 
@@ -92,9 +93,7 @@ bool RGBWWAnimatedChannel::process() {
     _value = _currentAnimation->getAnimValue();
     if (finished) {
         //callback animation finished
-        if(_animationcallback != NULL ){
-            _animationcallback(_rgbled, _currentAnimation);
-        }
+        _rgbled->onAnimationFinished(_currentAnimation);
 
         if (_currentAnimation->shouldRequeue())
             requeueCurrentAnimation();
@@ -130,11 +129,6 @@ void RGBWWAnimatedChannel::skipAnimation(){
 
 void RGBWWAnimatedChannel::clearAnimationQueue() {
     _clearAnimationQueue = true;
-}
-
-
-void RGBWWAnimatedChannel::setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) ) {
-    _animationcallback = func;
 }
 
 void RGBWWAnimatedChannel::setAnimationSpeed(int speed) {

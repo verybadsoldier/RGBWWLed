@@ -27,17 +27,6 @@ public:
     bool process();
 
     /**
-     * Set a function as callback when an animation has finished.
-     *
-     * Example use case would be, to save the current color to flash
-     * after an animation has finished to preserve it after a powerloss
-     *
-     * @param func
-     */
-    void setAnimationCallback( void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim) );
-
-
-    /**
      * Check if an animation is currently active
      *
      * @retval true if an animation is currently active
@@ -100,8 +89,6 @@ private:
 
     RGBWWLedAnimation*  _currentAnimation = nullptr;
     RGBWWLedAnimationQ* _animationQ;
-
-    void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = nullptr;
 
     //helpers
     void cleanupCurrentAnimation();

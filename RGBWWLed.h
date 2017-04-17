@@ -69,6 +69,11 @@ public:
 
 	typedef Vector<CtrlChannel> ChannelList;
 
+
+	typedef Delegate<void(const HSVCT&)> StepHsvDelegate;
+    typedef Delegate<void(const ChannelOutput&)> StepRawDelegate;
+    typedef Delegate<void(RGBWWLed* led, RGBWWLedAnimation* anim)> AnimationFinishedDelegate;
+
 	/**
 	 * Initialize the the LED Controller
 	 *
@@ -266,7 +271,11 @@ public:
     void clearAnimationQueue(const ChannelList& channels = ChannelList());
     void skipAnimation(const ChannelList& channels = ChannelList());
 
-    void setAnimationCallback(void (*func)(RGBWWLed* led, RGBWWLedAnimation* anim));
+    void setAnimationFinishedDelegate(AnimationFinishedDelegate d);
+    void setStepHsvDelegate(StepHsvDelegate d);
+    void setStepRawDelegate(StepRawDelegate d);
+
+    void onAnimationFinished(RGBWWLedAnimation* anim);
 
 private:
     typedef HashMap<CtrlChannel, RGBWWAnimatedChannel*> ChannelGroup;
@@ -294,7 +303,9 @@ private:
 	ChannelGroup _animChannelsHsv;
 	ChannelGroup _animChannelsRaw;
 
-	void (*_animationcallback)(RGBWWLed* led, RGBWWLedAnimation* anim) = nullptr;
+    StepHsvDelegate _stepHsvDelegate = nullptr;
+    StepRawDelegate _stepRawDelegate = nullptr;
+    AnimationFinishedDelegate _animationFinishedDelegate = nullptr;
 
 	ColorMode _mode = ColorMode::Hsv;
 };
