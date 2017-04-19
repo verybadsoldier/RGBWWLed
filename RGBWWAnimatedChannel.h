@@ -21,8 +21,8 @@ public:
     virtual ~RGBWWAnimatedChannel();
 
     /**
-     * @retval true animation queue is empty
-     * @retval false animation queue processed a step
+     * @retval true animation finished
+     * @retval false
      */
     bool process();
 

@@ -74,8 +74,6 @@ public:
 
 	typedef Vector<CtrlChannel> ChannelList;
 
-	typedef Delegate<void(RGBWWLed* led, RGBWWLedAnimation* anim)> AnimationFinishedDelegate;
-
 	/**
 	 * Initialize the the LED Controller
 	 *
@@ -273,9 +271,7 @@ public:
     void clearAnimationQueue(const ChannelList& channels = ChannelList());
     void skipAnimation(const ChannelList& channels = ChannelList());
 
-    void setAnimationFinishedDelegate(AnimationFinishedDelegate d);
-
-    void onAnimationFinished(RGBWWLedAnimation* anim);
+    virtual void onAnimationFinished(RGBWWLedAnimation* anim);
 
 private:
     typedef HashMap<CtrlChannel, RGBWWAnimatedChannel*> ChannelGroup;
@@ -303,9 +299,6 @@ private:
 	ChannelGroup _animChannelsHsv;
 	ChannelGroup _animChannelsRaw;
 
-    AnimationFinishedDelegate _animationFinishedDelegate = nullptr;
-
 protected:
 	ColorMode _mode = ColorMode::Hsv;
-	bool _outputChanged = false;
 };

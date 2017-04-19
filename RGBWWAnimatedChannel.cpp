@@ -82,7 +82,7 @@ bool RGBWWAnimatedChannel::process() {
     if (!_isAnimationActive) {
         //check if animation otherwise return true
         if (_animationQ->isEmpty()) {
-            return true;
+            return false;
         }
 
         _currentAnimation = _animationQ->pop();
@@ -92,16 +92,13 @@ bool RGBWWAnimatedChannel::process() {
     const bool finished = _currentAnimation->run();
     _value = _currentAnimation->getAnimValue();
     if (finished) {
-        //callback animation finished
-        _rgbled->onAnimationFinished(_currentAnimation);
-
         if (_currentAnimation->shouldRequeue())
             requeueCurrentAnimation();
         else
             cleanupCurrentAnimation();
     }
 
-    return false;
+    return finished;
 
 }
 

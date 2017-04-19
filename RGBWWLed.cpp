@@ -65,11 +65,12 @@ void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) {
  *                     OUTPUT
  **************************************************************/
 bool RGBWWLed::show() {
+    bool animFinished = false;
     switch(_mode) {
     case ColorMode::Hsv:
     {
         for(int i=0; i < _animChannelsHsv.count(); ++i) {
-            _animChannelsHsv.valueAt(i)->process();
+            animFinished |= _animChannelsHsv.valueAt(i)->process();
         }
 
         // now build the output value and set
@@ -78,9 +79,7 @@ bool RGBWWLed::show() {
 
         debugRGBW("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
 
-        _outputChanged = (getCurrentColor() != c);
-
-        if (_outputChanged)
+        if (getCurrentColor() != c)
             this->setOutput(c);
 
         break;
@@ -88,7 +87,7 @@ bool RGBWWLed::show() {
     case ColorMode::Raw:
     {
         for(int i=0; i < _animChannelsRaw.count(); ++i) {
-            _animChannelsRaw.valueAt(i)->process();
+            animFinished |= _animChannelsRaw.valueAt(i)->process();
         }
 
         // now build the output value and set
@@ -97,14 +96,14 @@ bool RGBWWLed::show() {
 
         debugRGBW("NEWRAW: r:%d, g:%d, b:%d, cw: %d, ww: %d\n", o.r, o.g, o.b, o.cw, o.ww);
 
-        _outputChanged = (getCurrentOutput() != o);
-
-        if (_outputChanged)
+        if (getCurrentOutput() != o)
             this->setOutput(o);
 
         break;
     }
     }
+
+    return animFinished;
 }
 
 void RGBWWLed::refresh() {
@@ -416,12 +415,6 @@ void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedCha
     }
 }
 
-void RGBWWLed::setAnimationFinishedDelegate(AnimationFinishedDelegate d) {
-    _animationFinishedDelegate = d;
-}
-
 void RGBWWLed::onAnimationFinished(RGBWWLedAnimation* anim) {
-    if (_animationFinishedDelegate)
-        _animationFinishedDelegate(this, anim);
 }
 
