@@ -307,4 +307,5 @@ private:
 
 protected:
 	ColorMode _mode = ColorMode::Hsv;
+	bool _outputChanged = false;
 };

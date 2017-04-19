@@ -78,9 +78,10 @@ bool RGBWWLed::show() {
 
         debugRGBW("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
 
-        if (getCurrentColor() != c) {
+        _outputChanged = (getCurrentColor() != c);
+
+        if (_outputChanged)
             this->setOutput(c);
-        }
 
         break;
     }
@@ -96,9 +97,10 @@ bool RGBWWLed::show() {
 
         debugRGBW("NEWRAW: r:%d, g:%d, b:%d, cw: %d, ww: %d\n", o.r, o.g, o.b, o.cw, o.ww);
 
-        if (getCurrentOutput() != o) {
+        _outputChanged = (getCurrentOutput() != o);
+
+        if (_outputChanged)
             this->setOutput(o);
-        }
 
         break;
     }
