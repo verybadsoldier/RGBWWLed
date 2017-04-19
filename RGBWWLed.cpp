@@ -80,9 +80,6 @@ bool RGBWWLed::show() {
 
         if (getCurrentColor() != c) {
             this->setOutput(c);
-
-            if (_stepHsvDelegate)
-                _stepHsvDelegate(c);
         }
 
         break;
@@ -101,9 +98,6 @@ bool RGBWWLed::show() {
 
         if (getCurrentOutput() != o) {
             this->setOutput(o);
-
-            if (_stepRawDelegate)
-                _stepRawDelegate(o);
         }
 
         break;
@@ -422,14 +416,6 @@ void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedCha
 
 void RGBWWLed::setAnimationFinishedDelegate(AnimationFinishedDelegate d) {
     _animationFinishedDelegate = d;
-}
-
-void RGBWWLed::setStepHsvDelegate(StepHsvDelegate d) {
-    _stepHsvDelegate = d;
-}
-
-void RGBWWLed::setStepRawDelegate(StepRawDelegate d) {
-    _stepRawDelegate = d;
 }
 
 void RGBWWLed::onAnimationFinished(RGBWWLedAnimation* anim) {

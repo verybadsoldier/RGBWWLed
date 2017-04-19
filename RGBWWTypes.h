@@ -190,11 +190,6 @@ private:
 	bool _hasValue = false;
 };
 
-enum class ColorMode {
-	Hsv,
-	Raw,
-};
-
 enum class CtrlChannel {
 	None,
 

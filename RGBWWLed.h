@@ -64,15 +64,17 @@ class RGBWWAnimatedChannel;
 class RGBWWLed
 {
 public:
+    enum class ColorMode {
+        Hsv,
+        Raw,
+    };
+
 	RGBWWLed();
 	~RGBWWLed();
 
 	typedef Vector<CtrlChannel> ChannelList;
 
-
-	typedef Delegate<void(const HSVCT&)> StepHsvDelegate;
-    typedef Delegate<void(const ChannelOutput&)> StepRawDelegate;
-    typedef Delegate<void(RGBWWLed* led, RGBWWLedAnimation* anim)> AnimationFinishedDelegate;
+	typedef Delegate<void(RGBWWLed* led, RGBWWLedAnimation* anim)> AnimationFinishedDelegate;
 
 	/**
 	 * Initialize the the LED Controller
@@ -272,8 +274,6 @@ public:
     void skipAnimation(const ChannelList& channels = ChannelList());
 
     void setAnimationFinishedDelegate(AnimationFinishedDelegate d);
-    void setStepHsvDelegate(StepHsvDelegate d);
-    void setStepRawDelegate(StepRawDelegate d);
 
     void onAnimationFinished(RGBWWLedAnimation* anim);
 
@@ -303,9 +303,8 @@ private:
 	ChannelGroup _animChannelsHsv;
 	ChannelGroup _animChannelsRaw;
 
-    StepHsvDelegate _stepHsvDelegate = nullptr;
-    StepRawDelegate _stepRawDelegate = nullptr;
     AnimationFinishedDelegate _animationFinishedDelegate = nullptr;
 
+protected:
 	ColorMode _mode = ColorMode::Hsv;
 };
