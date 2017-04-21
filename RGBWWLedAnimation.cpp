@@ -226,3 +226,58 @@ bool AnimTransitionCircularHue::run() {
     RGBWWColorUtils::circleHue(_value);
     return result;
 }
+
+AnimBlink::AnimBlink(int blinkTime,
+        RGBWWLed const * rgbled,
+        CtrlChannel ch,
+        bool requeue,
+        const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name) {
+	if (blinkTime > 0) {
+	    _steps = blinkTime / RGBWW_MINTIMEDIFF;
+	}
+}
+
+bool AnimBlink::run() {
+    if (_currentstep == 0)
+        init();
+
+    _currentstep += 1;
+    if (_steps != 0) {
+        if (_currentstep < _steps) {
+            return false;
+        }
+    }
+
+    // reset to the value before the blink
+    _value = _prevvalue;
+
+    return true;
+}
+
+bool AnimBlink::init() {
+	// preserve the value before the blink
+	_prevvalue = getBaseValue();
+
+	switch(_ctrlChannel) {
+	case CtrlChannel::Hue:
+		_value += 180;
+		RGBWWColorUtils::circleHue(_value);
+		break;
+	case CtrlChannel::Sat:
+	case CtrlChannel::Val:
+	    _value = (_prevvalue > 50) ? 0 : 100;
+		break;
+	case CtrlChannel::Red:
+	case CtrlChannel::Green:
+	case CtrlChannel::Blue:
+	case CtrlChannel::ColdWhite:
+	case CtrlChannel::WarmWhite:
+	    _value = (_prevvalue > 512) ? 0 : 1023;
+		break;
+	}
+
+}
+
+void AnimBlink::reset() {
+    _currentstep = 0;
+}

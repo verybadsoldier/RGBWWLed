@@ -155,55 +155,26 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
  *                 ANIMATION/TRANSITION
  **************************************************************/
 
-void RGBWWLed::blink(const ChannelList& channels, int time) {
+void RGBWWLed::blink(const ChannelList& channels, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
     if (_mode == ColorMode::Hsv) {
-        const HSVCT& color = getCurrentColor();
-        float h, s, v;
-        color.asRadian(h, s, v);
-
-        if (channels.size() == 0 || channels.contains(CtrlChannel::Val)) {
-            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(color.val, 0, this, CtrlChannel::Val), QueuePolicy::Front);
-            const int val = v > 50 ? 0 : 100;
-            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(val, AbsOrRelValue::Type::Percent), time, this, CtrlChannel::Val), QueuePolicy::Front);
-        }
-        if (channels.contains(CtrlChannel::Sat)) {
-            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimSetAndStay(color.sat, 0, this, CtrlChannel::Sat), QueuePolicy::Front);
-            const int sat = s > 50 ? 0 : 100;
-            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(sat, AbsOrRelValue::Type::Percent), time, this, CtrlChannel::Sat), QueuePolicy::Front);
-        }
-        if (channels.contains(CtrlChannel::Hue)) {
-            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimSetAndStay(color.hue, time, this, CtrlChannel::Hue), QueuePolicy::Front);
-            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(color.hue + 180, AbsOrRelValue::Type::Hue), time, this, CtrlChannel::Hue), QueuePolicy::Front);
-        }
+        if (channels.size() == 0 || channels.contains(CtrlChannel::Val))
+            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Val, requeue, name), queuePolicy);
+        if (channels.contains(CtrlChannel::Sat))
+            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Sat, requeue, name), queuePolicy);
+        if (channels.contains(CtrlChannel::Hue))
+            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Hue, requeue, name), queuePolicy);
     }
     else {
-        const ChannelOutput& out = getCurrentOutput();
-
-        if (channels.size() == 0 || channels.contains(CtrlChannel::WarmWhite)) {
-            _animChannelsRaw[CtrlChannel::WarmWhite]->pushAnimation(new AnimSetAndStay(out.ww, 0, this, CtrlChannel::WarmWhite), QueuePolicy::Front);
-            const int val = out.ww >= 512 ? 0 : 1023;
-            _animChannelsRaw[CtrlChannel::WarmWhite]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(val, AbsOrRelValue::Type::Raw), time, this, CtrlChannel::WarmWhite), QueuePolicy::Front);
-        }
-        if (channels.size() == 0 || channels.contains(CtrlChannel::ColdWhite)) {
-            _animChannelsRaw[CtrlChannel::ColdWhite]->pushAnimation(new AnimSetAndStay(out.ww, 0, this, CtrlChannel::ColdWhite), QueuePolicy::Front);
-            const int val = out.ww >= 512 ? 0 : 1023;
-            _animChannelsRaw[CtrlChannel::ColdWhite]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(val, AbsOrRelValue::Type::Raw), time, this, CtrlChannel::ColdWhite), QueuePolicy::Front);
-        }
-        if (channels.contains(CtrlChannel::Red)) {
-            _animChannelsRaw[CtrlChannel::Red]->pushAnimation(new AnimSetAndStay(out.r, 0, this, CtrlChannel::Red), QueuePolicy::Front);
-            const int val = out.r >= 512 ? 0 : 1023;
-            _animChannelsRaw[CtrlChannel::Red]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(val, AbsOrRelValue::Type::Raw), time, this, CtrlChannel::Red), QueuePolicy::Front);
-        }
-        if (channels.contains(CtrlChannel::Green)) {
-            _animChannelsRaw[CtrlChannel::Green]->pushAnimation(new AnimSetAndStay(out.g, 0, this, CtrlChannel::Green), QueuePolicy::Front);
-            const int val = out.g >= 512 ? 0 : 1023;
-            _animChannelsRaw[CtrlChannel::Green]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(val, AbsOrRelValue::Type::Raw), time, this, CtrlChannel::Green), QueuePolicy::Front);
-        }
-        if (channels.contains(CtrlChannel::Blue)) {
-            _animChannelsRaw[CtrlChannel::Blue]->pushAnimation(new AnimSetAndStay(out.b, 0, this, CtrlChannel::Blue), QueuePolicy::Front);
-            const int val = out.b >= 512 ? 0 : 1023;
-            _animChannelsRaw[CtrlChannel::Blue]->pushAnimation(new AnimSetAndStay(AbsOrRelValue(val, AbsOrRelValue::Type::Raw), time, this, CtrlChannel::Blue), QueuePolicy::Front);
-        }
+        if (channels.size() == 0 || channels.contains(CtrlChannel::WarmWhite))
+        	_animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(new AnimBlink(time, this, CtrlChannel::WarmWhite, requeue, name), queuePolicy);
+        if (channels.size() == 0 || channels.contains(CtrlChannel::ColdWhite))
+        	_animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(new AnimBlink(time, this, CtrlChannel::ColdWhite, requeue, name), queuePolicy);
+        if (channels.contains(CtrlChannel::Red))
+        	_animChannelsHsv[CtrlChannel::Red]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Red, requeue, name), queuePolicy);
+        if (channels.contains(CtrlChannel::Green))
+        	_animChannelsHsv[CtrlChannel::Green]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Green, requeue, name), queuePolicy);
+        if (channels.contains(CtrlChannel::Blue))
+        	_animChannelsHsv[CtrlChannel::Blue]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Blue, requeue, name), queuePolicy);
     }
 }
 
