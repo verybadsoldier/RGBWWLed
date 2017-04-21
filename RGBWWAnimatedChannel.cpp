@@ -92,6 +92,8 @@ bool RGBWWAnimatedChannel::process() {
     const bool finished = _currentAnimation->run();
     _value = _currentAnimation->getAnimValue();
     if (finished) {
+        _rgbled->onAnimationFinished(_currentAnimation);
+
         if (_currentAnimation->shouldRequeue())
             requeueCurrentAnimation();
         else
