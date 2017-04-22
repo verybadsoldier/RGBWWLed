@@ -260,22 +260,14 @@ bool AnimBlink::init() {
 
 	switch(_ctrlChannel) {
 	case CtrlChannel::Hue:
-		_value += 180;
+		_value = _prevvalue + RGBWW_CALC_HUEWHEELMAX / 2;
 		RGBWWColorUtils::circleHue(_value);
 		break;
-	case CtrlChannel::Sat:
-	case CtrlChannel::Val:
-	    _value = (_prevvalue > 50) ? 0 : 100;
-		break;
-	case CtrlChannel::Red:
-	case CtrlChannel::Green:
-	case CtrlChannel::Blue:
-	case CtrlChannel::ColdWhite:
-	case CtrlChannel::WarmWhite:
-	    _value = (_prevvalue > 512) ? 0 : 1023;
+	default:
+	    _value = (_prevvalue > (RGBWW_CALC_MAXVAL/2)) ? 0 : RGBWW_CALC_MAXVAL;
 		break;
 	}
-
+	Serial.printf("PREV: %d | VAL: %d\n", _prevvalue, _value);
 }
 
 void AnimBlink::reset() {
