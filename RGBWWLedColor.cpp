@@ -530,10 +530,9 @@ void RGBWWColorUtils::createHueWheel() {
 }
 
 
-void RGBWWColorUtils::circleHue(int& hue ) {
+void RGBWWColorUtils::circleHue(int& hue) {
     while (hue >= RGBWW_CALC_HUEWHEELMAX) hue -= RGBWW_CALC_HUEWHEELMAX;
     while (hue < 0) hue += RGBWW_CALC_HUEWHEELMAX;
-
 }
 
 /*
