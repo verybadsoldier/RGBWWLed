@@ -73,11 +73,14 @@ public:
     void setAnimationBrightness(int brightness);
 
     void getValue(int& value) const;
+    int getValue() const;
 
     bool pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
 
     void pauseAnimation();
     void continueAnimation();
+
+    bool getQueueFinishedNow() const;
 
 private:
     RGBWWLed* _rgbled;
@@ -86,6 +89,7 @@ private:
     bool    _clearAnimationQueue = false;
     bool    _isAnimationActive = false;
     bool    _isAnimationPaused = false;
+    bool    _queueFinishedNow = false;
 
     RGBWWLedAnimation*  _currentAnimation = nullptr;
     RGBWWLedAnimationQ* _animationQ;

@@ -300,5 +300,8 @@ private:
 	ChannelGroup _animChannelsRaw;
 
 protected:
-	ColorMode _mode = ColorMode::Hsv;
+    typedef HashMap<CtrlChannel, int>      ChannelValues;
+    ChannelValues _queuesFinished;
+
+    ColorMode _mode = ColorMode::Hsv;
 };

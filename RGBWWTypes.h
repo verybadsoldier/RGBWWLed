@@ -205,6 +205,23 @@ enum class CtrlChannel {
     WarmWhite,
 };
 
+inline String ctrlChannelToString(CtrlChannel ch) {
+    HashMap<CtrlChannel, String> strMap;
+    strMap[CtrlChannel::None] = "None";
+    strMap[CtrlChannel::Hue] = "h";
+    strMap[CtrlChannel::Sat] = "s";
+    strMap[CtrlChannel::Val] = "v";
+    strMap[CtrlChannel::ColorTemp] = "ct";
+
+    strMap[CtrlChannel::Red] = "r";
+    strMap[CtrlChannel::Green] = "g";
+    strMap[CtrlChannel::Blue] = "b";
+    strMap[CtrlChannel::ColdWhite] = "cw";
+    strMap[CtrlChannel::WarmWhite] = "ww";
+
+    return strMap[ch];
+}
+
 struct BresenhamValues {
     int delta, error, count, step;
 };

@@ -66,11 +66,17 @@ void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) {
  **************************************************************/
 bool RGBWWLed::show() {
     bool animFinished = false;
+    _queuesFinished.clear();
     switch(_mode) {
     case ColorMode::Hsv:
     {
         for(int i=0; i < _animChannelsHsv.count(); ++i) {
-            animFinished |= _animChannelsHsv.valueAt(i)->process();
+            CtrlChannel ch = _animChannelsHsv.keyAt(i);
+            RGBWWAnimatedChannel* pCh = _animChannelsHsv.valueAt(i);
+            animFinished |= pCh->process();
+            if (pCh->getQueueFinishedNow()) {
+                _queuesFinished[ch] = pCh->getValue();
+            }
         }
 
         // now build the output value and set
@@ -87,7 +93,12 @@ bool RGBWWLed::show() {
     case ColorMode::Raw:
     {
         for(int i=0; i < _animChannelsRaw.count(); ++i) {
-            animFinished |= _animChannelsRaw.valueAt(i)->process();
+            CtrlChannel ch = _animChannelsRaw.keyAt(i);
+            RGBWWAnimatedChannel* pCh = _animChannelsRaw.valueAt(i);
+            animFinished |= pCh->process();
+            if (pCh->getQueueFinishedNow()) {
+                _queuesFinished[ch] = pCh->getValue();
+            }
         }
 
         // now build the output value and set
@@ -388,4 +399,3 @@ void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedCha
 
 void RGBWWLed::onAnimationFinished(RGBWWLedAnimation* anim) {
 }
-

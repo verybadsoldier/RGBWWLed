@@ -26,6 +26,10 @@ void RGBWWAnimatedChannel::getValue(int& value) const {
     value = _value;
 }
 
+int RGBWWAnimatedChannel::getValue() const {
+    return _value;
+}
+
 bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
     if (queuePolicy == QueuePolicy::Single) {
         cleanupAnimationQ();
@@ -63,6 +67,8 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 }
 
 bool RGBWWAnimatedChannel::process() {
+    _queueFinishedNow = false;
+
     if (_isAnimationPaused) {
         return false;
     }
@@ -98,6 +104,8 @@ bool RGBWWAnimatedChannel::process() {
             requeueCurrentAnimation();
         else
             cleanupCurrentAnimation();
+
+        _queueFinishedNow = _animationQ->isEmpty();
     }
 
     return finished;
@@ -169,4 +177,8 @@ void RGBWWAnimatedChannel::requeueCurrentAnimation() {
     _currentAnimation = NULL;
     _isAnimationActive = false;
     _cancelAnimation = false;
+}
+
+bool RGBWWAnimatedChannel::getQueueFinishedNow() const {
+    return _queueFinishedNow;
 }
