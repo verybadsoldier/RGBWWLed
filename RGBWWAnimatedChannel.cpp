@@ -11,8 +11,9 @@
 #include "RGBWWLedAnimation.h"
 #include "RGBWWLedAnimationQ.h"
 
-
-RGBWWAnimatedChannel::RGBWWAnimatedChannel(RGBWWLed* rgbled) : _rgbled(rgbled), _animationQ(new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE)) {
+RGBWWAnimatedChannel::RGBWWAnimatedChannel(RGBWWLed* rgbled) :
+        _rgbled(rgbled), _animationQ(
+                new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE)) {
 }
 
 RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
@@ -30,7 +31,8 @@ int RGBWWAnimatedChannel::getValue() const {
     return _value;
 }
 
-bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
+bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim,
+        QueuePolicy queuePolicy) {
     if (queuePolicy == QueuePolicy::Single) {
         cleanupAnimationQ();
         cleanupCurrentAnimation();
@@ -42,7 +44,7 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
     if (_animationQ->isFull())
         return false;
 
-    switch(queuePolicy) {
+    switch (queuePolicy) {
     case QueuePolicy::Back:
     case QueuePolicy::Single:
         _animationQ->push(pAnim);
@@ -60,14 +62,16 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
         _cancelAnimation = false;
         break;
     default:
-        Serial.printf("RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n", queuePolicy);
+        Serial.printf(
+                "RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n",
+                queuePolicy);
     }
 
     return true;
 }
 
 bool RGBWWAnimatedChannel::process() {
-    _queueFinishedNow = false;
+    ++_lastRunAgo;
 
     if (_isAnimationPaused) {
         return false;
@@ -95,6 +99,9 @@ bool RGBWWAnimatedChannel::process() {
         _isAnimationActive = true;
     }
 
+    // we will run so reset last run counter
+    _lastRunAgo = 0;
+
     const bool finished = _currentAnimation->run();
     _value = _currentAnimation->getAnimValue();
     if (finished) {
@@ -104,8 +111,6 @@ bool RGBWWAnimatedChannel::process() {
             requeueCurrentAnimation();
         else
             cleanupCurrentAnimation();
-
-        _queueFinishedNow = _animationQ->isEmpty();
     }
 
     return finished;
@@ -128,7 +133,7 @@ bool RGBWWAnimatedChannel::isAnimationActive() {
     return _isAnimationActive;
 }
 
-void RGBWWAnimatedChannel::skipAnimation(){
+void RGBWWAnimatedChannel::skipAnimation() {
     if (_isAnimationActive) {
         _cancelAnimation = true;
     }
@@ -139,13 +144,13 @@ void RGBWWAnimatedChannel::clearAnimationQueue() {
 }
 
 void RGBWWAnimatedChannel::setAnimationSpeed(int speed) {
-    if(_currentAnimation != NULL) {
+    if (_currentAnimation != NULL) {
         _currentAnimation->setSpeed(speed);
     }
 }
 
-void RGBWWAnimatedChannel::setAnimationBrightness(int brightness){
-    if(_currentAnimation != NULL) {
+void RGBWWAnimatedChannel::setAnimationBrightness(int brightness) {
+    if (_currentAnimation != NULL) {
         _currentAnimation->setBrightness(brightness);
     }
 }
@@ -179,6 +184,6 @@ void RGBWWAnimatedChannel::requeueCurrentAnimation() {
     _cancelAnimation = false;
 }
 
-bool RGBWWAnimatedChannel::getQueueFinishedNow() const {
-    return _queueFinishedNow;
+int RGBWWAnimatedChannel::getLastRunAgo() const {
+    return _lastRunAgo;
 }

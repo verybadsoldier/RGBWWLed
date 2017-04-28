@@ -80,7 +80,7 @@ public:
     void pauseAnimation();
     void continueAnimation();
 
-    bool getQueueFinishedNow() const;
+    int getLastRunAgo() const;
 
 private:
     RGBWWLed* _rgbled;
@@ -89,7 +89,7 @@ private:
     bool    _clearAnimationQueue = false;
     bool    _isAnimationActive = false;
     bool    _isAnimationPaused = false;
-    bool    _queueFinishedNow = false;
+    int     _lastRunAgo = 0;
 
     RGBWWLedAnimation*  _currentAnimation = nullptr;
     RGBWWLedAnimationQ* _animationQ;

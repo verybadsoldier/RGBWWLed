@@ -64,22 +64,27 @@ void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) {
 /**************************************************************
  *                     OUTPUT
  **************************************************************/
+bool RGBWWLed::processChannelGroup(const ChannelGroup& cg) {
+	bool animFinished = false;
+    for(int i=0; i < cg.count(); ++i) {
+        CtrlChannel ch = cg.keyAt(i);
+        RGBWWAnimatedChannel* pCh = cg.valueAt(i);
+        animFinished |= pCh->process();
+        if (pCh->getLastRunAgo() == 1) {
+            _channelsStayed[ch] = pCh->getValue();
+        }
+    }
+    return animFinished;
+}
+
 bool RGBWWLed::show() {
     bool animFinished = false;
-    _queuesFinished.clear();
+    _channelsStayed.clear();
     switch(_mode) {
     case ColorMode::Hsv:
     {
-        for(int i=0; i < _animChannelsHsv.count(); ++i) {
-            CtrlChannel ch = _animChannelsHsv.keyAt(i);
-            RGBWWAnimatedChannel* pCh = _animChannelsHsv.valueAt(i);
-            animFinished |= pCh->process();
-            if (pCh->getQueueFinishedNow()) {
-                _queuesFinished[ch] = pCh->getValue();
-            }
-        }
+        animFinished |= processChannelGroup(_animChannelsHsv);
 
-        // now build the output value and set
         HSVCT c;
         getAnimChannelHsvColor(c);
 
@@ -92,16 +97,8 @@ bool RGBWWLed::show() {
     }
     case ColorMode::Raw:
     {
-        for(int i=0; i < _animChannelsRaw.count(); ++i) {
-            CtrlChannel ch = _animChannelsRaw.keyAt(i);
-            RGBWWAnimatedChannel* pCh = _animChannelsRaw.valueAt(i);
-            animFinished |= pCh->process();
-            if (pCh->getQueueFinishedNow()) {
-                _queuesFinished[ch] = pCh->getValue();
-            }
-        }
+        animFinished |= processChannelGroup(_animChannelsRaw);
 
-        // now build the output value and set
         ChannelOutput o;
         getAnimChannelRawOutput(o);
 

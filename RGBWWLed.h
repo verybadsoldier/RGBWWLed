@@ -287,6 +287,7 @@ private:
      */
     bool dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, QueuePolicy queuePolicy, const ChannelList& channels = ChannelList());
 
+    bool processChannelGroup(const ChannelGroup& cg);
     void getAnimChannelHsvColor(HSVCT& c);
     void getAnimChannelRawOutput(ChannelOutput& o);
     void callForChannels(const ChannelGroup& group, void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels = ChannelList());
@@ -301,7 +302,7 @@ private:
 
 protected:
     typedef HashMap<CtrlChannel, int>      ChannelValues;
-    ChannelValues _queuesFinished;
+    ChannelValues _channelsStayed;
 
     ColorMode _mode = ColorMode::Hsv;
 };
