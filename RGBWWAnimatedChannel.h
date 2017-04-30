@@ -72,7 +72,6 @@ public:
      */
     void setAnimationBrightness(int brightness);
 
-    void getValue(int& value) const;
     int getValue() const;
     void setValue(const AbsOrRelValue& val);
 
@@ -81,8 +80,6 @@ public:
     void pauseAnimation();
     void continueAnimation();
 
-    int getLastRunAgo() const;
-
 private:
     RGBWWLed* _rgbled;
     int     _value = 0;
@@ -90,7 +87,6 @@ private:
     bool    _clearAnimationQueue = false;
     bool    _isAnimationActive = false;
     bool    _isAnimationPaused = false;
-    int     _lastRunAgo = 0;
 
     RGBWWLedAnimation*  _currentAnimation = nullptr;
     RGBWWLedAnimationQ* _animationQ;

@@ -23,10 +23,6 @@ RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
     }
 }
 
-void RGBWWAnimatedChannel::getValue(int& value) const {
-    value = _value;
-}
-
 int RGBWWAnimatedChannel::getValue() const {
     return _value;
 }
@@ -84,8 +80,6 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
 }
 
 bool RGBWWAnimatedChannel::process() {
-    ++_lastRunAgo;
-
     if (_isAnimationPaused) {
         return false;
     }
@@ -111,9 +105,6 @@ bool RGBWWAnimatedChannel::process() {
         _currentAnimation = _animationQ->pop();
         _isAnimationActive = true;
     }
-
-    // we will run so reset last run counter
-    _lastRunAgo = 0;
 
     const bool finished = _currentAnimation->run();
     _value = _currentAnimation->getAnimValue();
@@ -195,8 +186,4 @@ void RGBWWAnimatedChannel::requeueCurrentAnimation() {
     _currentAnimation = NULL;
     _isAnimationActive = false;
     _cancelAnimation = false;
-}
-
-int RGBWWAnimatedChannel::getLastRunAgo() const {
-    return _lastRunAgo;
 }

@@ -47,39 +47,36 @@ void RGBWWLed::init(int redPIN, int greenPIN, int bluePIN, int wwPIN, int cwPIN,
 
 
 void RGBWWLed::getAnimChannelHsvColor(HSVCT& c) {
-    _animChannelsHsv[CtrlChannel::Hue]->getValue(c.hue);
-    _animChannelsHsv[CtrlChannel::Sat]->getValue(c.sat);
-    _animChannelsHsv[CtrlChannel::Val]->getValue(c.val);
-    _animChannelsHsv[CtrlChannel::ColorTemp]->getValue(c.ct);
+    c.hue = _animChannelsHsv[CtrlChannel::Hue]->getValue();
+    c.sat = _animChannelsHsv[CtrlChannel::Sat]->getValue();
+    c.val = _animChannelsHsv[CtrlChannel::Val]->getValue();
+    c.ct = _animChannelsHsv[CtrlChannel::ColorTemp]->getValue();
 }
 
 void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) {
-    _animChannelsRaw[CtrlChannel::Red]->getValue(o.r);
-    _animChannelsRaw[CtrlChannel::Green]->getValue(o.g);
-    _animChannelsRaw[CtrlChannel::Blue]->getValue(o.b);
-    _animChannelsRaw[CtrlChannel::WarmWhite]->getValue(o.cw);
-    _animChannelsRaw[CtrlChannel::ColdWhite]->getValue(o.ww);
+    o.r = _animChannelsRaw[CtrlChannel::Red]->getValue();
+    o.g = _animChannelsRaw[CtrlChannel::Green]->getValue();
+    o.b = _animChannelsRaw[CtrlChannel::Blue]->getValue();
+    o.cw = _animChannelsRaw[CtrlChannel::WarmWhite]->getValue();
+    o.ww = _animChannelsRaw[CtrlChannel::ColdWhite]->getValue();
 }
 
 /**************************************************************
  *                     OUTPUT
  **************************************************************/
+
 bool RGBWWLed::processChannelGroup(const ChannelGroup& cg) {
-	bool animFinished = false;
+   bool animFinished = false;
     for(int i=0; i < cg.count(); ++i) {
         CtrlChannel ch = cg.keyAt(i);
         RGBWWAnimatedChannel* pCh = cg.valueAt(i);
         animFinished |= pCh->process();
-        if (pCh->getLastRunAgo() == 1) {
-            _channelsStayed[ch] = pCh->getValue();
-        }
     }
     return animFinished;
 }
 
 bool RGBWWLed::show() {
     bool animFinished = false;
-    _channelsStayed.clear();
     switch(_mode) {
     case ColorMode::Hsv:
     {
@@ -88,10 +85,9 @@ bool RGBWWLed::show() {
         HSVCT c;
         getAnimChannelHsvColor(c);
 
-        debugRGBW("NEW: h:%d, s:%d, v:%d, ct: %d\n", c.h, c.s, c.v, c.ct);
+        debugRGBW("NEW: h:%d, s:%d, v:%d, ct: %d", c.h, c.s, c.v, c.ct);
 
-        if (getCurrentColor() != c)
-            this->setOutput(c);
+        this->setOutput(c);
 
         break;
     }
@@ -102,11 +98,9 @@ bool RGBWWLed::show() {
         ChannelOutput o;
         getAnimChannelRawOutput(o);
 
-        debugRGBW("NEWRAW: r:%d, g:%d, b:%d, cw: %d, ww: %d\n", o.r, o.g, o.b, o.cw, o.ww);
+        debugRGBW("NEWRAW: r:%d, g:%d, b:%d, cw: %d, ww: %d", o.r, o.g, o.b, o.cw, o.ww);
 
-        if (getCurrentOutput() != o)
-            this->setOutput(o);
-
+        this->setOutput(o);
         break;
     }
     }

@@ -277,6 +277,10 @@ public:
 
     virtual void onAnimationFinished(RGBWWLedAnimation* anim);
 
+    ColorMode getMode() const {
+        return _mode;
+    }
+
 private:
     typedef HashMap<CtrlChannel, RGBWWAnimatedChannel*> ChannelGroup;
 
@@ -305,8 +309,5 @@ private:
 	ChannelGroup _animChannelsRaw;
 
 protected:
-    typedef HashMap<CtrlChannel, int>      ChannelValues;
-    ChannelValues _channelsStayed;
-
     ColorMode _mode = ColorMode::Hsv;
 };
