@@ -260,6 +260,9 @@ public:
 	 */
 	bool fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
+    void colorDirectHSV(const RequestHSVCT& output);
+    void colorDirectRAW(const RequestChannelOutput& output);
+
 	void blink(const ChannelList& channels = ChannelList(), int time=100, QueuePolicy queuePolicy = QueuePolicy::Front, bool requeue = false, const String& name = "");
 
 	//colorutils
@@ -270,6 +273,7 @@ public:
 
     void clearAnimationQueue(const ChannelList& channels = ChannelList());
     void skipAnimation(const ChannelList& channels = ChannelList());
+
 
     virtual void onAnimationFinished(RGBWWLedAnimation* anim);
 

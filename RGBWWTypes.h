@@ -86,7 +86,7 @@ public:
 		return _value;
 	}
 
-	int getFinalValue(int val) {
+	int getFinalValue(int val) const {
 		switch(_mode) {
 		case Mode::Relative:
 			return fixRangeLimits(_value + val);
@@ -106,14 +106,13 @@ private:
             break;
         }
 
-        Serial.printf("setValueByType: %f\n", value);
         _value = static_cast<int>(value + 0.5f);
 
         if (_mode != Mode::Relative)
             _value = fixRangeLimits(_value);
 	}
 
-	int fixRangeLimits(int val) {
+	int fixRangeLimits(int val) const {
 	    switch(_type) {
         case Type::Raw:
             val = constrain(val, 0, 1023);

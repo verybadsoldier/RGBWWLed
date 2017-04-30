@@ -309,6 +309,39 @@ bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestCha
     }
 }
 
+void RGBWWLed::colorDirectHSV(const RequestHSVCT& output) {
+    if (output.h.hasValue()) {
+        _animChannelsHsv[CtrlChannel::Hue]->setValue(output.h.getValue());
+    }
+    if (output.s.hasValue()) {
+        _animChannelsHsv[CtrlChannel::Sat]->setValue(output.s.getValue());
+    }
+    if (output.v.hasValue()) {
+        _animChannelsHsv[CtrlChannel::Val]->setValue(output.v.getValue());
+    }
+    if (output.ct.hasValue()) {
+        _animChannelsHsv[CtrlChannel::ColorTemp]->setValue(output.ct.getValue());
+    }
+}
+
+void RGBWWLed::colorDirectRAW(const RequestChannelOutput& output) {
+    if (output.r.hasValue()) {
+        _animChannelsHsv[CtrlChannel::Red]->setValue(output.r.getValue());
+    }
+    if (output.g.hasValue()) {
+        _animChannelsHsv[CtrlChannel::Green]->setValue(output.g.getValue());
+    }
+    if (output.b.hasValue()) {
+        _animChannelsHsv[CtrlChannel::Blue]->setValue(output.b.getValue());
+    }
+    if (output.ww.hasValue()) {
+        _animChannelsHsv[CtrlChannel::WarmWhite]->setValue(output.ww.getValue());
+    }
+    if (output.cw.hasValue()) {
+        _animChannelsHsv[CtrlChannel::ColdWhite]->setValue(output.cw.getValue());
+    }
+}
+
 bool RGBWWLed::pushAnimSetAndStay(const Optional<AbsOrRelValue>& val, int time, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue())
         return true;

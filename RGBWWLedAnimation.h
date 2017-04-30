@@ -22,9 +22,17 @@ class RGBWWLedAnimation;
 class RGBWWLedAnimation
 {
 public:
-    RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    enum class Type {
+        Undefined,
+        SetAndStay,
+        Transition,
+        Blink,
+    };
+
+    RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, Type type, bool requeue = false, const String& name = "");
 
     virtual ~RGBWWLedAnimation() {};
+
     /**
      * Processing method, will be called from main loop
      *
@@ -66,6 +74,7 @@ public:
 
     int getAnimValue() const { return _value; }
 
+    Type getAnimType() const { return _type; }
 
 protected:
     int getBaseValue() const;
@@ -75,6 +84,7 @@ protected:
     const bool _requeue = false;
     const String _name;
     int _value = 0;
+    Type _type = Type::Undefined;
 };
 
 class AnimSetAndStay : public RGBWWLedAnimation {

@@ -74,6 +74,7 @@ public:
 
     void getValue(int& value) const;
     int getValue() const;
+    void setValue(const AbsOrRelValue& val);
 
     bool pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy);
 

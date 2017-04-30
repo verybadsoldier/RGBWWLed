@@ -285,6 +285,16 @@ struct RequestHSVCT {
         this->ct = hsvct.ct;
         return *this;
     }
+
+    operator HSVCT()
+    {
+        HSVCT c;
+        c.h = h.getValue();
+        c.s = s.getValue();
+        c.v = v.getValue();
+        c.ct = ct.getValue();
+        return c;
+    }
 };
 
 struct COLOR {

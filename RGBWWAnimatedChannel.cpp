@@ -31,8 +31,21 @@ int RGBWWAnimatedChannel::getValue() const {
     return _value;
 }
 
-bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim,
-        QueuePolicy queuePolicy) {
+void RGBWWAnimatedChannel::setValue(const AbsOrRelValue& val) {
+    _value = val.getFinalValue(_value);
+}
+
+bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
+    // do not blink while blinking
+    if (_currentAnimation != nullptr && (queuePolicy == QueuePolicy::Single ||
+            queuePolicy == QueuePolicy::Front ||
+            queuePolicy == QueuePolicy::FrontReset)
+            && ( pAnim->getAnimType() == RGBWWLedAnimation::Type::Blink &&
+                    _currentAnimation->getAnimType() == RGBWWLedAnimation::Type::Blink)) {
+        Serial.println("Ignored blink commmand cause already blink running!");
+        return false;
+    }
+
     if (queuePolicy == QueuePolicy::Single) {
         cleanupAnimationQ();
         cleanupCurrentAnimation();
@@ -45,26 +58,26 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim,
         return false;
 
     switch (queuePolicy) {
-    case QueuePolicy::Back:
-    case QueuePolicy::Single:
-        _animationQ->push(pAnim);
-        break;
-    case QueuePolicy::Front:
-    case QueuePolicy::FrontReset:
-        if (_currentAnimation != nullptr) {
-            if (queuePolicy == QueuePolicy::FrontReset)
-                _currentAnimation->reset();
-            _animationQ->pushFront(_currentAnimation);
-            _currentAnimation = NULL;
-        }
-        _animationQ->pushFront(pAnim);
-        _isAnimationActive = false;
-        _cancelAnimation = false;
-        break;
-    default:
-        Serial.printf(
-                "RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n",
-                queuePolicy);
+        case QueuePolicy::Back:
+        case QueuePolicy::Single:
+            _animationQ->push(pAnim);
+            break;
+        case QueuePolicy::Front:
+        case QueuePolicy::FrontReset:
+            if (_currentAnimation != nullptr) {
+                if (queuePolicy == QueuePolicy::FrontReset)
+                    _currentAnimation->reset();
+                _animationQ->pushFront(_currentAnimation);
+                _currentAnimation = NULL;
+            }
+            _animationQ->pushFront(pAnim);
+            _isAnimationActive = false;
+            _cancelAnimation = false;
+            break;
+        default:
+            Serial.printf(
+                    "RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n",
+                    queuePolicy);
     }
 
     return true;

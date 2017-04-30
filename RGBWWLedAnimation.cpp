@@ -10,10 +10,11 @@
 #include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
 
-RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) : _rgbled(rgbled),
+RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, Type type, bool requeue, const String& name) : _rgbled(rgbled),
 _ctrlChannel(ch),
 _requeue(requeue),
-_name(name) {
+_name(name),
+_type(type) {
 }
 
 
@@ -58,7 +59,7 @@ AnimSetAndStay::AnimSetAndStay(const AbsOrRelValue& endVal,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
         bool requeue,
-        const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name),
+        const String& name) : RGBWWLedAnimation(rgbled, ch, Type::SetAndStay, requeue, name),
                 _initEndVal(endVal) {
     if (onTime > 0) {
         _steps = onTime / RGBWW_MINTIMEDIFF;
@@ -92,7 +93,7 @@ AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
         bool requeue,
-        const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name)
+        const String& name) : RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name)
 {
     _initEndVal = endVal;
     _steps = ramp / RGBWW_MINTIMEDIFF;
@@ -107,6 +108,7 @@ AnimTransition::AnimTransition(const AbsOrRelValue& from,
         const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
     _initStartVal = from;
     _hasfromval = true;
+    _type = Type::Transition;
 }
 
 bool AnimTransition::init() {
@@ -231,7 +233,7 @@ AnimBlink::AnimBlink(int blinkTime,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
         bool requeue,
-        const String& name) : RGBWWLedAnimation(rgbled, ch, requeue, name) {
+        const String& name) : RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
 	if (blinkTime > 0) {
 	    _steps = blinkTime / RGBWW_MINTIMEDIFF;
 	}
