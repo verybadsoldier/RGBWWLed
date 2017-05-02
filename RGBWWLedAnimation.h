@@ -104,8 +104,8 @@ private:
 
 class AnimTransition : public RGBWWLedAnimation {
 public:
-    AnimTransition(const AbsOrRelValue& endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
-    AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue&  endVal, int ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(const AbsOrRelValue& endVal, const RampOrSpeed& ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue&  endVal, const RampOrSpeed& ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
@@ -124,12 +124,13 @@ protected:
     BresenhamValues 	_bresenham;
     AbsOrRelValue 		_initEndVal;
     AbsOrRelValue       _initStartVal;
+    RampOrSpeed         _ramp;
 };
 
 class AnimTransitionCircularHue : public AnimTransition {
 public:
-	AnimTransitionCircularHue(const AbsOrRelValue& endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
-	AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, int ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampOrSpeed& ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+	AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampOrSpeed& ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
 

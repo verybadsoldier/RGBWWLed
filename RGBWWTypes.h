@@ -3,6 +3,24 @@
 #include "../../SmingCore/SmingCore.h"
 #include "RGBWWconst.h"
 
+struct RampOrSpeed {
+    enum class Type {
+        Speed,
+        RampTime
+    };
+
+    RampOrSpeed() {
+    }
+
+    RampOrSpeed(int v) : value(v) {
+    }
+
+    RampOrSpeed(int v, Type t) : value(v), type(t) {
+    }
+
+    int value = 0;
+    Type type = Type::RampTime;
+};
 
 class AbsOrRelValue {
 public:

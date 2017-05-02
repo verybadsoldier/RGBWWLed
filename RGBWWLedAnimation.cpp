@@ -89,19 +89,19 @@ void AnimSetAndStay::reset() {
 }
 
 AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
-        int ramp,
+        const RampOrSpeed& change,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
         bool requeue,
         const String& name) : RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name)
 {
     _initEndVal = endVal;
-    _steps = ramp / RGBWW_MINTIMEDIFF;
+    _ramp = change;
 }
 
 AnimTransition::AnimTransition(const AbsOrRelValue& from,
         const AbsOrRelValue& endVal,
-        int ramp,
+        const RampOrSpeed& ramp,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
         bool requeue,
@@ -117,8 +117,19 @@ bool AnimTransition::init() {
 
     _value = _baseval;
 
-    //calculate steps per time
-    _steps = (_steps > 0) ? _steps : int(1); //avoid 0 division
+    switch(_ramp.type) {
+    case RampOrSpeed::Type::RampTime:
+    {
+        _steps = max(_ramp.value / RGBWW_MINTIMEDIFF, 1); //avoid 0 division
+        break;
+    }
+    case RampOrSpeed::Type::Speed:
+    {
+        const uint32_t diff = abs(_finalval - _baseval);
+        _steps = diff / _ramp.value;
+        break;
+    }
+    }
 
     _bresenham.delta = abs(_baseval - _finalval);
     _bresenham.step = 1;
@@ -172,7 +183,7 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 ///////////////////////////////
 
 AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal,
-        int ramp,
+        const RampOrSpeed& ramp,
         int direction,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
@@ -183,7 +194,7 @@ AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal
 
 AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal,
         const AbsOrRelValue& endVal,
-        int ramp,
+        const RampOrSpeed& ramp,
         int direction,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
@@ -205,12 +216,24 @@ bool AnimTransitionCircularHue::init() {
 
     // decide on direction of turn depending on size
     int d = (l < r) ? -1 : 1;
-
     // turn direction if user wishes for long transition
     d = (_direction == 1) ? d : d *= -1;
 
-    //calculate steps per time
-    _steps = (_steps > 0) ? _steps : int(1); //avoid 0 division
+    switch(_ramp.type) {
+    case RampOrSpeed::Type::RampTime:
+    {
+        _steps = max(_ramp.value / RGBWW_MINTIMEDIFF, 1); //avoid 0 division
+        break;
+    }
+    case RampOrSpeed::Type::Speed:
+    {
+        const uint32_t diff1 = abs(_finalval - _baseval);
+        const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
+        const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
+        _steps = diff / _ramp.value;
+        break;
+    }
+    }
 
     //HUE
     _bresenham.delta = (d == -1) ? l : r;

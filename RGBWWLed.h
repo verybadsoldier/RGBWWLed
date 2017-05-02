@@ -188,7 +188,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param direction direction of transition (0= long/ 1=short)
 	 */
-	bool fadeHSV(const RequestHSVCT& color, int ramp, int direction, bool requeue = false, const String& name = "");
+	bool fadeHSV(const RequestHSVCT& color, const RampOrSpeed& change, int direction, bool requeue = false, const String& name = "");
 
 
 	/**
@@ -198,7 +198,7 @@ public:
 	 * @param time		duration of transition in ms
 	 * @param queue		directly execute fade or queue it
 	 */
-	bool fadeHSV(const RequestHSVCT& color, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	bool fadeHSV(const RequestHSVCT& color, const RampOrSpeed& change, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
 
 
 	/**
@@ -209,7 +209,7 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	bool fadeHSV(const RequestHSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	bool fadeHSV(const RequestHSVCT& color, const RampOrSpeed& change, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
 
 
 	/**
@@ -221,7 +221,7 @@ public:
 	 * @param direction direction of transition (0= long/ 1=short)
 	 * @param queue		directly execute fade or queue it
 	 */
-	bool fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, int ramp, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
+	bool fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampOrSpeed& change, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "");
 
 	//TODO: add documentation
 	/**
@@ -248,7 +248,7 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	bool fadeRAW(const RequestChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	bool fadeRAW(const RequestChannelOutput& output, const RampOrSpeed& change, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
 	//TODO: add documentation
 	/**
@@ -258,7 +258,7 @@ public:
 	 * @param time
 	 * @param queue
 	 */
-	bool fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, int ramp, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
+	bool fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, const RampOrSpeed& change, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue = false, const String& name = "" );
 
     void colorDirectHSV(const RequestHSVCT& output);
     void colorDirectRAW(const RequestChannelOutput& output);
@@ -285,10 +285,10 @@ private:
     typedef HashMap<CtrlChannel, RGBWWAnimatedChannel*> ChannelGroup;
 
     bool pushAnimSetAndStay(const Optional<AbsOrRelValue>& val, int time, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
-    bool pushAnimTransition(const Optional<AbsOrRelValue>& val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
-    bool pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, int ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
-    bool pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
-    bool pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, int ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
+    bool pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampOrSpeed& ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
+    bool pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampOrSpeed& ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
+    bool pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampOrSpeed& ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
+    bool pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampOrSpeed& ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
 
     /**
      * Dispatches an animation to the apropriate channel group. Will not dispatch if ch is not part of the channel list
