@@ -117,19 +117,24 @@ bool AnimTransition::init() {
 
     _value = _baseval;
 
+    Serial.printf("This: %d | rampType: %d\n", this, _ramp.type);
+
     switch(_ramp.type) {
     case RampOrSpeed::Type::RampTime:
     {
-        _steps = max(_ramp.value / RGBWW_MINTIMEDIFF, 1); //avoid 0 division
+        _steps = _ramp.value / RGBWW_MINTIMEDIFF;
         break;
     }
     case RampOrSpeed::Type::Speed:
     {
         const uint32_t diff = abs(_finalval - _baseval);
-        _steps = diff / _ramp.value;
+        _steps = diff * 100 / _ramp.value;
+        Serial.printf("Diff: %d | Speed: %d | Steps: %d\n", diff, _ramp.value, _steps);
         break;
     }
     }
+
+    _steps = max(_steps, 1); //avoid 0 division
 
     _bresenham.delta = abs(_baseval - _finalval);
     _bresenham.step = 1;
@@ -143,6 +148,7 @@ bool AnimTransition::init() {
 
 bool AnimTransition::run () {
     if (_currentstep == 0) {
+        Serial.printf("AnimTransition::run - 2 | this: %d\n", this);
         if (!init()) {
             return true;
         }
@@ -222,7 +228,7 @@ bool AnimTransitionCircularHue::init() {
     switch(_ramp.type) {
     case RampOrSpeed::Type::RampTime:
     {
-        _steps = max(_ramp.value / RGBWW_MINTIMEDIFF, 1); //avoid 0 division
+        _steps = _ramp.value / RGBWW_MINTIMEDIFF;
         break;
     }
     case RampOrSpeed::Type::Speed:
@@ -230,10 +236,12 @@ bool AnimTransitionCircularHue::init() {
         const uint32_t diff1 = abs(_finalval - _baseval);
         const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
         const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
-        _steps = diff / _ramp.value;
+        _steps = diff * 100 / _ramp.value;
         break;
     }
     }
+
+    _steps = max(_steps, 1); //avoid 0 division
 
     //HUE
     _bresenham.delta = (d == -1) ? l : r;
