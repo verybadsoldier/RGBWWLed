@@ -122,13 +122,13 @@ bool AnimTransition::init() {
     switch(_ramp.type) {
     case RampOrSpeed::Type::RampTime:
     {
-        _steps = _ramp.value / RGBWW_MINTIMEDIFF;
+        _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
     case RampOrSpeed::Type::Speed:
     {
-        const uint32_t diff = abs(_finalval - _baseval);
-        _steps = diff * 100 / _ramp.value;
+        const double diffPerc = (abs(_finalval - _baseval) / RGBWW_CALC_MAXVAL) * 100;
+        _steps = static_cast<int>((diffPerc / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
         Serial.printf("Diff: %d | Speed: %d | Steps: %d\n", diff, _ramp.value, _steps);
         break;
     }
@@ -228,15 +228,16 @@ bool AnimTransitionCircularHue::init() {
     switch(_ramp.type) {
     case RampOrSpeed::Type::RampTime:
     {
-        _steps = _ramp.value / RGBWW_MINTIMEDIFF;
+        _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
     case RampOrSpeed::Type::Speed:
     {
         const uint32_t diff1 = abs(_finalval - _baseval);
         const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
-        const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
-        _steps = diff * 100 / _ramp.value;
+        uint32_t diffDegree = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
+        diffDegree = (abs(_finalval - _baseval) / RGBWW_CALC_HUEWHEELMAX) * 360.0;
+        _steps = static_cast<int>((diffDegree / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
         break;
     }
     }

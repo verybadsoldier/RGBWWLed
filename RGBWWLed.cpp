@@ -211,7 +211,7 @@ bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampOrSpeed& ramp, int d
     _mode = ColorMode::Hsv;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(color.h, 0, queuePolicy, CtrlChannel::Hue, requeue, name);
         result &= pushAnimSetAndStay(color.s, 0, queuePolicy, CtrlChannel::Sat, requeue, name);
         result &= pushAnimSetAndStay(color.v, 0, queuePolicy, CtrlChannel::Val, requeue, name);
@@ -229,7 +229,7 @@ bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color,
     _mode = ColorMode::Hsv;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(color.h, 0, queuePolicy, CtrlChannel::Hue, requeue, name);
         result &= pushAnimSetAndStay(color.s, 0, queuePolicy, CtrlChannel::Sat, requeue, name);
         result &= pushAnimSetAndStay(color.v, 0, queuePolicy, CtrlChannel::Val, requeue, name);
@@ -267,7 +267,7 @@ bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampOrSpeed& ra
     _mode = ColorMode::Raw;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(output.r, 0, queuePolicy, CtrlChannel::Red, requeue, name);
         result &= pushAnimSetAndStay(output.g, 0, queuePolicy, CtrlChannel::Green, requeue, name);
         result &= pushAnimSetAndStay(output.b, 0, queuePolicy, CtrlChannel::Blue, requeue, name);
@@ -287,7 +287,7 @@ bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestCha
     _mode = ColorMode::Raw;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(output.r, 0, queuePolicy, CtrlChannel::Red, requeue, name);
         result &= pushAnimSetAndStay(output.g, 0, queuePolicy, CtrlChannel::Green, requeue, name);
         result &= pushAnimSetAndStay(output.b, 0, queuePolicy, CtrlChannel::Blue, requeue, name);

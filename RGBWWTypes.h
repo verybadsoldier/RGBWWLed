@@ -3,6 +3,7 @@
 #include "../../SmingCore/SmingCore.h"
 #include "RGBWWconst.h"
 
+
 struct RampOrSpeed {
     enum class Type {
         Speed,
@@ -12,13 +13,13 @@ struct RampOrSpeed {
     RampOrSpeed() {
     }
 
-    RampOrSpeed(int v) : value(v) {
+    RampOrSpeed(double v) : value(v) {
     }
 
-    RampOrSpeed(int v, Type t) : value(v), type(t) {
+    RampOrSpeed(double v, Type t) : value(v), type(t) {
     }
 
-    int value = 0;
+    double value = 0.0; // Speed: percent/degree per second
     Type type = Type::RampTime;
 };
 
