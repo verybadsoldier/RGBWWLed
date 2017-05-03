@@ -199,19 +199,19 @@ bool RGBWWLed::setHSV(const RequestHSVCT& color, int time, QueuePolicy queuePoli
 
 //// fadeHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampOrSpeed& ramp, int direction, bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int direction, bool requeue, const String& name) {
     return fadeHSV( color, ramp, direction, QueuePolicy::Single, requeue, name);
 }
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampOrSpeed& ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
     return fadeHSV( color, ramp, 1, queuePolicy, requeue, name);
 }
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampOrSpeed& ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
     _mode = ColorMode::Hsv;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampTimeOrSpeed::Type::Time && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(color.h, 0, queuePolicy, CtrlChannel::Hue, requeue, name);
         result &= pushAnimSetAndStay(color.s, 0, queuePolicy, CtrlChannel::Sat, requeue, name);
         result &= pushAnimSetAndStay(color.v, 0, queuePolicy, CtrlChannel::Val, requeue, name);
@@ -225,11 +225,11 @@ bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampOrSpeed& ramp, int d
     }
 }
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampOrSpeed& ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
     _mode = ColorMode::Hsv;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampTimeOrSpeed::Type::Time && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(color.h, 0, queuePolicy, CtrlChannel::Hue, requeue, name);
         result &= pushAnimSetAndStay(color.s, 0, queuePolicy, CtrlChannel::Sat, requeue, name);
         result &= pushAnimSetAndStay(color.v, 0, queuePolicy, CtrlChannel::Val, requeue, name);
@@ -263,11 +263,11 @@ bool RGBWWLed::setRAW(const RequestChannelOutput& output, int time, QueuePolicy 
 
 //// fadeRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampOrSpeed& ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampTimeOrSpeed& ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
     _mode = ColorMode::Raw;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampTimeOrSpeed::Type::Time && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(output.r, 0, queuePolicy, CtrlChannel::Red, requeue, name);
         result &= pushAnimSetAndStay(output.g, 0, queuePolicy, CtrlChannel::Green, requeue, name);
         result &= pushAnimSetAndStay(output.b, 0, queuePolicy, CtrlChannel::Blue, requeue, name);
@@ -283,11 +283,11 @@ bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampOrSpeed& ra
     }
 }
 
-bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, const RampOrSpeed& ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, const RampTimeOrSpeed& ramp, QueuePolicy queuePolicy, bool requeue, const String& name) {
     _mode = ColorMode::Raw;
 
     bool result = true;
-    if (ramp.type == RampOrSpeed::Type::RampTime && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
+    if (ramp.type == RampTimeOrSpeed::Type::Time && (ramp.value == 0.0 || ramp.value < RGBWW_MINTIMEDIFF)) {
         result &= pushAnimSetAndStay(output.r, 0, queuePolicy, CtrlChannel::Red, requeue, name);
         result &= pushAnimSetAndStay(output.g, 0, queuePolicy, CtrlChannel::Green, requeue, name);
         result &= pushAnimSetAndStay(output.b, 0, queuePolicy, CtrlChannel::Blue, requeue, name);
@@ -343,21 +343,21 @@ bool RGBWWLed::pushAnimSetAndStay(const Optional<AbsOrRelValue>& val, int time, 
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampOrSpeed& change, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& change, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue())
         return true;
     RGBWWLedAnimation* pAnim = new AnimTransition(val, change, this, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampOrSpeed& change, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& change, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue())
         return true;
     RGBWWLedAnimation* pAnim = new AnimTransition(from, val, change, this, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampOrSpeed& change, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& change, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue()) {
         return true;
     }
@@ -365,7 +365,7 @@ bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val,
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-bool RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampOrSpeed& change, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& change, int direction, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue())
         return true;
     RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(from, val, change, direction, this, ch, requeue, name);

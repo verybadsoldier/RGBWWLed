@@ -4,23 +4,23 @@
 #include "RGBWWconst.h"
 
 
-struct RampOrSpeed {
+struct RampTimeOrSpeed {
     enum class Type {
         Speed,
-        RampTime
+        Time
     };
 
-    RampOrSpeed() {
+    RampTimeOrSpeed() {
     }
 
-    RampOrSpeed(double v) : value(v) {
+    RampTimeOrSpeed(double v) : value(v) {
     }
 
-    RampOrSpeed(double v, Type t) : value(v), type(t) {
+    RampTimeOrSpeed(double v, Type t) : value(v), type(t) {
     }
 
     double value = 0.0; // Speed: percent/degree per second
-    Type type = Type::RampTime;
+    Type type = Type::Time;
 };
 
 class AbsOrRelValue {

@@ -89,7 +89,7 @@ void AnimSetAndStay::reset() {
 }
 
 AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
-        const RampOrSpeed& change,
+        const RampTimeOrSpeed& change,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
         bool requeue,
@@ -101,7 +101,7 @@ AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
 
 AnimTransition::AnimTransition(const AbsOrRelValue& from,
         const AbsOrRelValue& endVal,
-        const RampOrSpeed& ramp,
+        const RampTimeOrSpeed& ramp,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
         bool requeue,
@@ -117,19 +117,16 @@ bool AnimTransition::init() {
 
     _value = _baseval;
 
-    Serial.printf("This: %d | rampType: %d\n", this, _ramp.type);
-
     switch(_ramp.type) {
-    case RampOrSpeed::Type::RampTime:
+    case RampTimeOrSpeed::Type::Time:
     {
         _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
-    case RampOrSpeed::Type::Speed:
+    case RampTimeOrSpeed::Type::Speed:
     {
-        const double diffPerc = (abs(_finalval - _baseval) / RGBWW_CALC_MAXVAL) * 100;
-        _steps = static_cast<int>((diffPerc / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
-        Serial.printf("Diff: %d | Speed: %d | Steps: %d\n", diff, _ramp.value, _steps);
+        const double diffPerc = (abs(_finalval - _baseval) / static_cast<double>(RGBWW_CALC_MAXVAL)) * 100;
+        _steps = static_cast<int>((diffPerc / _ramp.value) * 60 * 1000 + 0.5 / RGBWW_MINTIMEDIFF);
         break;
     }
     }
@@ -148,7 +145,6 @@ bool AnimTransition::init() {
 
 bool AnimTransition::run () {
     if (_currentstep == 0) {
-        Serial.printf("AnimTransition::run - 2 | this: %d\n", this);
         if (!init()) {
             return true;
         }
@@ -189,7 +185,7 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 ///////////////////////////////
 
 AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal,
-        const RampOrSpeed& ramp,
+        const RampTimeOrSpeed& ramp,
         int direction,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
@@ -200,7 +196,7 @@ AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal
 
 AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal,
         const AbsOrRelValue& endVal,
-        const RampOrSpeed& ramp,
+        const RampTimeOrSpeed& ramp,
         int direction,
         RGBWWLed const * rgbled,
         CtrlChannel ch,
@@ -226,17 +222,17 @@ bool AnimTransitionCircularHue::init() {
     d = (_direction == 1) ? d : d *= -1;
 
     switch(_ramp.type) {
-    case RampOrSpeed::Type::RampTime:
+    case RampTimeOrSpeed::Type::Time:
     {
         _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
-    case RampOrSpeed::Type::Speed:
+    case RampTimeOrSpeed::Type::Speed:
     {
         const uint32_t diff1 = abs(_finalval - _baseval);
         const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
-        uint32_t diffDegree = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
-        diffDegree = (abs(_finalval - _baseval) / RGBWW_CALC_HUEWHEELMAX) * 360.0;
+        const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
+        const double diffDegree = (static_cast<double>(diff) / RGBWW_CALC_HUEWHEELMAX) * 360;
         _steps = static_cast<int>((diffDegree / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
         break;
     }
@@ -301,7 +297,6 @@ bool AnimBlink::init() {
 	    _value = (_prevvalue > (RGBWW_CALC_MAXVAL/2)) ? 0 : RGBWW_CALC_MAXVAL;
 		break;
 	}
-	Serial.printf("PREV: %d | VAL: %d\n", _prevvalue, _value);
 }
 
 void AnimBlink::reset() {
