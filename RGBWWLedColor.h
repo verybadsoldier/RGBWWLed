@@ -160,7 +160,7 @@ struct HSVCT {
 		int colortemp;
 	};
 
-    HSVCT() {}
+    HSVCT() : h(0), s(0), v(0), ct(2700) {}
     HSVCT(int hue, int sat, int val) : h(hue), s(sat), v(val), ct(0) {}
     HSVCT(int hue, int sat, int val, int ct) : h(hue), s(sat), v(val), ct(ct) {}
 
