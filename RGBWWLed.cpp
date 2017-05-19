@@ -57,8 +57,8 @@ void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) {
     o.r = _animChannelsRaw[CtrlChannel::Red]->getValue();
     o.g = _animChannelsRaw[CtrlChannel::Green]->getValue();
     o.b = _animChannelsRaw[CtrlChannel::Blue]->getValue();
-    o.cw = _animChannelsRaw[CtrlChannel::WarmWhite]->getValue();
-    o.ww = _animChannelsRaw[CtrlChannel::ColdWhite]->getValue();
+    o.ww = _animChannelsRaw[CtrlChannel::WarmWhite]->getValue();
+    o.cw = _animChannelsRaw[CtrlChannel::ColdWhite]->getValue();
 }
 
 /**************************************************************
