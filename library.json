@@ -9,5 +9,5 @@
   },
   "frameworks": "arduino",
   "platforms": "espressif",
-  "version": "0.8.0-vbs2b"
+  "version": "0.8.0-vbs3"
 }
