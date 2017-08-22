@@ -88,8 +88,8 @@ private:
     bool    _isAnimationActive = false;
     bool    _isAnimationPaused = false;
 
-    RGBWWLedAnimation*  _currentAnimation = nullptr;
-    RGBWWLedAnimationQ* _animationQ;
+    RGBWWLedAnimation* _currentAnimation = nullptr;
+    RGBWWLedAnimationQ* _animationQ = nullptr;
 
     //helpers
     void cleanupCurrentAnimation();

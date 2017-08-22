@@ -421,5 +421,5 @@ void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedCha
     }
 }
 
-void RGBWWLed::onAnimationFinished(RGBWWLedAnimation* anim) {
+void RGBWWLed::onAnimationFinished(const String& name) {
 }

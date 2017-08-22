@@ -275,7 +275,7 @@ public:
     void skipAnimation(const ChannelList& channels = ChannelList());
 
 
-    virtual void onAnimationFinished(RGBWWLedAnimation* anim);
+    virtual void onAnimationFinished(const String& name);
 
     ColorMode getMode() const {
         return _mode;
