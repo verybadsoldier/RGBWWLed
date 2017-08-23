@@ -161,7 +161,7 @@ void RGBWWAnimatedChannel::cleanupCurrentAnimation() {
     if (_currentAnimation == nullptr)
         return;
 
-    _rgbled->onAnimationFinished(_currentAnimation);
+    _rgbled->onAnimationFinished(_currentAnimation->getName());
 
     _isAnimationActive = false;
     delete _currentAnimation;
