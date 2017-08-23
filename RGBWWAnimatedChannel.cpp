@@ -79,6 +79,10 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
     return true;
 }
 
+bool RGBWWAnimatedChannel::notifyAnimationFinished(bool requeued) {
+    _rgbled->onAnimationFinished(_currentAnimation->getName(), requeued);
+}
+
 bool RGBWWAnimatedChannel::process() {
     if (_isAnimationPaused) {
         return false;
@@ -110,7 +114,10 @@ bool RGBWWAnimatedChannel::process() {
     _value = _currentAnimation->getAnimValue();
     if (finished) {
         if (_currentAnimation->shouldRequeue())
+        {
+            notifyAnimationFinished(true);
             requeueCurrentAnimation();
+        }
         else
             cleanupCurrentAnimation();
     }
@@ -161,7 +168,7 @@ void RGBWWAnimatedChannel::cleanupCurrentAnimation() {
     if (_currentAnimation == nullptr)
         return;
 
-    _rgbled->onAnimationFinished(_currentAnimation->getName());
+    notifyAnimationFinished(false);
 
     _isAnimationActive = false;
     delete _currentAnimation;

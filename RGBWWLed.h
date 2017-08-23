@@ -275,7 +275,7 @@ public:
     void skipAnimation(const ChannelList& channels = ChannelList());
 
 
-    virtual void onAnimationFinished(const String& name);
+    virtual void onAnimationFinished(const String& name, bool requeued);
 
     ColorMode getMode() const {
         return _mode;
