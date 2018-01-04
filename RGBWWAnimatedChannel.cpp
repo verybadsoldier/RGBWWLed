@@ -38,7 +38,7 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
             queuePolicy == QueuePolicy::FrontReset)
             && ( pAnim->getAnimType() == RGBWWLedAnimation::Type::Blink &&
                     _currentAnimation->getAnimType() == RGBWWLedAnimation::Type::Blink)) {
-        Serial.println("Ignored blink commmand cause already blink running!");
+        debug_w("Ignored blink commmand cause already blink running!");
         return false;
     }
 
@@ -71,7 +71,7 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
             _cancelAnimation = false;
             break;
         default:
-            Serial.printf(
+            debug_w(
                     "RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n",
                     queuePolicy);
     }

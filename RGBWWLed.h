@@ -39,11 +39,6 @@
 #include "../../Wiring/WHashMap.h"
 #include "RGBWWTypes.h"
 
-#ifndef DEBUG_RGBWW
-	#define DEBUG_RGBWW 0
-#endif
-
-#include "debugUtils.h"
 #include "RGBWWconst.h"
 #include "RGBWWLedColor.h"
 #include "RGBWWLedAnimation.h"
