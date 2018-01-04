@@ -185,7 +185,7 @@ void RGBWWAnimatedChannel::requeueCurrentAnimation() {
     if (_currentAnimation == nullptr)
         return;
 
-    Serial.printf("Requeuing...\n");
+    debug_d("Requeuing...\n");
 
     _currentAnimation->reset();
     _animationQ->push(_currentAnimation);
