@@ -206,6 +206,23 @@ struct HSVCT {
         return *this;
     }
 
+    HSVCT& operator= (String& colorStr) {
+        Vector<String> tokens;
+        splitString(colorStr, ',', tokens);
+
+        if (tokens.size() < 3 || tokens.size() > 4) {
+            debug_e("HSVCT::setFromString - Invalid input string: %s", colorStr.c_str());
+        }
+
+        this->h = (constrain(tokens[0].toFloat(), 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
+        this->s = (constrain(tokens[1].toFloat(), 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
+        this->v = (constrain(tokens[2].toFloat(), 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
+
+        if (tokens.size() > 3)
+            this->colortemp = tokens[3].toInt();
+        return *this;
+    }
+
     void asRadian(float& hue, float& sat, float& val) const {
 		hue = (float(h) / float(RGBWW_CALC_HUEWHEELMAX)) * 360.0;
 		sat = (float(s) / float(RGBWW_CALC_MAXVAL)) * 100.0;
