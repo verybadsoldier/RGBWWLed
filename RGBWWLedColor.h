@@ -212,6 +212,7 @@ struct HSVCT {
 
         if (tokens.size() < 3 || tokens.size() > 4) {
             debug_e("HSVCT::setFromString - Invalid input string: %s", colorStr.c_str());
+            return *this;
         }
 
         this->h = (constrain(tokens[0].toFloat(), 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
