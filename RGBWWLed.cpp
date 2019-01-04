@@ -387,6 +387,8 @@ bool RGBWWLed::dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, Queue
     case CtrlChannel::ColdWhite:
         return _animChannelsRaw[ch]->pushAnimation(pAnim, queuePolicy);
         break;
+    default:
+        break;
     }
 }
 

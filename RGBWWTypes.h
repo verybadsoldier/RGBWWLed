@@ -123,6 +123,8 @@ private:
         case Type::Percent:
         	value = (value / 100.0) * RGBWW_CALC_MAXVAL;
             break;
+	default:
+            break;
         }
 
         _value = static_cast<int>(value + 0.5f);
@@ -144,6 +146,8 @@ private:
             break;
         case Type::Percent:
             val = constrain(val, 0, RGBWW_CALC_MAXVAL);
+            break;
+	default:
             break;
         }
 	    return val;

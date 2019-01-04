@@ -181,6 +181,8 @@ void RGBWWColorUtils::whiteBalance(RGBWCT& rgbw, ChannelOutput& output) const {
         output.coldwhite = 0;
         output.warmwhite = 0;
         break;
+     default:
+        break;
     }
 }
 

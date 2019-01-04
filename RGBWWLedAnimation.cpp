@@ -51,6 +51,8 @@ int RGBWWLedAnimation::getBaseValue() const {
     case CtrlChannel::WarmWhite:
         return o.warmwhite;
         break;
+    default:
+	break;
     }
 }
 
@@ -136,7 +138,7 @@ bool AnimTransition::init() {
     _bresenham.delta = abs(_baseval - _finalval);
     _bresenham.step = 1;
     _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8)/_steps;
-    _bresenham.step = (_baseval > _finalval) ? _bresenham.step*=-1 : _bresenham.step;
+    _bresenham.step *= (_baseval > _finalval) ? -1 : 1;
     _bresenham.error = -1*_steps;
     _bresenham.count = 0;
 
@@ -219,7 +221,7 @@ bool AnimTransitionCircularHue::init() {
     // decide on direction of turn depending on size
     int d = (l < r) ? -1 : 1;
     // turn direction if user wishes for long transition
-    d = (_direction == 1) ? d : d *= -1;
+    d *= (_direction == 1) ? 1 : -1;
 
     switch(_ramp.type) {
     case RampTimeOrSpeed::Type::Time:
