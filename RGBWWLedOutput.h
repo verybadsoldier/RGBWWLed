@@ -29,9 +29,8 @@ class PWMOutput
 
 public:
 	PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t wwPin, uint8_t cwPin, uint16_t freq = 200);
+	~PWMOutput();
 
-	void 	setFrequency(int freq);
-	int		getFrequency();
 	void	setRed(int value, bool update = true);
 	int		getRed();
 	void 	setGreen(int value, bool update = true);
@@ -44,13 +43,13 @@ public:
 	int		getColdWhite();
 	void	setOutput(int red, int green, int blue, int warmwhite, int coldwhite);
 
+	int getChannel(int chan);
+	void setChannel(int channel, int duty, bool update = true);
 
 private:
-	int		parseDuty(int duty);
-	int		_freq;
-	int		_duty[RGBWW_CHANNELS::NUM_CHANNELS];
-	int		_maxduty;
-
+	int             parseDuty(int duty);
+	float           _dutyRangeFactor = 0.0f;
+	HardwarePWM*    _pPwm;
 
 };
 
