@@ -77,7 +77,7 @@ void PWMOutput::setOutput(int red, int green, int blue, int warmwhite, int coldw
   setWarmWhite(warmwhite, false);
   setColdWhite(coldwhite, false);
 
-  _pPwm->updatePWM();
+  _pPwm->update();
 
 }
 
