@@ -136,6 +136,10 @@ struct ChannelOutput {
 		this->cw = output.cw;
         return *this;
     }
+
+	bool isOn() {
+		return this->r > 0 || this->g > 0 || this->b > 0 || this->ww > 0 || this->cw > 0;
+	}
 };
 
 // struct for HSV + Kelvin
@@ -240,11 +244,21 @@ struct HSVCT {
 
 
 struct RequestChannelOutput {
-	Optional<AbsOrRelValue> r;
-	Optional<AbsOrRelValue> g;
-	Optional<AbsOrRelValue> b;
-	Optional<AbsOrRelValue> ww;
-	Optional<AbsOrRelValue> cw;
+    Optional<AbsOrRelValue> r;
+    Optional<AbsOrRelValue> g;
+    Optional<AbsOrRelValue> b;
+    Optional<AbsOrRelValue> ww;
+    Optional<AbsOrRelValue> cw;
+
+    RequestChannelOutput() {}
+
+    RequestChannelOutput(const ChannelOutput& ch) {
+        this->r = ch.r;
+        this->g = ch.g;
+        this->b = ch.b;
+        this->cw = ch.cw;
+        this->ww = ch.ww;
+    }
 
     bool operator==(const RequestChannelOutput& ch) const {
         return this->r == ch.r &&
