@@ -9,7 +9,6 @@
 #include "RGBWWLedAnimationQ.h"
 #include "RGBWWLedAnimation.h"
 
-
 RGBWWLedAnimationQ::RGBWWLedAnimationQ(int qsize) {
     _size = qsize;
     _count = 0;
@@ -18,7 +17,7 @@ RGBWWLedAnimationQ::RGBWWLedAnimationQ(int qsize) {
     _q = new RGBWWLedAnimation*[qsize];
 }
 
-RGBWWLedAnimationQ::~RGBWWLedAnimationQ(){
+RGBWWLedAnimationQ::~RGBWWLedAnimationQ() {
     clear();
     delete _q;
 }
@@ -37,7 +36,7 @@ bool RGBWWLedAnimationQ::push(RGBWWLedAnimation* animation) {
 
     _count++;
     _q[_front] = animation;
-    _front = (_front+1) % _size;
+    _front = (_front + 1) % _size;
     return true;
 }
 
@@ -55,7 +54,7 @@ bool RGBWWLedAnimationQ::pushFront(RGBWWLedAnimation* animation) {
 }
 
 void RGBWWLedAnimationQ::clear() {
-    while(!isEmpty()) {
+    while (!isEmpty()) {
         RGBWWLedAnimation* animation = pop();
         if (animation != NULL) {
             delete animation;
@@ -76,7 +75,7 @@ RGBWWLedAnimation* RGBWWLedAnimationQ::pop() {
         _count--;
         tmpptr = _q[_back];
         _q[_back] = NULL;
-        _back = (_back+1) %_size;
+        _back = (_back + 1) % _size;
         return tmpptr;
     }
     return NULL;

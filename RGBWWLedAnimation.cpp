@@ -10,19 +10,15 @@
 #include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
 
-RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, Type type, bool requeue, const String& name) : _rgbled(rgbled),
-_ctrlChannel(ch),
-_requeue(requeue),
-_name(name),
-_type(type) {
+RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, Type type, bool requeue, const String& name) :
+        _rgbled(rgbled), _ctrlChannel(ch), _requeue(requeue), _name(name), _type(type) {
 }
-
 
 int RGBWWLedAnimation::getBaseValue() const {
     const HSVCT& c = _rgbled->getCurrentColor();
     const ChannelOutput& o = _rgbled->getCurrentOutput();
 
-    switch(_ctrlChannel) {
+    switch (_ctrlChannel) {
     case CtrlChannel::Hue:
         return c.hue;
         break;
@@ -52,17 +48,12 @@ int RGBWWLedAnimation::getBaseValue() const {
         return o.warmwhite;
         break;
     default:
-	break;
+        break;
     }
 }
 
-AnimSetAndStay::AnimSetAndStay(const AbsOrRelValue& endVal,
-        int onTime,
-        RGBWWLed const * rgbled,
-        CtrlChannel ch,
-        bool requeue,
-        const String& name) : RGBWWLedAnimation(rgbled, ch, Type::SetAndStay, requeue, name),
-                _initEndVal(endVal) {
+AnimSetAndStay::AnimSetAndStay(const AbsOrRelValue& endVal, int onTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
+        RGBWWLedAnimation(rgbled, ch, Type::SetAndStay, requeue, name), _initEndVal(endVal) {
     if (onTime > 0) {
         _steps = onTime / RGBWW_MINTIMEDIFF;
     }
@@ -90,24 +81,16 @@ void AnimSetAndStay::reset() {
     _currentstep = 0;
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& endVal,
-        const RampTimeOrSpeed& change,
-        RGBWWLed const * rgbled,
-        CtrlChannel ch,
-        bool requeue,
-        const String& name) : RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name)
-{
+AnimTransition::AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& change, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue,
+        const String& name) :
+        RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name) {
     _initEndVal = endVal;
     _ramp = change;
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& from,
-        const AbsOrRelValue& endVal,
-        const RampTimeOrSpeed& ramp,
-        RGBWWLed const * rgbled,
-        CtrlChannel ch,
-        bool requeue,
-        const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
+AnimTransition::AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, RGBWWLed const * rgbled, CtrlChannel ch,
+        bool requeue, const String& name) :
+        AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
     _initStartVal = from;
     _hasfromval = true;
     _type = Type::Transition;
@@ -119,14 +102,12 @@ bool AnimTransition::init() {
 
     _value = _baseval;
 
-    switch(_ramp.type) {
-    case RampTimeOrSpeed::Type::Time:
-    {
+    switch (_ramp.type) {
+    case RampTimeOrSpeed::Type::Time: {
         _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
-    case RampTimeOrSpeed::Type::Speed:
-    {
+    case RampTimeOrSpeed::Type::Speed: {
         const double diffPerc = (abs(_finalval - _baseval) / static_cast<double>(RGBWW_CALC_MAXVAL)) * 100;
         _steps = static_cast<int>((diffPerc / _ramp.value) * 60 * 1000 + 0.5 / RGBWW_MINTIMEDIFF);
         break;
@@ -137,15 +118,15 @@ bool AnimTransition::init() {
 
     _bresenham.delta = abs(_baseval - _finalval);
     _bresenham.step = 1;
-    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8)/_steps;
+    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _steps;
     _bresenham.step *= (_baseval > _finalval) ? -1 : 1;
-    _bresenham.error = -1*_steps;
+    _bresenham.error = -1 * _steps;
     _bresenham.count = 0;
 
     return true;
 }
 
-bool AnimTransition::run () {
+bool AnimTransition::run() {
     if (_currentstep == 0) {
         if (!init()) {
             return true;
@@ -177,34 +158,22 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
     values.error = values.error + 2 * values.delta;
     if (values.error > 0) {
         values.count += 1;
-        values.error = values.error - 2*dx;
+        values.error = values.error - 2 * dx;
         return base + ((values.count * values.step) >> 8);
     }
     return current;
 }
 
-
 ///////////////////////////////
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal,
-        const RampTimeOrSpeed& ramp,
-        int direction,
-        RGBWWLed const * rgbled,
-        CtrlChannel ch,
-        bool requeue,
-        const String& name) : AnimTransition(endVal, ramp, rgbled, ch, requeue, name),
-                _direction(direction) {
+AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction, RGBWWLed const * rgbled,
+        CtrlChannel ch, bool requeue, const String& name) :
+        AnimTransition(endVal, ramp, rgbled, ch, requeue, name), _direction(direction) {
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal,
-        const AbsOrRelValue& endVal,
-        const RampTimeOrSpeed& ramp,
-        int direction,
-        RGBWWLed const * rgbled,
-        CtrlChannel ch,
-        bool requeue,
-        const String& name) : AnimTransition(startVal, endVal, ramp, rgbled, ch, requeue, name)
-{
+AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction,
+        RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
+        AnimTransition(startVal, endVal, ramp, rgbled, ch, requeue, name) {
     _direction = direction;
 }
 
@@ -223,14 +192,12 @@ bool AnimTransitionCircularHue::init() {
     // turn direction if user wishes for long transition
     d *= (_direction == 1) ? 1 : -1;
 
-    switch(_ramp.type) {
-    case RampTimeOrSpeed::Type::Time:
-    {
+    switch (_ramp.type) {
+    case RampTimeOrSpeed::Type::Time: {
         _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
-    case RampTimeOrSpeed::Type::Speed:
-    {
+    case RampTimeOrSpeed::Type::Speed: {
         const uint32_t diff1 = abs(_finalval - _baseval);
         const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
         const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
@@ -245,7 +212,7 @@ bool AnimTransitionCircularHue::init() {
     //HUE
     _bresenham.delta = (d == -1) ? l : r;
     _bresenham.step = 1;
-    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step <<8) : (_bresenham.delta << 8)/_steps;
+    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _steps;
     _bresenham.step *= d;
     _bresenham.error = -1 * _steps;
     _bresenham.count = 0;
@@ -259,14 +226,11 @@ bool AnimTransitionCircularHue::run() {
     return result;
 }
 
-AnimBlink::AnimBlink(int blinkTime,
-        RGBWWLed const * rgbled,
-        CtrlChannel ch,
-        bool requeue,
-        const String& name) : RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
-	if (blinkTime > 0) {
-	    _steps = blinkTime / RGBWW_MINTIMEDIFF;
-	}
+AnimBlink::AnimBlink(int blinkTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
+        RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
+    if (blinkTime > 0) {
+        _steps = blinkTime / RGBWW_MINTIMEDIFF;
+    }
 }
 
 bool AnimBlink::run() {
@@ -287,18 +251,18 @@ bool AnimBlink::run() {
 }
 
 bool AnimBlink::init() {
-	// preserve the value before the blink
-	_prevvalue = getBaseValue();
+    // preserve the value before the blink
+    _prevvalue = getBaseValue();
 
-	switch(_ctrlChannel) {
-	case CtrlChannel::Hue:
-		_value = _prevvalue + RGBWW_CALC_HUEWHEELMAX / 2;
-		RGBWWColorUtils::circleHue(_value);
-		break;
-	default:
-	    _value = (_prevvalue > (RGBWW_CALC_MAXVAL/2)) ? 0 : RGBWW_CALC_MAXVAL;
-		break;
-	}
+    switch (_ctrlChannel) {
+    case CtrlChannel::Hue:
+        _value = _prevvalue + RGBWW_CALC_HUEWHEELMAX / 2;
+        RGBWWColorUtils::circleHue(_value);
+        break;
+    default:
+        _value = (_prevvalue > (RGBWW_CALC_MAXVAL / 2)) ? 0 : RGBWW_CALC_MAXVAL;
+        break;
+    }
 }
 
 void AnimBlink::reset() {

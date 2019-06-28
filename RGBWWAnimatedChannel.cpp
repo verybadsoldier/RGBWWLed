@@ -12,8 +12,7 @@
 #include "RGBWWLedAnimationQ.h"
 
 RGBWWAnimatedChannel::RGBWWAnimatedChannel(RGBWWLed* rgbled) :
-        _rgbled(rgbled), _animationQ(
-                new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE)) {
+        _rgbled(rgbled), _animationQ(new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE)) {
 }
 
 RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
@@ -33,11 +32,8 @@ void RGBWWAnimatedChannel::setValue(const AbsOrRelValue& val) {
 
 bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
     // do not blink while blinking
-    if (_currentAnimation != nullptr && (queuePolicy == QueuePolicy::Single ||
-            queuePolicy == QueuePolicy::Front ||
-            queuePolicy == QueuePolicy::FrontReset)
-            && ( pAnim->getAnimType() == RGBWWLedAnimation::Type::Blink &&
-                    _currentAnimation->getAnimType() == RGBWWLedAnimation::Type::Blink)) {
+    if (_currentAnimation != nullptr && (queuePolicy == QueuePolicy::Single || queuePolicy == QueuePolicy::Front || queuePolicy == QueuePolicy::FrontReset)
+            && (pAnim->getAnimType() == RGBWWLedAnimation::Type::Blink && _currentAnimation->getAnimType() == RGBWWLedAnimation::Type::Blink)) {
         debug_w("Ignored blink commmand cause already blink running!");
         return false;
     }
@@ -54,26 +50,26 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
         return false;
 
     switch (queuePolicy) {
-        case QueuePolicy::Back:
-        case QueuePolicy::Single:
-            _animationQ->push(pAnim);
-            break;
-        case QueuePolicy::Front:
-        case QueuePolicy::FrontReset:
-            if (_currentAnimation != nullptr) {
-                if (queuePolicy == QueuePolicy::FrontReset)
-                    _currentAnimation->reset();
-                _animationQ->pushFront(_currentAnimation);
-                _currentAnimation = NULL;
-            }
-            _animationQ->pushFront(pAnim);
-            _isAnimationActive = false;
-            _cancelAnimation = false;
-            break;
-        default:
-            debug_w(
-                    "RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n",
-                    queuePolicy);
+    case QueuePolicy::Back:
+    case QueuePolicy::Single:
+        _animationQ->push(pAnim);
+        break;
+    case QueuePolicy::Front:
+    case QueuePolicy::FrontReset:
+        if (_currentAnimation != nullptr) {
+            if (queuePolicy == QueuePolicy::FrontReset)
+                _currentAnimation->reset();
+            _animationQ->pushFront(_currentAnimation);
+            _currentAnimation = NULL;
+        }
+        _animationQ->pushFront(pAnim);
+        _isAnimationActive = false;
+        _cancelAnimation = false;
+        break;
+    default:
+        debug_w(
+                "RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n",
+                queuePolicy);
     }
 
     return true;
@@ -113,12 +109,10 @@ bool RGBWWAnimatedChannel::process() {
     const bool finished = _currentAnimation->run();
     _value = _currentAnimation->getAnimValue();
     if (finished) {
-        if (_currentAnimation->shouldRequeue())
-        {
+        if (_currentAnimation->shouldRequeue()) {
             notifyAnimationFinished(true);
             requeueCurrentAnimation();
-        }
-        else
+        } else
             cleanupCurrentAnimation();
     }
 
