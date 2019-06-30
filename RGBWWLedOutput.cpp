@@ -86,7 +86,7 @@ int PWMOutput::getChannel(int chan) {
 }
 
 void PWMOutput::setChannel(int chan, int duty, bool update /* = true */) {
-    if (duty == _pPwm->getDutyChan(chan))
+    if (unsigned(duty) == _pPwm->getDutyChan(chan))
         return;
 
     const uint32 scaledDuty = uint32(roundf(duty * _dutyRangeFactor));
