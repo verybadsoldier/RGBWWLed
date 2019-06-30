@@ -8,11 +8,10 @@
 
 #pragma once
 
-#include "../../SmingCore/SmingCore.h"
+#include <SmingCore.h>
 
 #ifdef SMING_VERSION
 #define RGBWW_USE_ESP_HWPWM
-#include "../../SmingCore/SmingCore.h"
 #define RGBWW_PWMRESOLUTION 65536
 #define RGBWW_CALC_DEPTH 10
 #else

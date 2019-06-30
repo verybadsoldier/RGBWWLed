@@ -75,7 +75,7 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
     return true;
 }
 
-bool RGBWWAnimatedChannel::notifyAnimationFinished(bool requeued) {
+void RGBWWAnimatedChannel::notifyAnimationFinished(bool requeued) {
     _rgbled->onAnimationFinished(_currentAnimation->getName(), requeued);
 }
 

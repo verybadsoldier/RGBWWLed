@@ -36,7 +36,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include "../../Wiring/WHashMap.h"
+#include <Wiring/WHashMap.h>
 #include "RGBWWTypes.h"
 
 #include "RGBWWconst.h"

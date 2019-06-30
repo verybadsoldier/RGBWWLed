@@ -7,8 +7,7 @@
  */
 #pragma once
 
-#include "../../SmingCore/SmingCore.h"
-#include "../Wiring/WConstants.h"
+#include <Wiring/WConstants.h>
 #include "RGBWWconst.h"
 
 enum RGBWW_COLORMODE {

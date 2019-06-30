@@ -87,7 +87,7 @@ private:
     RGBWWLedAnimationQ* _animationQ = nullptr;
 
     //helpers
-    bool notifyAnimationFinished(bool requeued);
+    void notifyAnimationFinished(bool requeued);
     void cleanupCurrentAnimation();
     void cleanupAnimationQ();
     void requeueCurrentAnimation();

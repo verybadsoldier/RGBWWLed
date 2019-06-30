@@ -64,7 +64,7 @@ void RGBWWLed::getAnimChannelRawOutput(ChannelOutput& o) {
 
 bool RGBWWLed::processChannelGroup(const ChannelGroup& cg) {
     bool animFinished = false;
-    for (int i = 0; i < cg.count(); ++i) {
+    for (unsigned i = 0; i < cg.count(); ++i) {
         CtrlChannel ch = cg.keyAt(i);
         RGBWWAnimatedChannel* pCh = cg.valueAt(i);
         animFinished |= pCh->process();
@@ -214,6 +214,7 @@ bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, i
         result &= pushAnimTransition(color.v, ramp, queuePolicy, CtrlChannel::Val, requeue, name);
         result &= pushAnimTransition(color.ct, ramp, queuePolicy, CtrlChannel::ColorTemp, requeue, name);
     }
+    return result;
 }
 
 bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int direction, QueuePolicy queuePolicy,
@@ -250,6 +251,7 @@ bool RGBWWLed::setRAW(const RequestChannelOutput& output, int time, QueuePolicy 
     result &= pushAnimSetAndStay(output.b, time, queuePolicy, CtrlChannel::Blue, requeue, name);
     result &= pushAnimSetAndStay(output.cw, time, queuePolicy, CtrlChannel::ColdWhite, requeue, name);
     result &= pushAnimSetAndStay(output.ww, time, queuePolicy, CtrlChannel::WarmWhite, requeue, name);
+    return result;
 }
 
 //// fadeRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,6 +273,7 @@ bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampTimeOrSpeed
         result &= pushAnimTransition(output.ww, ramp, queuePolicy, CtrlChannel::WarmWhite, requeue, name);
         result &= pushAnimTransition(output.cw, ramp, queuePolicy, CtrlChannel::ColdWhite, requeue, name);
     }
+    return result;
 }
 
 bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, const RampTimeOrSpeed& ramp, QueuePolicy queuePolicy,
@@ -291,6 +294,7 @@ bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestCha
         result &= pushAnimTransition(output_from.ww, output.ww, ramp, queuePolicy, CtrlChannel::WarmWhite, requeue, name);
         result &= pushAnimTransition(output_from.cw, output.cw, ramp, queuePolicy, CtrlChannel::ColdWhite, requeue, name);
     }
+    return result;
 }
 
 void RGBWWLed::colorDirectHSV(const RequestHSVCT& output) {
@@ -373,16 +377,14 @@ bool RGBWWLed::dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, Queue
     case CtrlChannel::Val:
     case CtrlChannel::ColorTemp:
         return _animChannelsHsv[ch]->pushAnimation(pAnim, queuePolicy);
-        break;
     case CtrlChannel::Red:
     case CtrlChannel::Green:
     case CtrlChannel::Blue:
     case CtrlChannel::WarmWhite:
     case CtrlChannel::ColdWhite:
         return _animChannelsRaw[ch]->pushAnimation(pAnim, queuePolicy);
-        break;
     default:
-        break;
+        return false;
     }
 }
 
@@ -409,7 +411,7 @@ void RGBWWLed::continueAnimation(const ChannelList& channels) {
 void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels) {
     const bool all = (channels.size() == 0);
 
-    for (int i = 0; i < group.count(); ++i) {
+    for (unsigned i = 0; i < group.count(); ++i) {
         if (!all && !channels.contains(group.keyAt(i)))
             continue;
         (group.valueAt(i)->*fnc)();
