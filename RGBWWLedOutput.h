@@ -17,10 +17,6 @@
  *  framework
  */
 
-extern "C" {
-#include <pwm.h>
-}
-
 class PWMOutput {
 
 public:

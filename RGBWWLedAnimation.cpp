@@ -48,7 +48,7 @@ int RGBWWLedAnimation::getBaseValue() const {
         return o.warmwhite;
         break;
     default:
-        break;
+        return 0;
     }
 }
 
@@ -75,6 +75,7 @@ bool AnimSetAndStay::run() {
 
 bool AnimSetAndStay::init() {
     _value = _initEndVal.getFinalValue(getBaseValue());
+    return true;
 }
 
 void AnimSetAndStay::reset() {
@@ -263,6 +264,7 @@ bool AnimBlink::init() {
         _value = (_prevvalue > (RGBWW_CALC_MAXVAL / 2)) ? 0 : RGBWW_CALC_MAXVAL;
         break;
     }
+    return true;
 }
 
 void AnimBlink::reset() {

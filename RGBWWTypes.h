@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../SmingCore/SmingCore.h"
 #include "RGBWWconst.h"
 
 struct RampTimeOrSpeed {
@@ -108,6 +107,7 @@ public:
         case Mode::Relative:
             return fixRangeLimits(_value + val);
         case Mode::Absolute:
+        default:
             return _value;
         }
     }
@@ -167,9 +167,10 @@ public:
             _value(value), _hasValue(true) {
     }
 
-    T& operator=(const T& obj) {
+    Optional& operator=(const T& obj) {
         _value = obj;
         _hasValue = true;
+        return *this;
     }
 
     const T& getValue() const {
