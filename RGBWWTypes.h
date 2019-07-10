@@ -39,21 +39,19 @@ public:
     AbsOrRelValue() {
     }
 
-    AbsOrRelValue(const char* value, Type type = Type::Percent) :
+    AbsOrRelValue(String value, Type type = Type::Percent) :
             _type(type) {
-        String str;
-        str.setString(value);
-        float val;
-        if (str.startsWith("+") || str.startsWith("-")) {
+        float fval;
+        if (value.startsWith("+") || value.startsWith("-")) {
             _mode = Mode::Relative;
-            val = str.substring(1).toFloat();
-            if (str.startsWith("-"))
-                val *= -1;
+            fval = value.substring(1).toFloat();
+            if (value.startsWith("-"))
+                fval *= -1;
         } else {
             _mode = Mode::Absolute;
-            val = str.toFloat();
+            fval = value.toFloat();
         }
-        setValueByType(val);
+        setValueByType(fval);
     }
 
     AbsOrRelValue(const AbsOrRelValue& o) {
