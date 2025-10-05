@@ -267,13 +267,9 @@ private:
     typedef HashMap<CtrlChannel, RGBWWAnimatedChannel*> ChannelGroup;
 
     bool pushAnimSetAndStay(const Optional<AbsOrRelValue>& val, int time, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
-    bool pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, QueuePolicy queuePolicy, CtrlChannel ch, bool requeue,
-            const String& name);
-    bool pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, QueuePolicy queuePolicy, CtrlChannel ch,
+    bool pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch,
             bool requeue, const String& name);
-    bool pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int direction, QueuePolicy queuePolicy, CtrlChannel ch,
-            bool requeue, const String& name);
-    bool pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int direction,
+    bool pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int direction,
             QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
 
     /**

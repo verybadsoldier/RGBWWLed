@@ -243,9 +243,10 @@ struct BresenhamValues {
 };
 
 enum class QueuePolicy {
-    Invalid, FrontReset, // queue to front and let the original anim run from the beginning afterwards
+    Invalid,
+    FrontReset, // queue to front and let the original anim run from the beginning afterwards
     Front, // queue to front and the current animation will continue where it was interrupted
-    Back,
-    Single,
+    Back, // queue to back
+    Single, // clear queue and run immediately
 };
 

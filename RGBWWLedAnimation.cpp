@@ -167,66 +167,6 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 
 ///////////////////////////////
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction, RGBWWLed const * rgbled,
-        CtrlChannel ch, bool requeue, const String& name) :
-        AnimTransition(endVal, ramp, rgbled, ch, requeue, name), _direction(direction) {
-}
-
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction,
-        RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
-        AnimTransition(startVal, endVal, ramp, rgbled, ch, requeue, name) {
-    _direction = direction;
-}
-
-bool AnimTransitionCircularHue::init() {
-    _finalval = _initEndVal.getFinalValue(getBaseValue());
-    _baseval = _hasfromval ? _initStartVal.getFinalValue(getBaseValue()) : getBaseValue();
-
-    _value = _baseval;
-
-    // calculate hue direction
-    const int l = (_baseval + RGBWW_CALC_HUEWHEELMAX - _finalval) % RGBWW_CALC_HUEWHEELMAX;
-    const int r = (_finalval + RGBWW_CALC_HUEWHEELMAX - _baseval) % RGBWW_CALC_HUEWHEELMAX;
-
-    // decide on direction of turn depending on size
-    int d = (l < r) ? -1 : 1;
-    // turn direction if user wishes for long transition
-    d *= (_direction == 1) ? 1 : -1;
-
-    switch (_ramp.type) {
-    case RampTimeOrSpeed::Type::Time: {
-        _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
-        break;
-    }
-    case RampTimeOrSpeed::Type::Speed: {
-        const uint32_t diff1 = abs(_finalval - _baseval);
-        const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
-        const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
-        const double diffDegree = (static_cast<double>(diff) / RGBWW_CALC_HUEWHEELMAX) * 360;
-        _steps = static_cast<int>((diffDegree / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
-        break;
-    }
-    }
-
-    _steps = max(_steps, 1); //avoid 0 division
-
-    //HUE
-    _bresenham.delta = (d == -1) ? l : r;
-    _bresenham.step = 1;
-    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _steps;
-    _bresenham.step *= d;
-    _bresenham.error = -1 * _steps;
-    _bresenham.count = 0;
-
-    return true;
-}
-
-bool AnimTransitionCircularHue::run() {
-    const bool result = AnimTransition::run();
-    RGBWWColorUtils::circleHue(_value);
-    return result;
-}
-
 AnimBlink::AnimBlink(int blinkTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
         RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
     if (blinkTime > 0) {

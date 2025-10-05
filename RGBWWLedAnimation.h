@@ -142,20 +142,6 @@ protected:
     RampTimeOrSpeed _ramp;
 };
 
-class AnimTransitionCircularHue: public AnimTransition {
-public:
-    AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue =
-            false, const String& name = "");
-    AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction, RGBWWLed const * rgbled,
-            CtrlChannel ch, bool requeue = false, const String& name = "");
-
-    virtual bool run() override;
-
-private:
-    virtual bool init() override;
-
-    int _direction = 0;
-};
 
 class AnimBlink: public RGBWWLedAnimation {
 public:
