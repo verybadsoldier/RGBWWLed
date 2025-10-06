@@ -100,26 +100,11 @@ protected:
     Type _type = Type::Undefined;
 };
 
-class AnimSetAndStay: public RGBWWLedAnimation {
-public:
-    AnimSetAndStay(const AbsOrRelValue& endVal, int onTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
-
-    virtual bool run() override;
-    virtual void reset() override;
-
-private:
-    virtual bool init();
-
-    int _currentstep = 0;
-    int _steps = 0;
-    AbsOrRelValue _initEndVal;
-};
-
 class AnimTransition: public RGBWWLedAnimation {
 public:
-    AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name =
+    AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name =
             "");
-    AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue =
+    AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue =
             false, const String& name = "");
 
     virtual bool run() override;
@@ -135,11 +120,14 @@ protected:
     int _finalval = 0;
     bool _hasfromval = false;
     int _currentstep = 0;
-    int _steps = 0;
+    int _stepsNeededFade = 0;   // steps for fading
+    int _stepsNeededFadeAndStay = 0; // steps for fading + staying (after the fade). so this is the total number of steps
+
     BresenhamValues _bresenham;
     AbsOrRelValue _initEndVal;
     AbsOrRelValue _initStartVal;
     RampTimeOrSpeed _ramp;
+    int _stay = 0; // milliseconds
 };
 
 class AnimTransitionCircularHue: public AnimTransition {
@@ -168,7 +156,7 @@ private:
     virtual bool init();
 
     int _currentstep = 0;
-    int _steps = 0;
+    int _stepsNeeded = 0;
 
 protected:
     int _prevvalue = 0;
