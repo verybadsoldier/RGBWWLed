@@ -52,46 +52,16 @@ int RGBWWLedAnimation::getBaseValue() const {
     }
 }
 
-AnimSetAndStay::AnimSetAndStay(const AbsOrRelValue& endVal, int onTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
-        RGBWWLedAnimation(rgbled, ch, Type::SetAndStay, requeue, name), _initEndVal(endVal) {
-    if (onTime > 0) {
-        _steps = onTime / RGBWW_MINTIMEDIFF;
-    }
-}
-
-bool AnimSetAndStay::run() {
-    if (_currentstep == 0)
-        init();
-
-    _currentstep += 1;
-    if (_steps != 0) {
-        if (_currentstep < _steps) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool AnimSetAndStay::init() {
-    _value = _initEndVal.getFinalValue(getBaseValue());
-    return true;
-}
-
-void AnimSetAndStay::reset() {
-    _currentstep = 0;
-}
-
-AnimTransition::AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& change, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue,
+AnimTransition::AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue,
         const String& name) :
-        RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name) {
+        RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name), _stay(stay) {
     _initEndVal = endVal;
-    _ramp = change;
+    _ramp = ramp;
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, RGBWWLed const * rgbled, CtrlChannel ch,
+AnimTransition::AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch,
         bool requeue, const String& name) :
-        AnimTransition(endVal, ramp, rgbled, ch, requeue, name) {
+        AnimTransition(endVal, ramp, stay, rgbled, ch, requeue, name) {
     _initStartVal = from;
     _hasfromval = true;
     _type = Type::Transition;
@@ -105,24 +75,26 @@ bool AnimTransition::init() {
 
     switch (_ramp.type) {
     case RampTimeOrSpeed::Type::Time: {
-        _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
+        _stepsNeededFade = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
     case RampTimeOrSpeed::Type::Speed: {
         const double diffPerc = (abs(_finalval - _baseval) / static_cast<double>(RGBWW_CALC_MAXVAL)) * 100;
-        _steps = static_cast<int>((diffPerc / _ramp.value) * 60 * 1000 + 0.5 / RGBWW_MINTIMEDIFF);
+        _stepsNeededFade = static_cast<int>((diffPerc / _ramp.value) * 60 * 1000 + 0.5 / RGBWW_MINTIMEDIFF);
         break;
     }
     }
 
-    _steps = max(_steps, 1); //avoid 0 division
+    _stepsNeededFade = max(_stepsNeededFade, 1); //avoid 0 division
 
     _bresenham.delta = abs(_baseval - _finalval);
     _bresenham.step = 1;
-    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _steps;
+    _bresenham.step = (_bresenham.delta < _stepsNeededFade) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _stepsNeededFade;
     _bresenham.step *= (_baseval > _finalval) ? -1 : 1;
-    _bresenham.error = -1 * _steps;
+    _bresenham.error = -1 * _stepsNeededFade;
     _bresenham.count = 0;
+
+    _stepsNeededFadeAndStay = _stepsNeededFade + static_cast<int>(_stay / RGBWW_MINTIMEDIFF);
 
     return true;
 }
@@ -136,15 +108,19 @@ bool AnimTransition::run() {
     }
 
     _currentstep++;
-    if (_currentstep >= _steps) {
+    if (_currentstep >= _stepsNeededFadeAndStay) {
         // ensure that the with the last step
         // we arrive at the destination color
         _value = _finalval;
         return true;
     }
-
-    //calculate new colors with bresenham
-    _value = bresenham(_bresenham, _steps, _baseval, _value);
+    else if (_currentstep < _stepsNeededFade) {
+        // we are fading. calculate new colors with bresenham
+        _value = bresenham(_bresenham, _stepsNeededFade, _baseval, _value);
+    }
+    else {
+        // we are in the stay phase, do nothing
+    }
 
     return false;
 }
@@ -170,7 +146,7 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 AnimBlink::AnimBlink(int blinkTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
         RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
     if (blinkTime > 0) {
-        _steps = blinkTime / RGBWW_MINTIMEDIFF;
+        _stepsNeeded = blinkTime / RGBWW_MINTIMEDIFF;
     }
 }
 
@@ -179,8 +155,8 @@ bool AnimBlink::run() {
         init();
 
     _currentstep += 1;
-    if (_steps != 0) {
-        if (_currentstep < _steps) {
+    if (_stepsNeeded != 0) {
+        if (_currentstep < _stepsNeeded) {
             return false;
         }
     }
