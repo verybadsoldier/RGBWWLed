@@ -143,14 +143,14 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 
 ///////////////////////////////
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction, RGBWWLed const * rgbled,
+AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, RGBWWLed const * rgbled,
         CtrlChannel ch, bool requeue, const String& name) :
-        AnimTransition(endVal, ramp, rgbled, ch, requeue, name), _direction(direction) {
+        AnimTransition(endVal, ramp, stay, rgbled, ch, requeue, name), _direction(direction) {
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction,
+AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
         RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
-        AnimTransition(startVal, endVal, ramp, rgbled, ch, requeue, name) {
+        AnimTransition(startVal, endVal, ramp, stay, rgbled, ch, requeue, name) {
     _direction = direction;
 }
 
@@ -171,7 +171,7 @@ bool AnimTransitionCircularHue::init() {
 
     switch (_ramp.type) {
     case RampTimeOrSpeed::Type::Time: {
-        _steps = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
+        _stepsNeededFade = static_cast<int>(_ramp.value / RGBWW_MINTIMEDIFF);
         break;
     }
     case RampTimeOrSpeed::Type::Speed: {
@@ -179,20 +179,22 @@ bool AnimTransitionCircularHue::init() {
         const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
         const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
         const double diffDegree = (static_cast<double>(diff) / RGBWW_CALC_HUEWHEELMAX) * 360;
-        _steps = static_cast<int>((diffDegree / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
+        _stepsNeededFade = static_cast<int>((diffDegree / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
         break;
     }
     }
 
-    _steps = max(_steps, 1); //avoid 0 division
+    _stepsNeededFade = max(_stepsNeededFade, 1); //avoid 0 division
 
     //HUE
     _bresenham.delta = (d == -1) ? l : r;
     _bresenham.step = 1;
-    _bresenham.step = (_bresenham.delta < _steps) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _steps;
+    _bresenham.step = (_bresenham.delta < _stepsNeededFade) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _stepsNeededFade;
     _bresenham.step *= d;
-    _bresenham.error = -1 * _steps;
+    _bresenham.error = -1 * _stepsNeededFade;
     _bresenham.count = 0;
+
+    _stepsNeededFadeAndStay = _stepsNeededFade + static_cast<int>(_stay / RGBWW_MINTIMEDIFF);
 
     return true;
 }

@@ -132,9 +132,9 @@ protected:
 
 class AnimTransitionCircularHue: public AnimTransition {
 public:
-    AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue =
+    AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue =
             false, const String& name = "");
-    AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int direction, RGBWWLed const * rgbled,
+    AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, RGBWWLed const * rgbled,
             CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;

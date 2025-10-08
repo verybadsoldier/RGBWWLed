@@ -194,7 +194,7 @@ bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, i
     return result;
 }
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int direction, QueuePolicy queuePolicy,
+bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, int direction, QueuePolicy queuePolicy,
         bool requeue, const String& name) {
     _mode = ColorMode::Hsv;
 
@@ -270,12 +270,22 @@ void RGBWWLed::colorDirectRAW(const RequestChannelOutput& output) {
     }
 }
 
+bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, int direction, QueuePolicy queuePolicy,
+        CtrlChannel ch, bool requeue, const String& name) {
+    if (!val.hasValue()) {
+        return true;
+    }
+    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(from, val, ramp, stay, direction, this, ch, requeue, name);
+    return dispatchAnimation(pAnim, ch, queuePolicy);
+}
+
+
 bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, int direction, QueuePolicy queuePolicy,
         CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue()) {
         return true;
     }
-    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(val, change, direction, this, ch, requeue, name);
+    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(val, ramp, stay, direction, this, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
@@ -293,14 +303,6 @@ bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val,
         return true;
     }
     RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(val, ramp, stay, direction, this, ch, requeue, name);
-    return dispatchAnimation(pAnim, ch, queuePolicy);
-}
-
-bool RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& change, int direction,
-        QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
-    if (!val.hasValue())
-        return true;
-    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(from, val, change, direction, this, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
