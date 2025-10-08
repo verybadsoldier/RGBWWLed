@@ -11,9 +11,8 @@
 #include "RGBWWLedAnimation.h"
 #include "RGBWWLedAnimationQ.h"
 
-RGBWWAnimatedChannel::RGBWWAnimatedChannel(RGBWWLed* rgbled) :
-        _rgbled(rgbled), _animationQ(new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE)) {
-}
+RGBWWAnimatedChannel::RGBWWAnimatedChannel(RGBWWLed* rgbled)
+    : _rgbled(rgbled), _animationQ(new RGBWWLedAnimationQ(RGBWW_ANIMATIONQSIZE)) {}
 
 RGBWWAnimatedChannel::~RGBWWAnimatedChannel() {
     delete _animationQ;
@@ -32,8 +31,11 @@ void RGBWWAnimatedChannel::setValue(const AbsOrRelValue& val) {
 
 bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy queuePolicy) {
     // do not blink while blinking
-    if (_currentAnimation != nullptr && (queuePolicy == QueuePolicy::Single || queuePolicy == QueuePolicy::Front || queuePolicy == QueuePolicy::FrontReset)
-            && (pAnim->getAnimType() == RGBWWLedAnimation::Type::Blink && _currentAnimation->getAnimType() == RGBWWLedAnimation::Type::Blink)) {
+    if (_currentAnimation != nullptr &&
+        (queuePolicy == QueuePolicy::Single || queuePolicy == QueuePolicy::Front ||
+         queuePolicy == QueuePolicy::FrontReset) &&
+        (pAnim->getAnimType() == RGBWWLedAnimation::Type::Blink &&
+         _currentAnimation->getAnimType() == RGBWWLedAnimation::Type::Blink)) {
         debug_w("Ignored blink commmand cause already blink running!");
         return false;
     }
@@ -67,9 +69,7 @@ bool RGBWWAnimatedChannel::pushAnimation(RGBWWLedAnimation* pAnim, QueuePolicy q
         _cancelAnimation = false;
         break;
     default:
-        debug_w(
-                "RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n",
-                queuePolicy);
+        debug_w("RGBWWAnimatedChannel::pushAnimation: Unknown queue policy: %d\n", queuePolicy);
     }
 
     return true;
@@ -97,7 +97,7 @@ bool RGBWWAnimatedChannel::process() {
     // Interval has passed
     // check if we need to animate or there is any new animation
     if (!_isAnimationActive) {
-        //check if animation otherwise return true
+        // check if animation otherwise return true
         if (_animationQ->isEmpty()) {
             return false;
         }
@@ -117,7 +117,6 @@ bool RGBWWAnimatedChannel::process() {
     }
 
     return finished;
-
 }
 
 void RGBWWAnimatedChannel::pauseAnimation() {

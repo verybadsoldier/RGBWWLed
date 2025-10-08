@@ -5,8 +5,8 @@
  *
  * All files of this project are provided under the LGPL v3 license.
  */
-#include "RGBWWLed.h"
 #include "RGBWWLedOutput.h"
+#include "RGBWWLed.h"
 
 #ifdef RGBWW_USE_ESP_HWPWM
 /*
@@ -15,8 +15,9 @@
  *  framework
  */
 
-PWMOutput::PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t wwPin, uint8_t cwPin, uint16_t freq /* = 200 */) {
-    uint8_t pins[] = { redPin, greenPin, bluePin, wwPin, cwPin };
+PWMOutput::PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t wwPin, uint8_t cwPin,
+                     uint16_t freq /* = 200 */) {
+    uint8_t pins[] = {redPin, greenPin, bluePin, wwPin, cwPin};
     _pPwm = new HardwarePWM(pins, sizeof(pins));
 
     // this period calculation is meant for SDK-PWM or for newPcm when SDK_PWM_PERIOD_COMPAT_MODE is ON
@@ -78,7 +79,6 @@ void PWMOutput::setOutput(int red, int green, int blue, int warmwhite, int coldw
     setColdWhite(coldwhite, false);
 
     _pPwm->update();
-
 }
 
 int PWMOutput::getChannel(int chan) {
@@ -100,7 +100,8 @@ void PWMOutput::setChannel(int chan, int duty, bool update /* = true */) {
  * we fallback to the standard arduino pwm implementation
  *
  */
-PWMOutput::PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t wwPin, uint8_t cwPin, uint16_t freq /* = 200 */) {
+PWMOutput::PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t wwPin, uint8_t cwPin,
+                     uint16_t freq /* = 200 */) {
 
     _pins[RGBWW_CHANNELS::RED] = redPin;
     _pins[RGBWW_CHANNELS::GREEN] = greenPin;
@@ -114,7 +115,6 @@ PWMOutput::PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t 
     pinMode(cwPin, OUTPUT);
     setFrequency(freq);
     _maxduty = RGBWW_ARDUINO_MAXDUTY;
-
 }
 
 void PWMOutput::setFrequency(int freq) {
@@ -182,4 +182,4 @@ void PWMOutput::setOutput(int red, int green, int blue, int warmwhite, int coldw
 int PWMOutput::parseDuty(int duty) {
     return (duty * _maxduty) / RGBWW_CALC_WIDTH;
 }
-#endif //RGBWW_USE_ESP_HWPWM
+#endif // RGBWW_USE_ESP_HWPWM

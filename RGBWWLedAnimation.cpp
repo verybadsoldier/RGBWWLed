@@ -10,9 +10,9 @@
 #include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
 
-RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, Type type, bool requeue, const String& name) :
-        _rgbled(rgbled), _ctrlChannel(ch), _requeue(requeue), _name(name), _type(type) {
-}
+RGBWWLedAnimation::RGBWWLedAnimation(RGBWWLed const* rgbled, CtrlChannel ch, Type type, bool requeue,
+                                     const String& name)
+    : _rgbled(rgbled), _ctrlChannel(ch), _requeue(requeue), _name(name), _type(type) {}
 
 int RGBWWLedAnimation::getBaseValue() const {
     const HSVCT& c = _rgbled->getCurrentColor();
@@ -52,16 +52,16 @@ int RGBWWLedAnimation::getBaseValue() const {
     }
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue,
-        const String& name) :
-        RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name), _stay(stay) {
+AnimTransition::AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay,
+                               RGBWWLed const* rgbled, CtrlChannel ch, bool requeue, const String& name)
+    : RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name), _stay(stay) {
     _initEndVal = endVal;
     _ramp = ramp;
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch,
-        bool requeue, const String& name) :
-        AnimTransition(endVal, ramp, stay, rgbled, ch, requeue, name) {
+AnimTransition::AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp,
+                               int stay, RGBWWLed const* rgbled, CtrlChannel ch, bool requeue, const String& name)
+    : AnimTransition(endVal, ramp, stay, rgbled, ch, requeue, name) {
     _initStartVal = from;
     _hasfromval = true;
     _type = Type::Transition;
@@ -85,11 +85,12 @@ bool AnimTransition::init() {
     }
     }
 
-    _stepsNeededFade = max(_stepsNeededFade, 1); //avoid 0 division
+    _stepsNeededFade = max(_stepsNeededFade, 1); // avoid 0 division
 
     _bresenham.delta = abs(_baseval - _finalval);
     _bresenham.step = 1;
-    _bresenham.step = (_bresenham.delta < _stepsNeededFade) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _stepsNeededFade;
+    _bresenham.step =
+        (_bresenham.delta < _stepsNeededFade) ? (_bresenham.step << 8) : (_bresenham.delta << 8) / _stepsNeededFade;
     _bresenham.step *= (_baseval > _finalval) ? -1 : 1;
     _bresenham.error = -1 * _stepsNeededFade;
     _bresenham.count = 0;
@@ -113,12 +114,10 @@ bool AnimTransition::run() {
         // we arrive at the destination color
         _value = _finalval;
         return true;
-    }
-    else if (_currentstep < _stepsNeededFade) {
+    } else if (_currentstep < _stepsNeededFade) {
         // we are fading. calculate new colors with bresenham
         _value = bresenham(_bresenham, _stepsNeededFade, _baseval, _value);
-    }
-    else {
+    } else {
         // we are in the stay phase, do nothing
     }
 
@@ -130,8 +129,8 @@ void AnimTransition::reset() {
 }
 
 int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& current) {
-    //more information on bresenham:
-    //https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
+    // more information on bresenham:
+    // https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
     values.error = values.error + 2 * values.delta;
     if (values.error > 0) {
         values.count += 1;
@@ -143,8 +142,8 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 
 ///////////////////////////////
 
-AnimBlink::AnimBlink(int blinkTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
-        RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
+AnimBlink::AnimBlink(int blinkTime, RGBWWLed const* rgbled, CtrlChannel ch, bool requeue, const String& name)
+    : RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
     if (blinkTime > 0) {
         _stepsNeeded = blinkTime / RGBWW_MINTIMEDIFF;
     }

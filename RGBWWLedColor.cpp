@@ -5,8 +5,8 @@
  *
  * All files of this project are provided under the LGPL v3 license.
  */
-#include "RGBWWLed.h"
 #include "RGBWWLedColor.h"
+#include "RGBWWLed.h"
 
 RGBWWColorUtils::RGBWWColorUtils() {
     _colormode = RGBWWCW;
@@ -53,8 +53,7 @@ void RGBWWColorUtils::setBrightnessCorrection(int r, int g, int b, int ww, int c
     _BrightnessFactor[RGBWW_CHANNELS::BLUE] = (constrain(b, 0, 100) * RGBWW_CALC_MAXVAL) / 100;
     _BrightnessFactor[RGBWW_CHANNELS::WW] = (constrain(ww, 0, 100) * RGBWW_CALC_MAXVAL) / 100;
     _BrightnessFactor[RGBWW_CHANNELS::CW] = (constrain(cw, 0, 100) * RGBWW_CALC_MAXVAL) / 100;
-}
-;
+};
 
 void RGBWWColorUtils::getBrightnessCorrection(int& r, int& g, int& b, int& ww, int& cw) const {
     r = (_BrightnessFactor[RGBWW_CHANNELS::RED] * 100) / RGBWW_CALC_MAXVAL;
@@ -77,39 +76,40 @@ void RGBWWColorUtils::setHSVcorrection(float red, float yellow, float green, flo
     // otherwise we apply changes to any previous colorwheel
     createHueWheel();
 
-    //correct sector 1
+    // correct sector 1
     _HueWheelSectorWidth[0] -= parseColorCorrection(red);
     _HueWheelSectorWidth[0] += parseColorCorrection(yellow);
     _HueWheelSector[1] += parseColorCorrection(yellow);
 
-    //correct sector 2
+    // correct sector 2
     _HueWheelSectorWidth[1] -= parseColorCorrection(yellow);
     _HueWheelSectorWidth[1] += parseColorCorrection(green);
     _HueWheelSector[2] += parseColorCorrection(green);
 
-    //correct sector 3
+    // correct sector 3
     _HueWheelSectorWidth[2] -= parseColorCorrection(green);
     _HueWheelSectorWidth[2] += parseColorCorrection(cyan);
     _HueWheelSector[3] += parseColorCorrection(cyan);
 
-    //correct sector 4
+    // correct sector 4
     _HueWheelSectorWidth[3] -= parseColorCorrection(cyan);
     _HueWheelSectorWidth[3] += parseColorCorrection(blue);
     _HueWheelSector[4] += parseColorCorrection(blue);
 
-    //correct sector 5
+    // correct sector 5
     _HueWheelSectorWidth[4] -= parseColorCorrection(blue);
     _HueWheelSectorWidth[4] += parseColorCorrection(magenta);
     _HueWheelSector[5] += parseColorCorrection(magenta);
 
-    //correct sector 6
+    // correct sector 6
     _HueWheelSectorWidth[5] -= parseColorCorrection(magenta);
     _HueWheelSectorWidth[5] += parseColorCorrection(red);
     _HueWheelSector[6] += parseColorCorrection(red);
     _HueWheelSector[0] += parseColorCorrection(red);
 }
 
-void RGBWWColorUtils::getHSVcorrection(float& red, float& yellow, float& green, float& cyan, float& blue, float& magenta) const {
+void RGBWWColorUtils::getHSVcorrection(float& red, float& yellow, float& green, float& cyan, float& blue,
+                                       float& magenta) const {
     red = -1 * (float(_HueWheelSector[6] - 6 * RGBWW_CALC_MAXVAL) / float(RGBWW_CALC_MAXVAL)) * 60.0;
     yellow = -1 * (float(_HueWheelSector[1] - 1 * RGBWW_CALC_MAXVAL) / float(RGBWW_CALC_MAXVAL)) * 60.0;
     green = -1 * (float(_HueWheelSector[2] - 2 * RGBWW_CALC_MAXVAL) / float(RGBWW_CALC_MAXVAL)) * 60.0;
@@ -137,7 +137,7 @@ void RGBWWColorUtils::whiteBalance(RGBWCT& rgbw, ChannelOutput& output) const {
     case RGBWWCW:
         if (_WarmWhiteKelvin <= rgbw.ct && _ColdWhiteKelvin >= rgbw.ct) {
             int wwfactor = ((_ColdWhiteKelvin - rgbw.ct) * RGBWW_CALC_MAXVAL) / (_ColdWhiteKelvin - _WarmWhiteKelvin);
-            //balance between CW and WW Leds
+            // balance between CW and WW Leds
             output.warmwhite = (rgbw.w * wwfactor) / RGBWW_CALC_MAXVAL;
             output.coldwhite = rgbw.w - output.warmwhite;
         } else {
@@ -148,20 +148,20 @@ void RGBWWColorUtils::whiteBalance(RGBWCT& rgbw, ChannelOutput& output) const {
         }
         break;
     case RGBCW:
-        //TODO implement valid algorithm
+        // TODO implement valid algorithm
 
         output.warmwhite = 0;
         output.coldwhite = rgbw.w;
         break;
 
     case RGBWW:
-        //TODO implement valid algorithm
+        // TODO implement valid algorithm
         output.warmwhite = rgbw.w;
         output.coldwhite = 0;
         break;
 
     case RGB:
-        //TODO implement valid algorithm
+        // TODO implement valid algorithm
         output.r += rgbw.w;
         output.g += rgbw.w;
         output.b += rgbw.w;
@@ -200,7 +200,6 @@ void RGBWWColorUtils::HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk, RGBWW_HSVMODEL 
         break;
     }
     }
-
 }
 
 // Method is based one the method from FASTLed
@@ -208,8 +207,8 @@ void RGBWWColorUtils::HSVtoRGB(const HSVCT& hsvk, RGBWCT& rgbwk, RGBWW_HSVMODEL 
 // https://github.com/FastLED/FastLED/blob/master/colorutils.h
 //
 #define rainbow_third int(RGBWW_CALC_MAXVAL / 3)
-#define rainbow_two_third int(rainbow_third *2)
-#define rainbow_sector_width int (RGBWW_CALC_HUEWHEELMAX / 8)
+#define rainbow_two_third int(rainbow_third * 2)
+#define rainbow_sector_width int(RGBWW_CALC_HUEWHEELMAX / 8)
 
 void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
     int val, hue, sat, r, g, b, chroma, m, sector;
@@ -217,9 +216,9 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
     hue = hsvk.h;
     val = hsvk.v;
     sat = hsvk.s;
-    //gamma correction
-    //val = RGBWW_dim_curve[hsvk.v];
-    //sat = RGBWW_PWMMAXVAL - RGBWW_dim_curve[RGBWW_PWMMAXVAL-sat];
+    // gamma correction
+    // val = RGBWW_dim_curve[hsvk.v];
+    // sat = RGBWW_PWMMAXVAL - RGBWW_dim_curve[RGBWW_PWMMAXVAL-sat];
 
     if (sat == 0) {
         // color is grayscale
@@ -235,7 +234,7 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         hue = hue - sector * rainbow_sector_width;
 
         if (sector < 4) {
-            //sector 0 - 3
+            // sector 0 - 3
             if (sector < 1) {
                 // red - > orange
                 debug_d("HSVtoRGBrainbow sector 0");
@@ -251,7 +250,8 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
             } else if (sector < 3) {
                 // yellow -> green
                 debug_d("HSVtoRGBrainbow sector 2");
-                r = (chroma * (rainbow_two_third - (rainbow_two_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
+                r = (chroma * (rainbow_two_third - (rainbow_two_third * hue) / rainbow_sector_width)) /
+                    RGBWW_CALC_MAXVAL;
                 g = (chroma * (rainbow_two_third + (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 b = 0;
             } else {
@@ -262,12 +262,13 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
                 b = (chroma * ((rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
             }
         } else {
-            //sector 4 - 7
+            // sector 4 - 7
             if (sector < 5) {
                 // aqua -> blue
                 debug_d("HSVtoRGBrainbow sector 4");
                 r = 0;
-                g = (chroma * (rainbow_two_third - (rainbow_two_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
+                g = (chroma * (rainbow_two_third - (rainbow_two_third * hue) / rainbow_sector_width)) /
+                    RGBWW_CALC_MAXVAL;
                 b = (chroma * (rainbow_third + (rainbow_two_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
             } else if (sector < 6) {
                 // blue -> purple
@@ -303,9 +304,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
     hue = hsvk.h;
     val = hsvk.v;
     sat = hsvk.s;
-    //gamma correction
-    //val = RGBWW_dim_curve[hsvk.v];
-    //sat = RGBWW_PWMMAXVAL - RGBWW_dim_curve[RGBWW_PWMMAXVAL-sat];
+    // gamma correction
+    // val = RGBWW_dim_curve[hsvk.v];
+    // sat = RGBWW_PWMMAXVAL - RGBWW_dim_curve[RGBWW_PWMMAXVAL-sat];
 
     if (sat == 0) {
         // color is grayscale
@@ -377,7 +378,6 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
             r = fract;
             g = 0;
             b = chroma - fract;
-
         }
         rgbwk.r = r;
         rgbwk.g = g;
@@ -385,7 +385,6 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         rgbwk.w = m;
     }
     debug_d("HSVtoRGBspektrum R %i | G %i | B %i | W %i", rgbwk.r, rgbwk.g, rgbwk.b, rgbwk.w);
-
 }
 
 void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
@@ -394,9 +393,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
     hue = hsvk.h;
     val = hsvk.v;
     sat = hsvk.s;
-    //gamma correction
-    //val = RGBWW_dim_curve[hsvk.v];
-    //sat = RGBWW_PWMMAXVAL - RGBWW_dim_curve[RGBWW_PWMMAXVAL-sat];
+    // gamma correction
+    // val = RGBWW_dim_curve[hsvk.v];
+    // sat = RGBWW_PWMMAXVAL - RGBWW_dim_curve[RGBWW_PWMMAXVAL-sat];
 
     rgbwk.ct = hsvk.ct;
 
@@ -436,7 +435,8 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
             r = chroma;
             g = 0;
-            b = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[5])) / RGBWW_CALC_MAXVAL;
+            b = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[5])) /
+                RGBWW_CALC_MAXVAL;
 
         } else if (hue <= _HueWheelSector[1] || hue > _HueWheelSector[6]) {
             // Sector 1
@@ -454,7 +454,8 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
             // Sector 2
             debug_d("HSVtoRGBraw Sector 2");
             fract = hue - _HueWheelSector[1];
-            r = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[1])) / RGBWW_CALC_MAXVAL;
+            r = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[1])) /
+                RGBWW_CALC_MAXVAL;
             g = chroma;
             b = 0;
 
@@ -471,7 +472,8 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
             debug_d("HSVtoRGBraw Sector 4");
             fract = hue - _HueWheelSector[3];
             r = 0;
-            g = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[3])) / RGBWW_CALC_MAXVAL;
+            g = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[3])) /
+                RGBWW_CALC_MAXVAL;
             b = chroma;
 
         } else {
@@ -481,7 +483,6 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
             r = (chroma * ((RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[4])) / RGBWW_CALC_MAXVAL;
             g = 0;
             b = chroma;
-
         }
         // m equals the white part
         // for rgbw we use it for the white channels
@@ -489,17 +490,14 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         rgbwk.g = g;
         rgbwk.b = b;
         rgbwk.w = m;
-
     }
     debug_d("HSVtoRGBraw R %i | G %i | B %i | W %i", rgbwk.r, rgbwk.g, rgbwk.b, rgbwk.w);
 }
 
 void RGBWWColorUtils::RGBtoHSV(const RGBWCT& rgbw, HSVCT& hsv) const {
     debug_d("RGBWWColorUtils::RGBtoHSV");
-    //TODO: needs implementation
-
-}
-;
+    // TODO: needs implementation
+};
 
 /*
  * Helper function to create the 6 sectors for the HUE wheel

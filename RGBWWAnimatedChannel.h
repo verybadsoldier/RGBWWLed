@@ -15,7 +15,7 @@ class RGBWWLedAnimation;
 class RGBWWLedAnimationQ;
 
 class RGBWWAnimatedChannel {
-public:
+  public:
     RGBWWAnimatedChannel(RGBWWLed* rgbled);
     virtual ~RGBWWAnimatedChannel();
 
@@ -75,7 +75,7 @@ public:
     void pauseAnimation();
     void continueAnimation();
 
-private:
+  private:
     RGBWWLed* _rgbled;
     int _value = 0;
     bool _cancelAnimation = false;
@@ -86,7 +86,7 @@ private:
     RGBWWLedAnimation* _currentAnimation = nullptr;
     RGBWWLedAnimationQ* _animationQ = nullptr;
 
-    //helpers
+    // helpers
     void notifyAnimationFinished(bool requeued);
     void cleanupCurrentAnimation();
     void cleanupAnimationQ();

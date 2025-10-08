@@ -3,43 +3,35 @@
 #include "RGBWWconst.h"
 
 struct RampTimeOrSpeed {
-    enum class Type {
-        Speed, Time
-    };
+    enum class Type { Speed, Time };
 
-    RampTimeOrSpeed() {
-    }
+    RampTimeOrSpeed() {}
 
-    RampTimeOrSpeed(double v) :
-            value(v) {
-    }
+    RampTimeOrSpeed(double v) : value(v) {}
 
-    RampTimeOrSpeed(double v, Type t) :
-            value(v), type(t) {
-    }
+    RampTimeOrSpeed(double v, Type t) : value(v), type(t) {}
 
     double value = 0.0; // Speed: percent/degree per second
     Type type = Type::Time;
 };
 
 class AbsOrRelValue {
-public:
+  public:
     enum class Type {
-        Raw,   // 0 - 1023
-        Hue,   // -> 0 - 360
+        Raw,     // 0 - 1023
+        Hue,     // -> 0 - 360
         Percent, // 0 - 100
-        Ct // no check
+        Ct       // no check
     };
 
     enum class Mode {
-        Absolute, Relative,
+        Absolute,
+        Relative,
     };
 
-    AbsOrRelValue() {
-    }
+    AbsOrRelValue() {}
 
-    AbsOrRelValue(String value, Type type = Type::Percent) :
-            _type(type) {
+    AbsOrRelValue(String value, Type type = Type::Percent) : _type(type) {
         float fval;
         if (value.startsWith("+") || value.startsWith("-")) {
             _mode = Mode::Relative;
@@ -69,16 +61,14 @@ public:
     /**
      * Accepts CHANNEL output range value
      */
-    AbsOrRelValue(int value, Mode mode) :
-            _mode(mode) {
+    AbsOrRelValue(int value, Mode mode) : _mode(mode) {
         _value = value;
     }
 
     /**
      * Accepts INPUT range, will be converted to output range value
      */
-    AbsOrRelValue(int value, Type type) :
-            _type(type) {
+    AbsOrRelValue(int value, Type type) : _type(type) {
         setValueByType(value);
     }
 
@@ -112,7 +102,7 @@ public:
         }
     }
 
-private:
+  private:
     void setValueByType(float value) {
         switch (_type) {
         case Type::Hue:
@@ -156,16 +146,11 @@ private:
     int _value = 0;
 };
 
-template<typename T>
-class Optional {
-public:
-    Optional() :
-            _hasValue(false) {
-    }
+template <typename T> class Optional {
+  public:
+    Optional() : _hasValue(false) {}
 
-    Optional<T>(T value) :
-            _value(value), _hasValue(true) {
-    }
+    Optional<T>(T value) : _value(value), _hasValue(true) {}
 
     Optional& operator=(const T& obj) {
         _value = obj;
@@ -208,7 +193,8 @@ public:
     bool hasValue() const {
         return _hasValue;
     }
-private:
+
+  private:
     T _value;
     bool _hasValue = false;
 };
@@ -216,9 +202,16 @@ private:
 enum class CtrlChannel {
     None,
 
-    Hue, Sat, Val, ColorTemp,
+    Hue,
+    Sat,
+    Val,
+    ColorTemp,
 
-    Red, Green, Blue, ColdWhite, WarmWhite,
+    Red,
+    Green,
+    Blue,
+    ColdWhite,
+    WarmWhite,
 };
 
 inline String ctrlChannelToString(CtrlChannel ch) {
@@ -245,8 +238,7 @@ struct BresenhamValues {
 enum class QueuePolicy {
     Invalid,
     FrontReset, // queue to front and let the original anim run from the beginning afterwards
-    Front, // queue to front and the current animation will continue where it was interrupted
-    Back, // queue to back
-    Single, // clear queue and run immediately
+    Front,      // queue to front and the current animation will continue where it was interrupted
+    Back,       // queue to back
+    Single,     // clear queue and run immediately
 };
-

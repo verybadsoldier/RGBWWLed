@@ -15,7 +15,7 @@ class RGBWWLedAnimation;
  *
  */
 class RGBWWLedAnimationQ {
-public:
+  public:
     RGBWWLedAnimationQ(int qsize);
     ~RGBWWLedAnimationQ();
 
@@ -68,9 +68,7 @@ public:
      */
     RGBWWLedAnimation* pop();
 
-private:
+  private:
     int _size, _count, _front, _back;
     RGBWWLedAnimation** _q;
-
 };
-

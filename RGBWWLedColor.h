@@ -7,22 +7,16 @@
  */
 #pragma once
 
-#include <Wiring/WConstants.h>
 #include "RGBWWconst.h"
+#include <Wiring/WConstants.h>
 
-enum RGBWW_COLORMODE {
-    RGB = 0, RGBWW = 1, RGBCW = 2, RGBWWCW = 3, NUM_COLORMODES = 4
-};
+enum RGBWW_COLORMODE { RGB = 0, RGBWW = 1, RGBCW = 2, RGBWWCW = 3, NUM_COLORMODES = 4 };
 
-enum RGBWW_HSVMODEL {
-    RAW = 0, SPEKTRUM = 1, RAINBOW = 2, NUM_HSVMODELS = 3
-};
+enum RGBWW_HSVMODEL { RAW = 0, SPEKTRUM = 1, RAINBOW = 2, NUM_HSVMODELS = 3 };
 
-enum RGBWW_CHANNELS {
-    RED = 0, GREEN = 1, BLUE = 2, WW = 3, CW = 4, NUM_CHANNELS = 5
-};
+enum RGBWW_CHANNELS { RED = 0, GREEN = 1, BLUE = 2, WW = 3, CW = 4, NUM_CHANNELS = 5 };
 
-//struct for RGBW + Kelvin
+// struct for RGBW + Kelvin
 struct RGBWCT {
 
     union {
@@ -46,14 +40,9 @@ struct RGBWCT {
         int colortemp;
     };
 
-    RGBWCT() {
-    }
-    RGBWCT(int red, int green, int blue, int white) :
-            r(red), g(green), b(blue), w(white), ct(0) {
-    }
-    RGBWCT(int red, int green, int blue, int white, int kelvin) :
-            r(red), g(green), b(blue), w(white), ct(kelvin) {
-    }
+    RGBWCT() {}
+    RGBWCT(int red, int green, int blue, int white) : r(red), g(green), b(blue), w(white), ct(0) {}
+    RGBWCT(int red, int green, int blue, int white, int kelvin) : r(red), g(green), b(blue), w(white), ct(kelvin) {}
     RGBWCT(const RGBWCT& rgbwct) {
         this->r = rgbwct.r;
         this->g = rgbwct.g;
@@ -94,12 +83,10 @@ struct ChannelOutput {
         int coldwhite;
     };
 
-    ChannelOutput() {
-    }
+    ChannelOutput() {}
 
-    ChannelOutput(int red, int green, int blue, int warmwhite, int coldwhite) :
-            r(red), g(green), b(blue), ww(warmwhite), cw(coldwhite) {
-    }
+    ChannelOutput(int red, int green, int blue, int warmwhite, int coldwhite)
+        : r(red), g(green), b(blue), ww(warmwhite), cw(coldwhite) {}
     ChannelOutput(const ChannelOutput& output) {
         this->r = output.r;
         this->g = output.g;
@@ -152,27 +139,20 @@ struct HSVCT {
         int colortemp;
     };
 
-    HSVCT() :
-            h(0), s(0), v(0), ct(2700) {
-    }
-    HSVCT(int hue, int sat, int val) :
-            h(hue), s(sat), v(val), ct(0) {
-    }
-    HSVCT(int hue, int sat, int val, int ct) :
-            h(hue), s(sat), v(val), ct(ct) {
-    }
+    HSVCT() : h(0), s(0), v(0), ct(2700) {}
+    HSVCT(int hue, int sat, int val) : h(hue), s(sat), v(val), ct(0) {}
+    HSVCT(int hue, int sat, int val, int ct) : h(hue), s(sat), v(val), ct(ct) {}
 
-    //construct from float values
+    // construct from float values
     HSVCT(float hue, float sat, float val) {
         this->h = (constrain(hue, 0.0, 360.0) / 360) * RGBWW_CALC_HUEWHEELMAX;
         this->s = (constrain(sat, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
         this->v = (constrain(val, 0.0, 100.0) / 100) * RGBWW_CALC_MAXVAL;
-        //TODO: default value for White color?
+        // TODO: default value for White color?
         this->ct = 0;
     }
 
-    HSVCT(float hue, float sat, float val, int ct) :
-            HSVCT(hue, sat, val) {
+    HSVCT(float hue, float sat, float val, int ct) : HSVCT(hue, sat, val) {
         ct = constrain(ct, 0, 10000);
     }
 
@@ -238,8 +218,7 @@ struct RequestChannelOutput {
     Optional<AbsOrRelValue> ww;
     Optional<AbsOrRelValue> cw;
 
-    RequestChannelOutput() {
-    }
+    RequestChannelOutput() {}
 
     RequestChannelOutput(const ChannelOutput& ch) {
         this->r = ch.r;
@@ -273,8 +252,7 @@ struct RequestHSVCT {
     Optional<AbsOrRelValue> v;
     Optional<AbsOrRelValue> ct;
 
-    RequestHSVCT() {
-    }
+    RequestHSVCT() {}
 
     RequestHSVCT(const HSVCT& hsvct) {
         h = hsvct.h;
@@ -329,11 +307,9 @@ struct COLOR {
  */
 class RGBWWColorUtils {
 
-public:
+  public:
     RGBWWColorUtils();
-    virtual ~RGBWWColorUtils() {
-    }
-    ;
+    virtual ~RGBWWColorUtils(){};
 
     /**
      * Set the output setting of the controler.
@@ -516,7 +492,7 @@ public:
      */
     static void circleHue(int& hue);
 
-private:
+  private:
     int _BrightnessFactor[RGBWW_CHANNELS::NUM_CHANNELS];
     int _HueWheelSector[7];
     int _HueWheelSectorWidth[6];
@@ -528,5 +504,4 @@ private:
 
     static int parseColorCorrection(float val);
     void createHueWheel();
-
 };
