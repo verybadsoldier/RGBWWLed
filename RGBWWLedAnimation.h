@@ -96,10 +96,11 @@ class RGBWWLedAnimation {
 
 class AnimTransition : public RGBWWLedAnimation {
   public:
-    AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const* rgbled,
+    AnimTransition(RGBWWLed const* rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay,
                    CtrlChannel ch, bool requeue = false, const String& name = "");
-    AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay,
-                   RGBWWLed const* rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(RGBWWLed const* rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal,
+                   const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue = false,
+                   const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
@@ -125,9 +126,24 @@ class AnimTransition : public RGBWWLedAnimation {
     int _stay = 0; // milliseconds
 };
 
+class AnimTransitionHue : public AnimTransition {
+  public:
+    AnimTransitionHue(RGBWWLed const* rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay,
+                      CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransitionHue(RGBWWLed const* rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal,
+                      const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue = false,
+                      const String& name = "");
+
+    virtual bool run() override;
+    virtual void reset() override;
+
+  protected:
+    virtual bool init();
+};
+
 class AnimBlink : public RGBWWLedAnimation {
   public:
-    AnimBlink(int blinkTime, RGBWWLed const* rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimBlink(RGBWWLed const* rgbled, int blinkTime, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;

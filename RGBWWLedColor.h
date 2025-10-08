@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include "RGBWWTypes.h"
 #include "RGBWWconst.h"
 #include <Wiring/WConstants.h>
 

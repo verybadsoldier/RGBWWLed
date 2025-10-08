@@ -52,16 +52,16 @@ int RGBWWLedAnimation::getBaseValue() const {
     }
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay,
-                               RGBWWLed const* rgbled, CtrlChannel ch, bool requeue, const String& name)
+AnimTransition::AnimTransition(RGBWWLed const* rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp,
+                               int stay, CtrlChannel ch, bool requeue, const String& name)
     : RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name), _stay(stay) {
     _initEndVal = endVal;
     _ramp = ramp;
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp,
-                               int stay, RGBWWLed const* rgbled, CtrlChannel ch, bool requeue, const String& name)
-    : AnimTransition(endVal, ramp, stay, rgbled, ch, requeue, name) {
+AnimTransition::AnimTransition(RGBWWLed const* rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal,
+                               const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue, const String& name)
+    : AnimTransition(rgbled, endVal, ramp, stay, ch, requeue, name) {
     _initStartVal = from;
     _hasfromval = true;
     _type = Type::Transition;
@@ -142,7 +142,24 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 
 ///////////////////////////////
 
-AnimBlink::AnimBlink(int blinkTime, RGBWWLed const* rgbled, CtrlChannel ch, bool requeue, const String& name)
+AnimTransitionHue::AnimTransitionHue(RGBWWLed const* rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp,
+                                     int stay, CtrlChannel ch, bool requeue, const String& name)
+    : AnimTransition(rgbled, endVal, ramp, stay, ch, requeue, name) {}
+
+AnimTransitionHue::AnimTransitionHue(RGBWWLed const* rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal,
+                                     const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue,
+                                     const String& name)
+    : AnimTransition(rgbled, from, endVal, ramp, stay, ch, requeue, name) {}
+
+bool AnimTransitionHue::init() {
+    AnimTransition::init();
+
+    return true;
+}
+
+///////////////
+
+AnimBlink::AnimBlink(RGBWWLed const* rgbled, int blinkTime, CtrlChannel ch, bool requeue, const String& name)
     : RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
     if (blinkTime > 0) {
         _stepsNeeded = blinkTime / RGBWW_MINTIMEDIFF;

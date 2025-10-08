@@ -153,29 +153,29 @@ void RGBWWLed::blink(const ChannelList& channels, int time, QueuePolicy queuePol
     if (_mode == ColorMode::Hsv) {
         if (channels.size() == 0 || channels.contains(CtrlChannel::Val))
             _animChannelsHsv[CtrlChannel::Val]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::Val, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::Val, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Sat))
             _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::Sat, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::Sat, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Hue))
             _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::Hue, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::Hue, requeue, name), queuePolicy);
     } else {
         if (channels.size() == 0 || channels.contains(CtrlChannel::WarmWhite))
             _animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::WarmWhite, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::WarmWhite, requeue, name), queuePolicy);
         if (channels.size() == 0 || channels.contains(CtrlChannel::ColdWhite))
             _animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::ColdWhite, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::ColdWhite, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Red))
             _animChannelsHsv[CtrlChannel::Red]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::Red, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::Red, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Green))
             _animChannelsHsv[CtrlChannel::Green]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::Green, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::Green, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Blue))
             _animChannelsHsv[CtrlChannel::Blue]->pushAnimation(
-                new AnimBlink(time, this, CtrlChannel::Blue, requeue, name), queuePolicy);
+                new AnimBlink(this, time, CtrlChannel::Blue, requeue, name), queuePolicy);
     }
 }
 
@@ -296,16 +296,27 @@ bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const Ramp
     if (!val.hasValue()) {
         return true;
     }
-    RGBWWLedAnimation* pAnim = new AnimTransition(val, ramp, stay, this, ch, requeue, name);
+    RGBWWLedAnimation* pAnim = nullptr;
+    if (isHueChannel) {
+        pAnim = new AnimTransitionHue(this, val, ramp, stay, ch, requeue, name);
+    } else {
+        pAnim = new AnimTransition(this, val, ramp, stay, ch, requeue, name);
+    }
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
 bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val,
                                   const RampTimeOrSpeed& ramp, int stay, int direction, QueuePolicy queuePolicy,
-                                  CtrlChannel ch, bool requeue, const String& name) {
+                                  CtrlChannel ch, bool requeue, const String& name, bool isHueChannel) {
     if (!val.hasValue())
         return true;
-    RGBWWLedAnimation* pAnim = new AnimTransition(from, val, ramp, stay, this, ch, requeue, name);
+    RGBWWLedAnimation* pAnim = nullptr;
+    if (isHueChannel) {
+        pAnim = new AnimTransitionHue(this, from, val, ramp, stay, ch, requeue, name);
+    } else {
+        pAnim = new AnimTransition(this, from, val, ramp, stay, ch, requeue, name);
+    }
+
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
