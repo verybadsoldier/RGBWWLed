@@ -52,16 +52,16 @@ int RGBWWLedAnimation::getBaseValue() const {
     }
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue,
+AnimTransition::AnimTransition(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue,
         const String& name) :
         RGBWWLedAnimation(rgbled, ch, Type::Transition, requeue, name), _stay(stay) {
     _initEndVal = endVal;
     _ramp = ramp;
 }
 
-AnimTransition::AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch,
+AnimTransition::AnimTransition(RGBWWLed const * rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch,
         bool requeue, const String& name) :
-        AnimTransition(endVal, ramp, stay, rgbled, ch, requeue, name) {
+        AnimTransition(rgbled, endVal, ramp, stay, ch, requeue, name) {
     _initStartVal = from;
     _hasfromval = true;
     _type = Type::Transition;
@@ -143,14 +143,14 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 
 ///////////////////////////////
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, RGBWWLed const * rgbled,
+AnimTransitionCircularHue::AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
         CtrlChannel ch, bool requeue, const String& name) :
-        AnimTransition(endVal, ramp, stay, rgbled, ch, requeue, name), _direction(direction) {
+        AnimTransition(rgbled, endVal, ramp, stay, ch, requeue, name), _direction(direction) {
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
-        RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
-        AnimTransition(startVal, endVal, ramp, stay, rgbled, ch, requeue, name) {
+AnimTransitionCircularHue::AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
+        CtrlChannel ch, bool requeue, const String& name) :
+        AnimTransition(rgbled, startVal, endVal, ramp, stay, ch, requeue, name) {
     _direction = direction;
 }
 
@@ -205,7 +205,7 @@ bool AnimTransitionCircularHue::run() {
     return result;
 }
 
-AnimBlink::AnimBlink(int blinkTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue, const String& name) :
+AnimBlink::AnimBlink(RGBWWLed const * rgbled, int blinkTime, CtrlChannel ch, bool requeue, const String& name) :
         RGBWWLedAnimation(rgbled, ch, Type::Blink, requeue, name) {
     if (blinkTime > 0) {
         _stepsNeeded = blinkTime / RGBWW_MINTIMEDIFF;

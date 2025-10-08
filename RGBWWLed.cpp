@@ -153,22 +153,22 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
 void RGBWWLed::blink(const ChannelList& channels, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
     if (_mode == ColorMode::Hsv) {
         if (channels.size() == 0 || channels.contains(CtrlChannel::Val))
-            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Val, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Val, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Sat))
-            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Sat, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Sat, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Hue))
-            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Hue, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Hue, requeue, name), queuePolicy);
     } else {
         if (channels.size() == 0 || channels.contains(CtrlChannel::WarmWhite))
-            _animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(new AnimBlink(time, this, CtrlChannel::WarmWhite, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(new AnimBlink(this, time, CtrlChannel::WarmWhite, requeue, name), queuePolicy);
         if (channels.size() == 0 || channels.contains(CtrlChannel::ColdWhite))
-            _animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(new AnimBlink(time, this, CtrlChannel::ColdWhite, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(new AnimBlink(this, time, CtrlChannel::ColdWhite, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Red))
-            _animChannelsHsv[CtrlChannel::Red]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Red, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Red]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Red, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Green))
-            _animChannelsHsv[CtrlChannel::Green]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Green, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Green]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Green, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Blue))
-            _animChannelsHsv[CtrlChannel::Blue]->pushAnimation(new AnimBlink(time, this, CtrlChannel::Blue, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Blue]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Blue, requeue, name), queuePolicy);
     }
 }
 
@@ -275,7 +275,7 @@ bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsO
     if (!val.hasValue()) {
         return true;
     }
-    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(from, val, ramp, stay, direction, this, ch, requeue, name);
+    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(this, from, val, ramp, stay, direction, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
@@ -285,7 +285,7 @@ bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const Ramp
     if (!val.hasValue()) {
         return true;
     }
-    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(val, ramp, stay, direction, this, ch, requeue, name);
+    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(this, val, ramp, stay, direction, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
@@ -293,7 +293,7 @@ bool RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Op
         QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue())
         return true;
-    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(from, val, ramp, stay, direction, this, ch, requeue, name);
+    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(this, from, val, ramp, stay, direction, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
@@ -302,7 +302,7 @@ bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val,
     if (!val.hasValue()) {
         return true;
     }
-    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(val, ramp, stay, direction, this, ch, requeue, name);
+    RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(this, val, ramp, stay, direction, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 

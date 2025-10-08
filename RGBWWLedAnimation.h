@@ -102,9 +102,9 @@ protected:
 
 class AnimTransition: public RGBWWLedAnimation {
 public:
-    AnimTransition(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name =
+    AnimTransition(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue = false, const String& name =
             "");
-    AnimTransition(const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue =
+    AnimTransition(RGBWWLed const * rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue =
             false, const String& name = "");
 
     virtual bool run() override;
@@ -132,9 +132,9 @@ protected:
 
 class AnimTransitionCircularHue: public AnimTransition {
 public:
-    AnimTransitionCircularHue(const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue =
+    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, CtrlChannel ch, bool requeue =
             false, const String& name = "");
-    AnimTransitionCircularHue(const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, RGBWWLed const * rgbled,
+    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
             CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
@@ -147,7 +147,7 @@ private:
 
 class AnimBlink: public RGBWWLedAnimation {
 public:
-    AnimBlink(int blinkTime, RGBWWLed const * rgbled, CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimBlink(RGBWWLed const * rgbled, int blinkTime, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
