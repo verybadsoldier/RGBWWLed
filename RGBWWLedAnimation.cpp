@@ -143,12 +143,12 @@ int AnimTransition::bresenham(BresenhamValues& values, int& dx, int& base, int& 
 
 ///////////////////////////////
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
+AnimTransitionCircularHue::AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction,
         CtrlChannel ch, bool requeue, const String& name) :
         AnimTransition(rgbled, endVal, ramp, stay, ch, requeue, name), _direction(direction) {
 }
 
-AnimTransitionCircularHue::AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
+AnimTransitionCircularHue::AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction,
         CtrlChannel ch, bool requeue, const String& name) :
         AnimTransition(rgbled, startVal, endVal, ramp, stay, ch, requeue, name) {
     _direction = direction;
@@ -167,7 +167,8 @@ bool AnimTransitionCircularHue::init() {
     // decide on direction of turn depending on size
     int d = (l < r) ? -1 : 1;
     // turn direction if user wishes for long transition
-    d *= (_direction == 1) ? 1 : -1;
+    if (_direction == HueTransitionDirection::dir_short)
+        d *= -1;
 
     switch (_ramp.type) {
     case RampTimeOrSpeed::Type::Time: {

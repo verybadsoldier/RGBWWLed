@@ -249,3 +249,9 @@ enum class QueuePolicy {
     Single,
 };
 
+
+
+enum class HueTransitionDirection {
+    dir_short,
+    dir_long,
+};

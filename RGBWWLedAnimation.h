@@ -132,9 +132,9 @@ protected:
 
 class AnimTransitionCircularHue: public AnimTransition {
 public:
-    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction, CtrlChannel ch, bool requeue =
+    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, CtrlChannel ch, bool requeue =
             false, const String& name = "");
-    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, int direction,
+    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction,
             CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
@@ -142,7 +142,7 @@ public:
 private:
     virtual bool init() override;
 
-    int _direction = 0;
+    HueTransitionDirection _direction = HueTransitionDirection::dir_short;
 };
 
 class AnimBlink: public RGBWWLedAnimation {

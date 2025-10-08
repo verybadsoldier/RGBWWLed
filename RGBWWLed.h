@@ -51,6 +51,8 @@ class RGBWWColorUtils;
 class PWMOutput;
 class RGBWWAnimatedChannel;
 
+
+
 /**
  *
  */
@@ -148,9 +150,9 @@ public:
      *
      * @param color 	new color
      * @param time		duration of transition in ms
-     * @param direction direction of transition (0= long/ 1=short)
+     * @param direction direction of transition
      */
-    bool fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, int direction, bool requeue = false, const String& name = "");
+    bool fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, bool requeue = false, const String& name = "");
 
     /**
      * Fade to specified HSVK color
@@ -167,10 +169,10 @@ public:
      *
      * @param color 	new color
      * @param time		duration of transition in ms
-     * @param direction direction of transition (0= long/ 1=short)
+     * @param direction direction of transition
      * @param queue		directly execute fade or queue it
      */
-    bool fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, int direction = 1, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue =
+    bool fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction = HueTransitionDirection::dir_short, QueuePolicy queuePolicy = QueuePolicy::Single, bool requeue =
             false, const String& name = "");
 
     /**
@@ -179,10 +181,10 @@ public:
      * @param colorFrom starting color of transition
      * @param color 	ending color of transition
      * @param time		duration of transition in ms
-     * @param direction direction of transition (0= long/ 1=short)
+     * @param direction direction of transition
      * @param queue		directly execute fade or queue it
      */
-    bool fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, int direction = 1, QueuePolicy queuePolicy =
+    bool fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction = HueTransitionDirection::dir_short, QueuePolicy queuePolicy =
             QueuePolicy::Single, bool requeue = false, const String& name = "");
 
     //TODO: add documentation
@@ -233,13 +235,13 @@ private:
     /**
      * Push a tranistion. A transition fades to a color, stays for a defined time and then continues with the next animation in the queue
      */
-    bool pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, int direction, QueuePolicy queuePolicy, CtrlChannel ch,
+    bool pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy, CtrlChannel ch,
             bool requeue, const String& name);
-    bool pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, int direction,
+    bool pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay,
             QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
-    bool pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, int direction, QueuePolicy queuePolicy, CtrlChannel ch,
+    bool pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, QueuePolicy queuePolicy, CtrlChannel ch,
             bool requeue, const String& name);
-    bool pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, int direction,
+    bool pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction,
             QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name);
 
     /**
