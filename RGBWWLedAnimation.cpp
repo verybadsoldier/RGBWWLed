@@ -167,7 +167,7 @@ bool AnimTransitionCircularHue::init() {
     // decide on direction of turn depending on size
     int d = (l < r) ? -1 : 1;
     // turn direction if user wishes for long transition
-    if (_direction == HueTransitionDirection::dir_short)
+    if (_direction == HueTransitionDirection::dir_long)
         d *= -1;
 
     switch (_ramp.type) {
