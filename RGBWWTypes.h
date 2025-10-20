@@ -28,7 +28,7 @@ public:
         Raw,   // 0 - 1023
         Hue,   // -> 0 - 360
         Percent, // 0 - 100
-        Ct // no check
+        Ct // dynamic from settings
     };
 
     enum class Mode {
@@ -112,6 +112,9 @@ public:
         }
     }
 
+    static int colorTempWarm;
+    static int colorTempCold;
+
 private:
     void setValueByType(float value) {
         switch (_type) {
@@ -144,6 +147,10 @@ private:
             break;
         case Type::Percent:
             val = constrain(val, 0, RGBWW_CALC_MAXVAL);
+            break;
+        case Type::Ct:
+            val = constrain(val, AbsOrRelValue::colorTempWarm, AbsOrRelValue::colorTempCold);
+            debug_i("Ct value constrained to %d", val);
             break;
         default:
             break;

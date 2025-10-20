@@ -40,6 +40,9 @@ RGBWW_HSVMODEL RGBWWColorUtils::getHSVmodel() const {
 void RGBWWColorUtils::setWhiteTemperature(int WarmWhite, int ColdWhite) {
     _WarmWhiteKelvin = WarmWhite;
     _ColdWhiteKelvin = ColdWhite;
+
+    AbsOrRelValue::colorTempWarm = WarmWhite;
+    AbsOrRelValue::colorTempCold = ColdWhite;
 }
 
 void RGBWWColorUtils::getWhiteTemperature(int& WarmWhite, int& ColdWhite) const {
