@@ -79,8 +79,12 @@ bool AnimTransition::init() {
         break;
     }
     case RampTimeOrSpeed::Type::Speed: {
+        // unit of speed is percent per second
+        // calculate percentage difference, keep in mind this is not for hue channel
         const double diffPerc = (abs(_finalval - _baseval) / static_cast<double>(RGBWW_CALC_MAXVAL)) * 100;
-        _stepsNeededFade = static_cast<int>((diffPerc / _ramp.value) * 60 * 1000 + 0.5 / RGBWW_MINTIMEDIFF);
+        // Calculate total time in ms, divide by time per step, then round
+        double total_time_ms = (diffPerc / _ramp.value) * 60000;
+        _stepsNeededFade = static_cast<int>((total_time_ms / RGBWW_MINTIMEDIFF) + 0.5);
         break;
     }
     }
@@ -180,7 +184,7 @@ bool AnimTransitionCircularHue::init() {
         const uint32_t diff2 = RGBWW_CALC_HUEWHEELMAX - diff1;
         const uint32_t diff = (d == -1) ? max(diff1, diff2) : min(diff1, diff2);
         const double diffDegree = (static_cast<double>(diff) / RGBWW_CALC_HUEWHEELMAX) * 360;
-        _stepsNeededFade = static_cast<int>((diffDegree / _ramp.value) * 60 * 1000 / RGBWW_MINTIMEDIFF);
+        _stepsNeededFade = static_cast<int>((diffDegree / _ramp.value) * 60000 / RGBWW_MINTIMEDIFF);
         break;
     }
     }
