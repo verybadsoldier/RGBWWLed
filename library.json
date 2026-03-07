@@ -2,8 +2,7 @@
   "name": "RGBWWLed",
   "keywords": "rgb, rgbww, hsv, rgbw, led",
   "description": "Library for controlling RGB + W Led stripes via ESP8266 PWM Channels",
-  "repository":
-  {
+  "repository": {
     "type": "git",
     "url": "https://github.com/verybadsoldier/RGBWWLed"
   },

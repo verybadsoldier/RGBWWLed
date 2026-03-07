@@ -5,9 +5,10 @@
  *
  * All files of this project are provided under the LGPL v3 license.
  */
-
+// clang-format off
 #include "RGBWWLedAnimationQ.h"
 #include "RGBWWLedAnimation.h"
+// clang-format on
 
 RGBWWLedAnimationQ::RGBWWLedAnimationQ(int qsize) {
     _size = qsize;

@@ -7,9 +7,10 @@
  */
 
 #pragma once
+// clang-format off
 #include "RGBWWTypes.h"
 #include "RGBWWLedColor.h"
-
+// clang-format on
 class RGBWWLed;
 class RGBWWLedAnimation;
 
@@ -18,16 +19,17 @@ class RGBWWLedAnimation;
  *
  */
 class RGBWWLedAnimation {
-public:
+  public:
     enum class Type {
-        Undefined, SetAndStay, Transition, Blink,
+        Undefined,
+        SetAndStay,
+        Transition,
+        Blink,
     };
 
-    RGBWWLedAnimation(RGBWWLed const * rgbled, CtrlChannel ch, Type type, bool requeue = false, const String& name = "");
+    RGBWWLedAnimation(RGBWWLed const* rgbled, CtrlChannel ch, Type type, bool requeue = false, const String& name = "");
 
-    virtual ~RGBWWLedAnimation() {
-    }
-    ;
+    virtual ~RGBWWLedAnimation(){};
 
     /**
      * Processing method, will be called from main loop
@@ -38,8 +40,7 @@ public:
      */
     virtual bool run() {
         return true;
-    }
-    ;
+    };
 
     virtual const char* toString() {
         return "<empty>";
@@ -51,9 +52,7 @@ public:
      *
      * @param newspeed
      */
-    virtual void setSpeed(int newspeed) {
-    }
-    ;
+    virtual void setSpeed(int newspeed){};
 
     /**
      * Generic interface method for changing a variable
@@ -61,17 +60,13 @@ public:
      *
      * @param newbrightness
      */
-    virtual void setBrightness(int newbrightness) {
-    }
-    ;
+    virtual void setBrightness(int newbrightness){};
 
     /**
      * Interface to reset the animation so it can run from the beginning
      *
      */
-    virtual void reset() {
-    }
-    ;
+    virtual void reset(){};
 
     bool shouldRequeue() const {
         return _requeue;
@@ -89,10 +84,10 @@ public:
         return _type;
     }
 
-protected:
+  protected:
     int getBaseValue() const;
 
-    RGBWWLed const * _rgbled = nullptr;
+    RGBWWLed const* _rgbled = nullptr;
     CtrlChannel _ctrlChannel = CtrlChannel::None;
     const bool _requeue = false;
     const String _name;
@@ -100,17 +95,18 @@ protected:
     Type _type = Type::Undefined;
 };
 
-class AnimTransition: public RGBWWLedAnimation {
-public:
-    AnimTransition(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue = false, const String& name =
-            "");
-    AnimTransition(RGBWWLed const * rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue =
-            false, const String& name = "");
+class AnimTransition : public RGBWWLedAnimation {
+  public:
+    AnimTransition(RGBWWLed const* rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay,
+                   CtrlChannel ch, bool requeue = false, const String& name = "");
+    AnimTransition(RGBWWLed const* rgbled, const AbsOrRelValue& from, const AbsOrRelValue& endVal,
+                   const RampTimeOrSpeed& ramp, int stay, CtrlChannel ch, bool requeue = false,
+                   const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
 
-protected:
+  protected:
     int bresenham(BresenhamValues& values, int& dx, int& base, int& current);
 
     virtual bool init();
@@ -120,8 +116,9 @@ protected:
     int _finalval = 0;
     bool _hasfromval = false;
     int _currentstep = 0;
-    int _stepsNeededFade = 0;   // steps for fading
-    int _stepsNeededFadeAndStay = 0; // steps for fading + staying (after the fade). so this is the total number of steps
+    int _stepsNeededFade = 0; // steps for fading
+    int _stepsNeededFadeAndStay =
+        0; // steps for fading + staying (after the fade). so this is the total number of steps
 
     BresenhamValues _bresenham;
     AbsOrRelValue _initEndVal;
@@ -130,34 +127,36 @@ protected:
     int _stay = 0; // milliseconds
 };
 
-class AnimTransitionCircularHue: public AnimTransition {
-public:
-    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, CtrlChannel ch, bool requeue =
-            false, const String& name = "");
-    AnimTransitionCircularHue(RGBWWLed const * rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction,
-            CtrlChannel ch, bool requeue = false, const String& name = "");
+class AnimTransitionCircularHue : public AnimTransition {
+  public:
+    AnimTransitionCircularHue(RGBWWLed const* rgbled, const AbsOrRelValue& endVal, const RampTimeOrSpeed& ramp,
+                              int stay, HueTransitionDirection direction, CtrlChannel ch, bool requeue = false,
+                              const String& name = "");
+    AnimTransitionCircularHue(RGBWWLed const* rgbled, const AbsOrRelValue& startVal, const AbsOrRelValue& endVal,
+                              const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, CtrlChannel ch,
+                              bool requeue = false, const String& name = "");
 
     virtual bool run() override;
 
-private:
+  private:
     virtual bool init() override;
 
     HueTransitionDirection _direction = HueTransitionDirection::dir_short;
 };
 
-class AnimBlink: public RGBWWLedAnimation {
-public:
-    AnimBlink(RGBWWLed const * rgbled, int blinkTime, CtrlChannel ch, bool requeue = false, const String& name = "");
+class AnimBlink : public RGBWWLedAnimation {
+  public:
+    AnimBlink(RGBWWLed const* rgbled, int blinkTime, CtrlChannel ch, bool requeue = false, const String& name = "");
 
     virtual bool run() override;
     virtual void reset() override;
 
-private:
+  private:
     virtual bool init();
 
     int _currentstep = 0;
     int _stepsNeeded = 0;
 
-protected:
+  protected:
     int _prevvalue = 0;
 };

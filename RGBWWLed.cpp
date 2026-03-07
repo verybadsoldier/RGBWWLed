@@ -5,12 +5,14 @@
  *
  * All files of this project are provided under the LGPL v3 license.
  */
+// clang-format off
 #include "RGBWWLed.h"
 #include "RGBWWAnimatedChannel.h"
 #include "RGBWWLedColor.h"
 #include "RGBWWLedAnimation.h"
 #include "RGBWWLedAnimationQ.h"
 #include "RGBWWLedOutput.h"
+// clang-format on
 
 /**************************************************************
  *                setup, init and settings
@@ -133,11 +135,10 @@ void RGBWWLed::setOutput(ChannelOutput& output) {
         colorutils.correctBrightness(output);
         _current_output = output;
         debug_d("R:%i | G:%i | B:%i | WW:%i | CW:%i", output.r, output.g, output.b, output.ww, output.cw);
-        _pwm_output->setOutput(RGBWW_dim_curve[output.r], RGBWW_dim_curve[output.g], RGBWW_dim_curve[output.b], RGBWW_dim_curve[output.ww],
-                RGBWW_dim_curve[output.cw]);
+        _pwm_output->setOutput(RGBWW_dim_curve[output.r], RGBWW_dim_curve[output.g], RGBWW_dim_curve[output.b],
+                               RGBWW_dim_curve[output.ww], RGBWW_dim_curve[output.cw]);
     }
-}
-;
+};
 
 void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& cwhite) {
     if (_pwm_output != NULL) {
@@ -153,40 +154,52 @@ void RGBWWLed::setOutputRaw(int& red, int& green, int& blue, int& wwhite, int& c
 void RGBWWLed::blink(const ChannelList& channels, int time, QueuePolicy queuePolicy, bool requeue, const String& name) {
     if (_mode == ColorMode::Hsv) {
         if (channels.size() == 0 || channels.contains(CtrlChannel::Val))
-            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Val, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Val]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::Val, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Sat))
-            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Sat, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Sat]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::Sat, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Hue))
-            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Hue, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Hue]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::Hue, requeue, name), queuePolicy);
     } else {
         if (channels.size() == 0 || channels.contains(CtrlChannel::WarmWhite))
-            _animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(new AnimBlink(this, time, CtrlChannel::WarmWhite, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::WarmWhite]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::WarmWhite, requeue, name), queuePolicy);
         if (channels.size() == 0 || channels.contains(CtrlChannel::ColdWhite))
-            _animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(new AnimBlink(this, time, CtrlChannel::ColdWhite, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::ColdWhite]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::ColdWhite, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Red))
-            _animChannelsHsv[CtrlChannel::Red]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Red, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Red]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::Red, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Green))
-            _animChannelsHsv[CtrlChannel::Green]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Green, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Green]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::Green, requeue, name), queuePolicy);
         if (channels.contains(CtrlChannel::Blue))
-            _animChannelsHsv[CtrlChannel::Blue]->pushAnimation(new AnimBlink(this, time, CtrlChannel::Blue, requeue, name), queuePolicy);
+            _animChannelsHsv[CtrlChannel::Blue]->pushAnimation(
+                new AnimBlink(this, time, CtrlChannel::Blue, requeue, name), queuePolicy);
     }
 }
 
 //// fadeHSV ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay,
+                       HueTransitionDirection direction, bool requeue, const String& name) {
     return fadeHSV(color, ramp, stay, direction, QueuePolicy::Single, requeue, name);
 }
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy,
+                       bool requeue, const String& name) {
     return fadeHSV(color, ramp, stay, queuePolicy, requeue, name);
 }
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay,
+                       HueTransitionDirection direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
     _mode = ColorMode::Hsv;
 
     bool result = true;
-    result &= pushAnimTransitionCircularHue(color.h, ramp, stay, direction, queuePolicy, CtrlChannel::Hue, requeue, name);
+    result &=
+        pushAnimTransitionCircularHue(color.h, ramp, stay, direction, queuePolicy, CtrlChannel::Hue, requeue, name);
     result &= pushAnimTransition(color.s, ramp, stay, queuePolicy, CtrlChannel::Sat, requeue, name);
     result &= pushAnimTransition(color.v, ramp, stay, queuePolicy, CtrlChannel::Val, requeue, name);
     result &= pushAnimTransition(color.ct, ramp, stay, queuePolicy, CtrlChannel::ColorTemp, requeue, name);
@@ -194,23 +207,26 @@ bool RGBWWLed::fadeHSV(const RequestHSVCT& color, const RampTimeOrSpeed& ramp, i
     return result;
 }
 
-bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, QueuePolicy queuePolicy,
-        bool requeue, const String& name) {
+bool RGBWWLed::fadeHSV(const RequestHSVCT& colorFrom, const RequestHSVCT& color, const RampTimeOrSpeed& ramp, int stay,
+                       HueTransitionDirection direction, QueuePolicy queuePolicy, bool requeue, const String& name) {
     _mode = ColorMode::Hsv;
 
     bool result = true;
 
-    result &= pushAnimTransitionCircularHue(colorFrom.h, color.h, ramp, stay, direction, queuePolicy, CtrlChannel::Hue, requeue, name);
+    result &= pushAnimTransitionCircularHue(colorFrom.h, color.h, ramp, stay, direction, queuePolicy, CtrlChannel::Hue,
+                                            requeue, name);
     result &= pushAnimTransition(colorFrom.s, color.s, ramp, stay, queuePolicy, CtrlChannel::Sat, requeue, name);
     result &= pushAnimTransition(colorFrom.v, color.v, ramp, stay, queuePolicy, CtrlChannel::Val, requeue, name);
-    result &= pushAnimTransition(colorFrom.ct, color.ct, ramp, stay, queuePolicy, CtrlChannel::ColorTemp, requeue, name);
+    result &=
+        pushAnimTransition(colorFrom.ct, color.ct, ramp, stay, queuePolicy, CtrlChannel::ColorTemp, requeue, name);
 
     return result;
 }
 
 //// fadeRAW ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy, bool requeue, const String& name) {
+bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampTimeOrSpeed& ramp, int stay,
+                       QueuePolicy queuePolicy, bool requeue, const String& name) {
     _mode = ColorMode::Raw;
 
     bool result = true;
@@ -223,16 +239,19 @@ bool RGBWWLed::fadeRAW(const RequestChannelOutput& output, const RampTimeOrSpeed
     return result;
 }
 
-bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output, const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy,
-        bool requeue, const String& name) {
+bool RGBWWLed::fadeRAW(const RequestChannelOutput& output_from, const RequestChannelOutput& output,
+                       const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy, bool requeue,
+                       const String& name) {
     _mode = ColorMode::Raw;
 
     bool result = true;
     result &= pushAnimTransition(output_from.r, output.r, ramp, stay, queuePolicy, CtrlChannel::Red, requeue, name);
     result &= pushAnimTransition(output_from.g, output.g, ramp, stay, queuePolicy, CtrlChannel::Green, requeue, name);
     result &= pushAnimTransition(output_from.b, output.b, ramp, stay, queuePolicy, CtrlChannel::Blue, requeue, name);
-    result &= pushAnimTransition(output_from.ww, output.ww, ramp, stay, queuePolicy, CtrlChannel::WarmWhite, requeue, name);
-    result &= pushAnimTransition(output_from.cw, output.cw, ramp, stay, queuePolicy, CtrlChannel::ColdWhite, requeue, name);
+    result &=
+        pushAnimTransition(output_from.ww, output.ww, ramp, stay, queuePolicy, CtrlChannel::WarmWhite, requeue, name);
+    result &=
+        pushAnimTransition(output_from.cw, output.cw, ramp, stay, queuePolicy, CtrlChannel::ColdWhite, requeue, name);
 
     return result;
 }
@@ -270,8 +289,9 @@ void RGBWWLed::colorDirectRAW(const RequestChannelOutput& output) {
     }
 }
 
-bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy,
-        CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val,
+                                  const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy, CtrlChannel ch,
+                                  bool requeue, const String& name) {
     if (!val.hasValue()) {
         return true;
     }
@@ -279,9 +299,8 @@ bool RGBWWLed::pushAnimTransition(const AbsOrRelValue& from, const Optional<AbsO
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-
-bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, QueuePolicy queuePolicy,
-        CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay,
+                                  QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
     if (!val.hasValue()) {
         return true;
     }
@@ -289,16 +308,19 @@ bool RGBWWLed::pushAnimTransition(const Optional<AbsOrRelValue>& val, const Ramp
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-bool RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction,
-        QueuePolicy queuePolicy, CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransitionCircularHue(const AbsOrRelValue& from, const Optional<AbsOrRelValue>& val,
+                                             const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction,
+                                             QueuePolicy queuePolicy, CtrlChannel ch, bool requeue,
+                                             const String& name) {
     if (!val.hasValue())
         return true;
     RGBWWLedAnimation* pAnim = new AnimTransitionCircularHue(this, from, val, ramp, stay, direction, ch, requeue, name);
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay, HueTransitionDirection direction, QueuePolicy queuePolicy,
-        CtrlChannel ch, bool requeue, const String& name) {
+bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val, const RampTimeOrSpeed& ramp, int stay,
+                                             HueTransitionDirection direction, QueuePolicy queuePolicy, CtrlChannel ch,
+                                             bool requeue, const String& name) {
     if (!val.hasValue()) {
         return true;
     }
@@ -306,8 +328,8 @@ bool RGBWWLed::pushAnimTransitionCircularHue(const Optional<AbsOrRelValue>& val,
     return dispatchAnimation(pAnim, ch, queuePolicy);
 }
 
-
-bool RGBWWLed::dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, QueuePolicy queuePolicy, const ChannelList& channels) {
+bool RGBWWLed::dispatchAnimation(RGBWWLedAnimation* pAnim, CtrlChannel ch, QueuePolicy queuePolicy,
+                                 const ChannelList& channels) {
     switch (ch) {
     case CtrlChannel::Hue:
     case CtrlChannel::Sat:
@@ -345,7 +367,8 @@ void RGBWWLed::continueAnimation(const ChannelList& channels) {
     callForChannels(_animChannelsRaw, &RGBWWAnimatedChannel::continueAnimation, channels);
 }
 
-void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedChannel::*fnc)(), const ChannelList& channels) {
+void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedChannel::*fnc)(),
+                               const ChannelList& channels) {
     const bool all = (channels.size() == 0);
 
     for (unsigned i = 0; i < group.count(); ++i) {
@@ -355,5 +378,4 @@ void RGBWWLed::callForChannels(const ChannelGroup& group, void (RGBWWAnimatedCha
     }
 }
 
-void RGBWWLed::onAnimationFinished(const String& name, bool requeued) {
-}
+void RGBWWLed::onAnimationFinished(const String& name, bool requeued) {}

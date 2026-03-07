@@ -5,8 +5,7 @@
  *
  * All files of this project are provided under the LGPL v3 license.
  */
-#ifndef RGBWWLedOutput_h
-#define RGBWWLedOutput_h
+#pragma once
 #include "RGBWWLed.h"
 
 #ifdef RGBWW_USE_ESP_HWPWM
@@ -19,7 +18,7 @@
 
 class PWMOutput {
 
-public:
+  public:
     PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t wwPin, uint8_t cwPin, uint16_t freq = 200);
     ~PWMOutput();
 
@@ -38,11 +37,10 @@ public:
     int getChannel(int chan);
     void setChannel(int channel, int duty, bool update = true);
 
-private:
+  private:
     int parseDuty(int duty);
     float _dutyRangeFactor = 0.0f;
     HardwarePWM* _pPwm;
-
 };
 
 #else
@@ -53,10 +51,9 @@ private:
  *
  */
 
-class PWMOutput
-{
+class PWMOutput {
 
-public:
+  public:
     PWMOutput(uint8_t redPin, uint8_t greenPin, uint8_t bluePin, uint8_t wwPin, uint8_t cwPin, uint16_t freq = 200);
 
     void setFrequency(int freq);
@@ -73,14 +70,11 @@ public:
     int getColdWhite();
     void setOutput(int red, int green, int blue, int warmwhite, int coldwhite);
 
-private:
+  private:
     int _freq;
     int _pins[RGBWW_CHANNELS::NUM_CHANNELS];
     int _duty[RGBWW_CHANNELS::NUM_CHANNELS];
     int _maxduty;
     int parseDuty(int duty);
-
 };
-#endif //RGBWW_USE_ESP_HWPWM
-
-#endif //RGBWWLedOutput_h
+#endif // RGBWW_USE_ESP_HWPWM
