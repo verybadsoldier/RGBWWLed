@@ -40,7 +40,7 @@ struct RGBWCT {
         int colortemp;
     };
 
-    RGBWCT() {}
+    RGBWCT() : r(0), g(0), b(0), w(0), ct(RGBWW_WARMWHITEKELVIN) {}
     RGBWCT(int red, int green, int blue, int white) : r(red), g(green), b(blue), w(white), ct(0) {}
     RGBWCT(int red, int green, int blue, int white, int kelvin) : r(red), g(green), b(blue), w(white), ct(kelvin) {}
     RGBWCT(const RGBWCT& rgbwct) {
@@ -83,7 +83,7 @@ struct ChannelOutput {
         int coldwhite;
     };
 
-    ChannelOutput() {}
+    ChannelOutput() : r(0), g(0), b(0), ww(0), cw(0) {}
 
     ChannelOutput(int red, int green, int blue, int warmwhite, int coldwhite)
         : r(red), g(green), b(blue), ww(warmwhite), cw(coldwhite) {}
