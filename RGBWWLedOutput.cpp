@@ -73,7 +73,9 @@ int PWMOutput::getColdWhite() {
 }
 
 void PWMOutput::setOutput(int red, int green, int blue, int warmwhite, int coldwhite) {
+#ifdef RGBWW_DEBUG
     debug_d("R:%i | G:%i | B:%i | WW:%i | CW:%i", red, green, blue, warmwhite, coldwhite);
+#endif
     setRed(red, false);
     setGreen(green, false);
     setBlue(blue, false);

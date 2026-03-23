@@ -83,7 +83,9 @@ bool RGBWWLed::show() {
         HSVCT c;
         getAnimChannelHsvColor(c);
 
+#ifdef RGBWW_DEBUG
         debug_d("NEW: h:%d, s:%d, v:%d, ct: %d", c.h, c.s, c.v, c.ct);
+#endif
 
         this->setOutput(c);
 
@@ -134,7 +136,9 @@ void RGBWWLed::setOutput(ChannelOutput& output) {
     if (_pwm_output != NULL) {
         colorutils.correctBrightness(output);
         _current_output = output;
+#ifdef RGBWW_DEBUG
         debug_d("R:%i | G:%i | B:%i | WW:%i | CW:%i", output.r, output.g, output.b, output.ww, output.cw);
+#endif
         _pwm_output->setOutput(RGBWW_dim_curve[output.r], RGBWW_dim_curve[output.g], RGBWW_dim_curve[output.b],
                                RGBWW_dim_curve[output.ww], RGBWW_dim_curve[output.cw]);
     }

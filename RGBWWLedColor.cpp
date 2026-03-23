@@ -242,26 +242,34 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
             // sector 0 - 3
             if (sector < 1) {
                 // red - > orange
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 0");
+#endif
                 r = (chroma * (RGBWW_CALC_MAXVAL - (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 g = (chroma * ((rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 b = 0;
             } else if (sector < 2) {
                 // orange -> yellow
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 1");
+#endif
                 r = (chroma * (rainbow_two_third)) / RGBWW_CALC_MAXVAL;
                 g = (chroma * (rainbow_third + (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 b = 0;
             } else if (sector < 3) {
                 // yellow -> green
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 2");
+#endif
                 r = (chroma * (rainbow_two_third - (rainbow_two_third * hue) / rainbow_sector_width)) /
                     RGBWW_CALC_MAXVAL;
                 g = (chroma * (rainbow_two_third + (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 b = 0;
             } else {
                 // green ->  aqua
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 3");
+#endif
                 r = 0;
                 g = (chroma * (RGBWW_CALC_MAXVAL - (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 b = (chroma * ((rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
@@ -270,26 +278,34 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
             // sector 4 - 7
             if (sector < 5) {
                 // aqua -> blue
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 4");
+#endif
                 r = 0;
                 g = (chroma * (rainbow_two_third - (rainbow_two_third * hue) / rainbow_sector_width)) /
                     RGBWW_CALC_MAXVAL;
                 b = (chroma * (rainbow_third + (rainbow_two_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
             } else if (sector < 6) {
                 // blue -> purple
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 5");
+#endif
                 r = (chroma * ((rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 g = 0;
                 b = (chroma * (RGBWW_CALC_MAXVAL - (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
             } else if (sector < 7) {
                 // purple -> pink
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 6");
+#endif
                 r = (chroma * (rainbow_third + (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 g = 0;
                 b = (chroma * (rainbow_two_third - (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
             } else {
                 // pink -> red
+#ifdef RGBWW_DEBUG
                 debug_d("HSVtoRGBrainbow sector 7");
+#endif
                 r = (chroma * (rainbow_two_third + (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
                 g = 0;
                 b = (chroma * (rainbow_third - (rainbow_third * hue) / rainbow_sector_width)) / RGBWW_CALC_MAXVAL;
@@ -300,7 +316,9 @@ void RGBWWColorUtils::HSVtoRGBrainbow(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         rgbwk.b = b;
         rgbwk.w = m;
     }
+#ifdef RGBWW_DEBUG
     debug_d("HSVtoRGBrainbow R %i | G %i | B %i | W %i", rgbwk.r, rgbwk.g, rgbwk.b, rgbwk.w);
+#endif
 }
 
 void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
@@ -324,7 +342,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         half_chroma = chroma >> 1;
         m = val - chroma;
         if (hue < _HueWheelSector[0] || (hue > _HueWheelSector[5] && hue <= _HueWheelSector[6])) {
+#if defined(RGBWW_DEBUG)
             debug_d("HSVtoRGBspektrum Sector 6");
+#endif
             if (hue < _HueWheelSector[0]) {
                 fract = RGBWW_CALC_MAXVAL + hue;
             } else {
@@ -337,7 +357,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[1] || hue > _HueWheelSector[6]) {
             // Sector 1
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBspektrum Sector 1");
+#endif
             if (hue > _HueWheelSector[6]) {
                 fract = hue - _HueWheelSector[6];
             } else {
@@ -350,7 +372,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[2]) {
             // Sector 2
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBspektrum Sector 2");
+#endif
             fract = hue - _HueWheelSector[1];
             fract = (half_chroma * ((RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[1])) / RGBWW_CALC_MAXVAL;
             r = half_chroma - fract;
@@ -359,7 +383,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[3]) {
             // Sector 3
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBspektrum Sector 3");
+#endif
             fract = hue - _HueWheelSector[2];
             fract = (half_chroma * ((RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[2])) / RGBWW_CALC_MAXVAL;
             r = 0;
@@ -368,7 +394,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[4]) {
             // Sector 4
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBspektrum Sector 4");
+#endif
             fract = hue - _HueWheelSector[3];
             fract = (half_chroma * ((RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[3])) / RGBWW_CALC_MAXVAL;
             r = 0;
@@ -377,7 +405,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else {
             // Sector 5
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBspektrum Sector 5");
+#endif
             fract = hue - _HueWheelSector[4];
             fract = (half_chroma * ((RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[4])) / RGBWW_CALC_MAXVAL;
             r = fract;
@@ -389,7 +419,9 @@ void RGBWWColorUtils::HSVtoRGBspektrum(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         rgbwk.b = b;
         rgbwk.w = m;
     }
+#ifdef RGBWW_DEBUG
     debug_d("HSVtoRGBspektrum R %i | G %i | B %i | W %i", rgbwk.r, rgbwk.g, rgbwk.b, rgbwk.w);
+#endif
 }
 
 void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
@@ -431,7 +463,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         chroma = (sat * val) / RGBWW_CALC_MAXVAL;
         m = val - chroma;
         if (hue < _HueWheelSector[0] || (hue > _HueWheelSector[5] && hue <= _HueWheelSector[6])) {
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBraw Sector 6");
+#endif
             if (hue < _HueWheelSector[0]) {
                 fract = RGBWW_CALC_MAXVAL + hue;
             } else {
@@ -445,7 +479,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[1] || hue > _HueWheelSector[6]) {
             // Sector 1
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBraw Sector 1");
+#endif
             if (hue > _HueWheelSector[6]) {
                 fract = hue - _HueWheelSector[6];
             } else {
@@ -457,7 +493,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[2]) {
             // Sector 2
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBraw Sector 2");
+#endif
             fract = hue - _HueWheelSector[1];
             r = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[1])) /
                 RGBWW_CALC_MAXVAL;
@@ -466,7 +504,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[3]) {
             // Sector 3
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBraw Sector 3");
+#endif
             fract = hue - _HueWheelSector[2];
             r = 0;
             g = chroma;
@@ -474,7 +514,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else if (hue <= _HueWheelSector[4]) {
             // Sector 4
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBraw Sector 4");
+#endif
             fract = hue - _HueWheelSector[3];
             r = 0;
             g = (chroma * (RGBWW_CALC_MAXVAL - (RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[3])) /
@@ -483,7 +525,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
 
         } else {
             // Sector 5
+#ifdef RGBWW_DEBUG
             debug_d("HSVtoRGBraw Sector 5");
+#endif
             fract = hue - _HueWheelSector[4];
             r = (chroma * ((RGBWW_CALC_MAXVAL * fract) / _HueWheelSectorWidth[4])) / RGBWW_CALC_MAXVAL;
             g = 0;
@@ -496,7 +540,9 @@ void RGBWWColorUtils::HSVtoRGBraw(const HSVCT& hsvk, RGBWCT& rgbwk) const {
         rgbwk.b = b;
         rgbwk.w = m;
     }
+#ifdef RGBWW_DEBUG
     debug_d("HSVtoRGBraw R %i | G %i | B %i | W %i", rgbwk.r, rgbwk.g, rgbwk.b, rgbwk.w);
+#endif
 }
 
 void RGBWWColorUtils::RGBtoHSV(const RGBWCT& rgbw, HSVCT& hsv) const {
